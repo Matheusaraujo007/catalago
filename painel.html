@@ -301,7 +301,7 @@
     </table>
   </main>
 
-  <script>
+<script>
 const form = document.getElementById('productForm');
 const tableBody = document.querySelector('#productTable tbody');
 const preview = document.getElementById('preview');
@@ -327,21 +327,22 @@ inputImagens.addEventListener('change', () => {
   });
 });
 
-// Carregar produtos do backend
+// Função para carregar produtos do Neon via API
 async function carregarProdutos() {
   try {
-    const res = await fetch('/api/produtos');
+    const res = await fetch('/api/produtos'); // GET produtos
     produtos = await res.json();
     atualizarTabela();
   } catch (err) {
-    console.error(err);
-    tableBody.innerHTML = `<tr class="no-data"><td colspan="7">Erro ao carregar produtos.</td></tr>`;
+    console.error("Erro ao carregar produtos:", err);
+    tableBody.innerHTML = `<tr class="no-data"><td colspan="7">Erro ao carregar produtos</td></tr>`;
   }
 }
 
 // Atualizar tabela
 function atualizarTabela() {
   tableBody.innerHTML = "";
+
   if (produtos.length === 0) {
     tableBody.innerHTML = `<tr class="no-data"><td colspan="7">Nenhum produto cadastrado ainda.</td></tr>`;
     return;
@@ -349,12 +350,13 @@ function atualizarTabela() {
 
   produtos.forEach((p, i) => {
     const linha = document.createElement('tr');
-    const imagem = p.imagens && p.imagens.length > 0 ? `<img src="${p.imagens[0]}" />` : '—';
+    const imagem = p.imagens?.length > 0 ? `<img src="${p.imagens[0]}" />` : '—';
+
     linha.innerHTML = `
       <td class="miniatura">${imagem}</td>
       <td>${p.nome}</td>
       <td>${p.categoria}</td>
-      <td>${parseFloat(p.venda).toFixed(2)}</td>
+      <td>${parseFloat(p.preco).toFixed(2)}</td>
       <td>${p.estoque}</td>
       <td>${p.codigo}</td>
       <td class="acoes">
@@ -362,20 +364,21 @@ function atualizarTabela() {
         <button class="excluir" onclick="excluirProduto(${i})">Excluir</button>
       </td>
     `;
+
     tableBody.appendChild(linha);
   });
 }
 
-// Adicionar produto via API
+// Adicionar produto (POST na API)
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const nome = document.getElementById('nome').value.trim();
+  const nome = document.getElementById('nome').value;
   const categoria = document.getElementById('categoria').value;
-  const venda = parseFloat(document.getElementById('venda').value);
-  const estoque = parseInt(document.getElementById('estoque').value);
-  const codigo = document.getElementById('codigo').value.trim();
-  const descricao = document.getElementById('descricao').value.trim();
+  const venda = document.getElementById('venda').value;
+  const estoque = document.getElementById('estoque').value;
+  const codigo = document.getElementById('codigo').value;
+  const descricao = document.getElementById('descricao').value;
 
   if (!nome || !categoria || !venda || !estoque || !codigo) {
     alert('Por favor, preencha todos os campos obrigatórios.');
@@ -386,53 +389,45 @@ form.addEventListener('submit', async (e) => {
     const res = await fetch('/api/produtos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nome, categoria, venda, estoque, codigo, descricao, imagens: imagensSelecionadas })
+      body: JSON.stringify({
+        nome, categoria, venda, estoque, codigo, descricao, imagens: imagensSelecionadas
+      })
     });
 
-    if (!res.ok) throw new Error('Erro ao salvar produto');
+    if (!res.ok) throw new Error("Erro ao salvar produto");
 
     const novoProduto = await res.json();
-    produtos.unshift(novoProduto);
+    produtos.unshift(novoProduto); // adiciona no início da tabela
     atualizarTabela();
 
     form.reset();
-    preview.innerHTML = '';
+    preview.innerHTML = "";
     imagensSelecionadas = [];
-    alert('Produto cadastrado com sucesso!');
   } catch (err) {
     console.error(err);
-    alert('Erro ao salvar produto.');
+    alert("Erro ao salvar produto");
   }
 });
 
-// Excluir produto via API
-window.excluirProduto = async function(index) {
-  const produto = produtos[index];
-  if (!confirm('Tem certeza que deseja excluir este produto?')) return;
-
-  try {
-    const res = await fetch(`/api/produtos/${produto.id}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error('Erro ao excluir produto');
+// Excluir produto
+window.excluirProduto = function(index) {
+  if (confirm('Tem certeza que deseja excluir este produto?')) {
     produtos.splice(index, 1);
     atualizarTabela();
-  } catch (err) {
-    console.error(err);
-    alert('Erro ao excluir produto.');
+    // Aqui você pode adicionar DELETE na API futuramente
   }
 }
 
-// Editar produto (preenche formulário, remove do array local temporariamente)
+// Editar produto
 window.editarProduto = function(index) {
   const p = produtos[index];
   document.getElementById('nome').value = p.nome;
   document.getElementById('categoria').value = p.categoria;
-  document.getElementById('venda').value = p.venda;
+  document.getElementById('venda').value = p.preco;
   document.getElementById('estoque').value = p.estoque;
   document.getElementById('codigo').value = p.codigo;
   document.getElementById('descricao').value = p.descricao;
-  imagensSelecionadas = p.imagens || [];
-  preview.innerHTML = imagensSelecionadas.map(img => `<img src="${img}" />`).join('');
-  
+
   produtos.splice(index, 1);
   atualizarTabela();
 }
@@ -441,18 +436,19 @@ window.editarProduto = function(index) {
 filtroInput.addEventListener('input', () => {
   const termo = filtroInput.value.toLowerCase();
   const linhas = tableBody.querySelectorAll('tr');
+
   linhas.forEach((linha) => {
     if (linha.classList.contains('no-data')) return;
     const nome = linha.children[1].textContent.toLowerCase();
     const categoria = linha.children[2].textContent.toLowerCase();
     const codigo = linha.children[5].textContent.toLowerCase();
+
     linha.style.display = (nome.includes(termo) || categoria.includes(termo) || codigo.includes(termo)) ? '' : 'none';
   });
 });
 
-// Inicializa
+// Carrega produtos ao iniciar
 carregarProdutos();
 </script>
-
 </body>
 </html>
