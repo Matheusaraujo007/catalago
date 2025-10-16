@@ -126,7 +126,7 @@ function mostrarProdutos(categoria = "Todos") {
         <img src="${p.imagens[0]}" alt="${p.nome}">
         <h3>${p.nome}</h3>
         <p>Categoria: ${p.categoria}</p>
-        <p>Preço: R$ ${p.preco.toFixed(2)}</p>
+        <p>Preço: R$ ${Number(p.preco).toFixed(2)}</p>
         <button onclick="adicionarCarrinho(${i})">Comprar</button>
       `;
       catalogo.appendChild(div);
