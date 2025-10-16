@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loja Online - Catálogo</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Poppins', sans-serif; background: #f4f6f8; margin: 0; padding: 0; }
+  header { background: linear-gradient(90deg, #1e3a8a, #2563eb); color: white; padding: 20px; text-align: center; font-size: 1.8em; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+  main { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+  h2 { color: #1e293b; margin-bottom: 20px; }
+  .filtro-categoria { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+  .filtro-categoria button { padding: 8px 16px; border: none; border-radius: 8px; background-color: #2563eb; color: white; cursor: pointer; transition: 0.3s; }
+  .filtro-categoria button:hover, .filtro-categoria button.active { background-color: #1e3a8a; }
+  .catalogo { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+  .produto { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, box-shadow 0.2s; }
+  .produto:hover { transform: translateY(-5px); box-shadow: 0 6px 18px rgba(0,0,0,0.15); }
+  .produto img { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
+  .produto h3 { margin: 0; font-size: 1.1em; color: #1e293b; }
+  .produto p { margin: 5px 0 10px; color: #334155; font-size: 0.95em; }
+  .produto button { background-color: #16a34a; color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+  .produto button:hover { background-color: #15803d; }
+  .carrinho { position: fixed; right: 20px; top: 100px; width: 300px; max-height: 80%; background: white; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); padding: 15px; overflow-y: auto; }
+  .carrinho h3 { margin-top: 0; }
+  .carrinho-item { display: flex; justify-content: space-between; margin-bottom: 10px; }
+  .carrinho-item button { background-color: #dc2626; padding: 4px 8px; font-size: 0.8em; border-radius: 6px; }
+  .finalizar { width: 100%; padding: 10px; border: none; background-color: #2563eb; color: white; font-size: 1em; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+  .finalizar:hover { background-color: #1e3a8a; }
+  .modal { display: none; position: fixed; z-index: 10; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
+  .modal-content { background-color: white; margin: 80px auto; padding: 20px; border-radius: 12px; max-width: 500px; animation: slideDown 0.4s ease; }
+  @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal-content h3 { margin-top: 0; }
+  .modal-content label { display: block; margin: 10px 0 5px; font-weight: 500; }
+  .modal-content input, .modal-content select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; margin-bottom: 10px; font-size: 0.95em; }
+  .modal-content .entrega-info { display: none; }
+  .modal-content button { background-color: #16a34a; color: white; border: none; padding: 10px; width: 100%; font-size: 1em; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+  .modal-content button:hover { background-color: #15803d; }
+  .fechar { float: right; font-size: 1.2em; cursor: pointer; }
+</style>
+</head>
+<body>
+<header>🛒 Minha Loja Online</header>
+<main>
+  <h2>Filtrar por Categoria</h2>
+  <div class="filtro-categoria" id="filtroCategorias"></div>
+  <div class="catalogo" id="catalogo"></div>
+</main>
+
+<div class="carrinho" id="carrinho">
+  <h3>Carrinho 🛒</h3>
+  <div id="itensCarrinho"></div>
+  <button class="finalizar" id="finalizar">Finalizar Pedido</button>
+</div>
+
+<div class="modal" id="modalForm">
+  <div class="modal-content">
+    <span class="fechar" id="fecharModal">&times;</span>
+    <h3>Informações do Pedido</h3>
+    <label>Nome do Cliente:</label>
+    <input type="text" id="nomeCliente" placeholder="Digite seu nome" required>
+
+    <label>Opção:</label>
+    <select id="tipoEntrega">
+      <option value="Retirada">Retirada</option>
+      <option value="Entrega">Entrega</option>
+    </select>
+
+    <div class="entrega-info" id="dadosEntrega">
+      <label>Rua:</label><input type="text" id="rua" placeholder="Digite sua rua">
+      <label>Número:</label><input type="text" id="numero" placeholder="Número">
+      <label>Bairro:</label><input type="text" id="bairro" placeholder="Bairro">
+      <label>Cidade:</label><input type="text" id="cidade" placeholder="Cidade">
+      <label>CEP:</label><input type="text" id="cep" placeholder="CEP">
+    </div>
+
+    <button id="enviarPedido">Enviar Pedido via WhatsApp</button>
+  </div>
+</div>
+
+<script>
+let produtos = [];
+const catalogo = document.getElementById('catalogo');
+const itensCarrinho = document.getElementById('itensCarrinho');
+let carrinho = [];
+const filtroCategorias = document.getElementById('filtroCategorias');
+
+// Função para carregar produtos do Neon via API
+async function carregarProdutos() {
+  try {
+    const res = await fetch('/api/produtos'); // API Serverless que conecta ao Neon
+    produtos = await res.json();
+
+    // Criar filtros dinamicamente
+    const categorias = ['Todos', ...new Set(produtos.map(p=>p.categoria))];
+    filtroCategorias.innerHTML = '';
+    categorias.forEach(cat=>{
+      const btn = document.createElement('button');
+      btn.textContent = cat;
+      btn.dataset.categoria = cat;
+      if(cat==='Todos') btn.classList.add('active');
+      btn.addEventListener('click', ()=> filtrarProdutos(cat, btn));
+      filtroCategorias.appendChild(btn);
+    });
+
+    mostrarProdutos();
+  } catch(err){
+    console.error("Erro ao carregar produtos:", err);
+    catalogo.innerHTML = "<p>Erro ao carregar produtos.</p>";
+  }
+}
+
+function filtrarProdutos(categoria, btn){
+  document.querySelectorAll('#filtroCategorias button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  mostrarProdutos(categoria);
+}
+
+function mostrarProdutos(categoria = "Todos") {
+  catalogo.innerHTML = "";
+  produtos.forEach((p,i)=>{
+    if(categoria==='Todos' || p.categoria===categoria){
+      const div = document.createElement('div');
+      div.className = 'produto';
+      div.innerHTML = `
+        <img src="${p.imagens[0]}" alt="${p.nome}">
+        <h3>${p.nome}</h3>
+        <p>Categoria: ${p.categoria}</p>
+        <p>Preço: R$ ${p.preco.toFixed(2)}</p>
+        <button onclick="adicionarCarrinho(${i})">Comprar</button>
+      `;
+      catalogo.appendChild(div);
+    }
+  });
+}
+
+function adicionarCarrinho(i){
+  const produto = produtos[i];
+  const existe = carrinho.find(item => item.codigo === produto.codigo);
+  if(existe){ existe.quantidade += 1; } 
+  else { carrinho.push({...produto, quantidade:1}); }
+  atualizarCarrinho();
+}
+
+function atualizarCarrinho(){
+  itensCarrinho.innerHTML = '';
+  carrinho.forEach((item,index)=>{
+    const div = document.createElement('div');
+    div.className = 'carrinho-item';
+    div.innerHTML = `<span>${item.nome} x${item.quantidade}</span>
+    <button onclick="removerCarrinho(${index})">❌</button>`;
+    itensCarrinho.appendChild(div);
+  });
+}
+
+function removerCarrinho(index){
+  carrinho.splice(index,1);
+  atualizarCarrinho();
+}
+
+// Modal
+const modal = document.getElementById('modalForm');
+const btnFinalizar = document.getElementById('finalizar');
+const btnFechar = document.getElementById('fecharModal');
+const tipoEntrega = document.getElementById('tipoEntrega');
+const dadosEntrega = document.getElementById('dadosEntrega');
+const btnEnviar = document.getElementById('enviarPedido');
+
+btnFinalizar.addEventListener('click', ()=>{
+  if(carrinho.length===0){ alert("O carrinho está vazio!"); return; }
+  modal.style.display = 'block';
+});
+
+btnFechar.addEventListener('click', ()=> modal.style.display='none');
+window.onclick = e=> { if(e.target===modal) modal.style.display='none'; };
+
+tipoEntrega.addEventListener('change', ()=>{ dadosEntrega.style.display = tipoEntrega.value==='Entrega'? 'block':'none'; });
+
+btnEnviar.addEventListener('click', ()=>{
+  const nomeCliente = document.getElementById('nomeCliente').value.trim();
+  if(!nomeCliente){ alert("Preencha seu nome!"); return; }
+
+  let mensagem = `Olá, meu nome é ${nomeCliente}. Pedido:%0A`;
+  carrinho.forEach(item=>{ mensagem += `- ${item.nome} x${item.quantidade} (R$ ${item.preco.toFixed(2)})%0A`; });
+  mensagem += `Opção: ${tipoEntrega.value}%0A`;
+
+  if(tipoEntrega.value==='Entrega'){
+    const rua = document.getElementById('rua').value.trim();
+    const numero = document.getElementById('numero').value.trim();
+    const bairro = document.getElementById('bairro').value.trim();
+    const cidade = document.getElementById('cidade').value.trim();
+    const cep = document.getElementById('cep').value.trim();
+    mensagem += `Endereço: ${rua}, ${numero}, ${bairro}, ${cidade}, CEP: ${cep}%0A`;
+  }
+
+  const whatsapp = "5588993800944";
+  const url = `https://wa.me/${whatsapp}?text=${mensagem}`;
+  window.open(url,"_blank");
+  modal.style.display='none';
+});
+
+// Carrega produtos ao iniciar
+carregarProdutos();
+</script>
+</body>
+</html>
