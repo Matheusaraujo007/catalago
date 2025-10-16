@@ -7,13 +7,26 @@ const pool = new Pool({
 });
 
 export default async function handler(req, res) {
-  if(req.method === "GET") {
+  if (req.method === "GET") {
     try {
       const result = await pool.query("SELECT * FROM produtos ORDER BY id DESC");
       res.status(200).json(result.rows);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: "Erro ao buscar produtos" });
+      res.status(500).send("Erro ao buscar produtos"); // use .send() apenas para texto
+    }
+  } else if (req.method === "POST") {
+    try {
+      const { nome, categoria, venda, estoque, codigo, descricao, imagens } = req.body;
+      const result = await pool.query(
+        `INSERT INTO produtos (nome, categoria, preco, estoque, codigo, descricao, imagens) 
+         VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+        [nome, categoria, venda, estoque, codigo, descricao, imagens]
+      );
+      res.status(200).json(result.rows[0]);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Erro ao salvar produto"); // igual
     }
   } else {
     res.status(405).json({ error: "Método não permitido" });
@@ -36,33 +49,3 @@ export default async function handler(req, res) {
   }
 }
 
-export default async function handler(req, res) {
-  if (req.method === "GET") {
-    try {
-      const result = await pool.query("SELECT * FROM produtos ORDER BY id DESC");
-      res.status(200).json(result.rows);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Erro ao buscar produtos" });
-    }
-  } 
-  else if (req.method === "POST") {
-    try {
-      const { nome, categoria, venda, estoque, codigo, descricao, imagens } = req.body;
-      const query = `
-        INSERT INTO produtos (nome, categoria, venda, estoque, codigo, descricao, imagens)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
-        RETURNING *;
-      `;
-      const values = [nome, categoria, venda, estoque, codigo, descricao, imagens];
-      const result = await pool.query(query, values);
-      res.status(201).json(result.rows[0]);
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Erro ao salvar produto" });
-    }
-  } 
-  else {
-    res.status(405).json({ error: "Método não permitido" });
-  }
-}
