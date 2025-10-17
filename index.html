@@ -184,7 +184,7 @@ btnEnviar.addEventListener('click', ()=>{
   mensagem += `Pedido:`;
 
   carrinho.forEach(item=>{
-    mensagem += `- ${item.nome} x${item.quantidade} (R$ ${Number(item.preco).toFixed(2)})%0A`;
+    mensagem += `- ${item.nome} x${item.quantidade} (R$ ${Number(item.preco).toFixed(2)})`;
   });
 
   mensagem += `Opção: ${tipoEntrega.value}`;
@@ -195,7 +195,7 @@ btnEnviar.addEventListener('click', ()=>{
     const bairro = document.getElementById('bairro').value.trim();
     const cidade = document.getElementById('cidade').value.trim();
     const cep = document.getElementById('cep').value.trim();
-    mensagem += `Endereço: ${rua}, ${numero}, ${bairro}, ${cidade}, CEP: ${cep}%0A`;
+    mensagem += `Endereço: ${rua}, ${numero}, ${bairro}, ${cidade}, CEP: ${cep}`;
   }
 
   const whatsapp = "5588993800944";
