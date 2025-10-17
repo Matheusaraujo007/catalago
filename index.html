@@ -180,13 +180,16 @@ btnEnviar.addEventListener('click', ()=>{
   const nomeCliente = document.getElementById('nomeCliente').value.trim();
   if(!nomeCliente){ alert("Preencha seu nome!"); return; }
 
-  let mensagem = `Olá, meu nome é ${nomeCliente}. Pedido:%0A`;
+  let mensagem = `Olá, meu nome é ${nomeCliente}.%0A`;
+  mensagem += `Pedido:%0A`;
+
   carrinho.forEach(item=>{
     mensagem += `- ${item.nome} x${item.quantidade} (R$ ${Number(item.preco).toFixed(2)})%0A`;
   });
+
   mensagem += `Opção: ${tipoEntrega.value}%0A`;
 
-  if(tipoEntrega.value==='Entrega'){
+  if(tipoEntrega.value === 'Entrega'){
     const rua = document.getElementById('rua').value.trim();
     const numero = document.getElementById('numero').value.trim();
     const bairro = document.getElementById('bairro').value.trim();
@@ -199,8 +202,9 @@ btnEnviar.addEventListener('click', ()=>{
   const url = `https://wa.me/${whatsapp}?text=${mensagem}`;
   const urlCodificada = encodeURI(url);
   window.open(urlCodificada, "_blank");
-  modal.style.display='none';
+  modal.style.display = 'none';
 });
+
 
 // Carrega produtos ao iniciar
 carregarProdutos();
