@@ -180,14 +180,14 @@ btnEnviar.addEventListener('click', ()=>{
   const nomeCliente = document.getElementById('nomeCliente').value.trim();
   if(!nomeCliente){ alert("Preencha seu nome!"); return; }
 
-  let mensagem = `Olá, meu nome é ${nomeCliente}.%0A`;
-  mensagem += `Pedido:%0A`;
+  let mensagem = `Olá, meu nome é ${nomeCliente}.`;
+  mensagem += `Pedido:`;
 
   carrinho.forEach(item=>{
     mensagem += `- ${item.nome} x${item.quantidade} (R$ ${Number(item.preco).toFixed(2)})%0A`;
   });
 
-  mensagem += `Opção: ${tipoEntrega.value}%0A`;
+  mensagem += `Opção: ${tipoEntrega.value}`;
 
   if(tipoEntrega.value === 'Entrega'){
     const rua = document.getElementById('rua').value.trim();
