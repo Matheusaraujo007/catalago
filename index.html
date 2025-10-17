@@ -180,14 +180,17 @@ btnEnviar.addEventListener('click', ()=>{
   const nomeCliente = document.getElementById('nomeCliente').value.trim();
   if(!nomeCliente){ alert("Preencha seu nome!"); return; }
 
-  let mensagem = `Olá, meu nome é ${nomeCliente}.`;
-  mensagem += `Pedido:`;
+  let mensagem = `Olá, meu nome é ${nomeCliente}.%0A`;
+  mensagem += `Pedido:%0A`;
 
+  let total = 0;
   carrinho.forEach(item=>{
-    mensagem += `- ${item.nome} x${item.quantidade} (R$ ${Number(item.preco).toFixed(2)})`;
+    const subtotal = Number(item.preco) * item.quantidade;
+    total += subtotal;
+    mensagem += `- ${item.nome} x${item.quantidade} (R$ ${subtotal.toFixed(2)})%0A`;
   });
 
-  mensagem += `Opção: ${tipoEntrega.value}`;
+  mensagem += `Opção: ${tipoEntrega.value}%0A`;
 
   if(tipoEntrega.value === 'Entrega'){
     const rua = document.getElementById('rua').value.trim();
@@ -195,8 +198,10 @@ btnEnviar.addEventListener('click', ()=>{
     const bairro = document.getElementById('bairro').value.trim();
     const cidade = document.getElementById('cidade').value.trim();
     const cep = document.getElementById('cep').value.trim();
-    mensagem += `Endereço: ${rua}, ${numero}, ${bairro}, ${cidade}, CEP: ${cep}`;
+    mensagem += `Endereço: ${rua}, ${numero}, ${bairro}, ${cidade}, CEP: ${cep}%0A`;
   }
+
+  mensagem += `%0ATotal: R$ ${total.toFixed(2)}`;
 
   const whatsapp = "5588993800944";
   const url = `https://wa.me/${whatsapp}?text=${mensagem}`;
@@ -204,6 +209,7 @@ btnEnviar.addEventListener('click', ()=>{
   window.open(urlCodificada, "_blank");
   modal.style.display = 'none';
 });
+
 
 
 // Carrega produtos ao iniciar
