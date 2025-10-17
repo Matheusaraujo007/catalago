@@ -181,7 +181,9 @@ btnEnviar.addEventListener('click', ()=>{
   if(!nomeCliente){ alert("Preencha seu nome!"); return; }
 
   let mensagem = `Olá, meu nome é ${nomeCliente}. Pedido:%0A`;
-  carrinho.forEach(item=>{ mensagem += `- ${item.nome} x${item.quantidade} (R$ ${item.preco.toFixed(2)})%0A`; });
+  carrinho.forEach(item=>{
+    mensagem += `- ${item.nome} x${item.quantidade} (R$ ${Number(item.preco).toFixed(2)})%0A`;
+  });
   mensagem += `Opção: ${tipoEntrega.value}%0A`;
 
   if(tipoEntrega.value==='Entrega'){
@@ -195,7 +197,8 @@ btnEnviar.addEventListener('click', ()=>{
 
   const whatsapp = "5588993800944";
   const url = `https://wa.me/${whatsapp}?text=${mensagem}`;
-  window.open(url,"_blank");
+  const urlCodificada = encodeURI(url);
+  window.open(urlCodificada, "_blank");
   modal.style.display='none';
 });
 
