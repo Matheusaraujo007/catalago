@@ -337,6 +337,7 @@ const filtroInput = document.getElementById('filtroInput');
 
 let imagensSelecionadas = [];
 let produtos = [];
+let produtoEditando = null; // Guarda o produto sendo editado
 
 // Pré-visualização das imagens
 inputImagens.addEventListener('change', () => {
@@ -413,20 +414,37 @@ form.addEventListener('submit', async (e) => {
   }
 
   try {
-    const res = await fetch('/api/produtos', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        nome, categoria, venda, estoque, codigo, descricao, imagens: imagensSelecionadas
-      })
-    });
+    let res, novoProduto;
 
-    if (!res.ok) throw new Error("Erro ao salvar produto");
+    if (produtoEditando) {
+      // Se estamos editando
+      res = await fetch('/api/produtos', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: produtoEditando.id,
+          nome, categoria, venda, estoque, codigo, descricao, imagens: imagensSelecionadas
+        })
+      });
+      novoProduto = await res.json();
 
-    const novoProduto = await res.json();
-    produtos.unshift(novoProduto); // adiciona no início da tabela
+      // Atualiza na lista local
+      const index = produtos.findIndex(p => p.id === produtoEditando.id);
+      produtos[index] = novoProduto;
+
+      produtoEditando = null; // Reseta estado de edição
+    } else {
+      // Adicionando novo
+      res = await fetch('/api/produtos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome, categoria, venda, estoque, codigo, descricao, imagens: imagensSelecionadas })
+      });
+      novoProduto = await res.json();
+      produtos.unshift(novoProduto);
+    }
+
     atualizarTabela();
-
     form.reset();
     preview.innerHTML = "";
     imagensSelecionadas = [];
@@ -435,6 +453,7 @@ form.addEventListener('submit', async (e) => {
     alert("Erro ao salvar produto");
   }
 });
+
 
 // Excluir produto
 window.excluirProduto = async function(index) {
