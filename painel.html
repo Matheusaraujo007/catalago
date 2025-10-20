@@ -480,9 +480,9 @@ window.excluirProduto = async function(index) {
 
 
 // Editar produto
-window.editarProduto = async function(index) {
+window.editarProduto = function(index) {
   const p = produtos[index];
-  const id = p.id;
+  produtoEditando = p; // Marca que estamos editando
 
   document.getElementById('nome').value = p.nome;
   document.getElementById('categoria').value = p.categoria;
@@ -491,6 +491,7 @@ window.editarProduto = async function(index) {
   document.getElementById('codigo').value = p.codigo;
   document.getElementById('descricao').value = p.descricao;
   imagensSelecionadas = p.imagens || [];
+};
 
   // Substituir o submit temporariamente para atualizar
   form.onsubmit = async (e) => {
