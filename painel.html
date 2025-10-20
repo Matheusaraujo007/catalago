@@ -424,15 +424,13 @@ form.addEventListener('submit', async (e) => {
       res = await fetch('/api/produtos', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: produtoEditando.id,
-          nome, categoria, venda, estoque, codigo, descricao, imagens: imagensSelecionadas
+        body: JSON.stringify({nome, categoria, venda, estoque, codigo, descricao, imagens: imagensSelecionadas
         })
       });
       novoProduto = await res.json();
 
       // Atualiza na lista local
-      const index = produtos.findIndex(p => p.id === produtoEditando.id);
+      const index = produtos.findIndex(p => p.nome === produtoEditando.nome);
       produtos[index] = novoProduto;
 
       produtoEditando = null; // Reseta estado de edição
@@ -462,13 +460,13 @@ form.addEventListener('submit', async (e) => {
 window.excluirProduto = async function(index) {
   if (!confirm('Tem certeza que deseja excluir este produto?')) return;
 
-  const id = produtos[index].id;
+  const nome = produtos[index].nome;
 
   try {
     const res = await fetch('/api/produtos', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id })
+      body: JSON.stringify({ nome })
     });
 
     if (!res.ok) throw new Error("Erro ao excluir produto");
@@ -509,7 +507,7 @@ window.editarProduto = function(index) {
       const res = await fetch('/api/produtos', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, nome, categoria, venda, estoque, codigo, descricao, imagens: imagensSelecionadas })
+        body: JSON.stringify({nome, categoria, venda, estoque, codigo, descricao, imagens: imagensSelecionadas })
       });
 
       if (!res.ok) throw new Error("Erro ao atualizar produto");
