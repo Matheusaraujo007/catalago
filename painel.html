@@ -6,330 +6,113 @@
 <title>Sistema Empresarial - Cadastro de Produtos</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 <style>
-  body {
-    font-family: "Poppins", sans-serif;
-    background: linear-gradient(135deg, #e2e8f0, #f8fafc);
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-    animation: fadeIn 1s ease-in;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  header {
-    background: linear-gradient(90deg, #1e3a8a, #2563eb);
-    color: white;
-    text-align: center;
-    padding: 20px;
-    font-size: 1.7em;
-    letter-spacing: 1px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    animation: slideDown 0.7s ease-out;
-  }
-
-  @keyframes slideDown {
-    from { transform: translateY(-50px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
-
-  main {
-    max-width: 950px;
-    margin: 40px auto;
-    background-color: white;
-    padding: 35px;
-    border-radius: 20px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-    animation: zoomIn 0.6s ease-out;
-  }
-
-  @keyframes zoomIn {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
-  }
-
-  h2 {
-    color: #1e293b;
-    margin-bottom: 20px;
-    position: relative;
-  }
-
-  h2::after {
-    content: "";
-    position: absolute;
-    width: 60px;
-    height: 3px;
-    bottom: -6px;
-    left: 0;
-    background: linear-gradient(90deg, #2563eb, #1e3a8a);
-    border-radius: 3px;
-  }
-
-  form {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-  }
-
-  label {
-    font-weight: 500;
-    color: #334155;
-  }
-
-  input, select, textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    font-size: 1em;
-    margin-top: 5px;
-    background-color: #f8fafc;
-    transition: 0.3s;
-  }
-
-  input:focus, select:focus, textarea:focus {
-    outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 5px rgba(37,99,235,0.3);
-  }
-
-  textarea {
-    grid-column: span 2;
-    resize: none;
-  }
-
-  .preview {
-    grid-column: span 2;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .preview img {
-    width: 90px;
-    height: 90px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-    transition: transform 0.3s ease;
-  }
-
-  .preview img:hover {
-    transform: scale(1.05);
-  }
-
-  .btn {
-    grid-column: span 2;
-    text-align: right;
-  }
-
-  button {
-    background: linear-gradient(90deg, #2563eb, #1e3a8a);
-    color: white;
-    padding: 12px 25px;
-    font-size: 1em;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
-
-  button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 15px rgba(37,99,235,0.3);
-  }
-
-  /* Filtro */
-  #filtroInput {
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #cbd5e1;
-    font-size: 1em;
-    margin-bottom: 20px;
-    transition: 0.3s;
-  }
-  #filtroInput:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 5px rgba(37,99,235,0.3);
-    outline: none;
-  }
-
-  table {
-    width: 100%;
-    margin-top: 20px;
-    border-collapse: collapse;
-    animation: fadeIn 0.8s ease-in;
-  }
-
-  th, td {
-    border-bottom: 1px solid #e2e8f0;
-    padding: 12px;
-    text-align: left;
-    vertical-align: middle;
-  }
-
-  th {
-    background-color: #f1f5f9;
-    color: #1e293b;
-    font-weight: 600;
-  }
-
-  tr {
-    transition: background-color 0.3s, transform 0.2s;
-  }
-
-  tr:hover {
-    background-color: #f9fafb;
-    transform: scale(1.01);
-  }
-
-  .no-data {
-    text-align: center;
-    color: #64748b;
-    font-style: italic;
-  }
-
-  .miniatura img {
-    width: 60px;
-    height: 60px;
-    border-radius: 8px;
-    object-fit: cover;
-    border: 1px solid #cbd5e1;
-    transition: 0.3s;
-  }
-
-  .miniatura img:hover {
-    transform: scale(1.1);
-  }
-
-  .acoes button {
-    margin-right: 6px;
-    padding: 6px 12px;
-    font-size: 0.9em;
-    border-radius: 6px;
-    transition: 0.3s;
-  }
-
-  .editar {
-    background-color: #16a34a;
-  }
-  .editar:hover {
-    background-color: #15803d;
-    transform: scale(1.05);
-  }
-
-  .excluir {
-    background-color: #dc2626;
-  }
-  .excluir:hover {
-    background-color: #b91c1c;
-    transform: scale(1.05);
-  }
-
-  .add-cat-btn {
-  background: linear-gradient(90deg, #2563eb, #1e3a8a);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 1.4em;
-  font-weight: bold;
-  width: 15px;
-  height: 30px;
-  cursor: pointer;
-  transition: 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  left: 950px;
-  top: -55px; /* 🔹 Sobe o botão um pouco */
-}
-
-.add-cat-btn:hover {
-  background: linear-gradient(90deg, #1e3a8a, #2563eb);
-  transform: scale(1.1);
-  box-shadow: 0 3px 5px rgba(37,99,235,0.3);
-}
+  body { font-family: "Poppins", sans-serif; background: linear-gradient(135deg, #e2e8f0, #f8fafc); margin:0; padding:0; overflow-x:hidden; animation: fadeIn 1s ease-in; }
+  @keyframes fadeIn { from{opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);} }
+  header { background: linear-gradient(90deg,#1e3a8a,#2563eb); color:white; text-align:center; padding:20px; font-size:1.7em; letter-spacing:1px; box-shadow:0 4px 12px rgba(0,0,0,0.2); animation:slideDown 0.7s ease-out; }
+  @keyframes slideDown { from{transform:translateY(-50px); opacity:0;} to{transform:translateY(0); opacity:1;} }
+  main { max-width:950px; margin:40px auto; background:white; padding:35px; border-radius:20px; box-shadow:0 8px 25px rgba(0,0,0,0.1); animation:zoomIn 0.6s ease-out; }
+  @keyframes zoomIn { from{opacity:0; transform:scale(0.9);} to{opacity:1; transform:scale(1);} }
+  h2 { color:#1e293b; margin-bottom:20px; position:relative; }
+  h2::after { content:""; position:absolute; width:60px; height:3px; bottom:-6px; left:0; background: linear-gradient(90deg,#2563eb,#1e3a8a); border-radius:3px; }
+  form { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  label { font-weight:500; color:#334155; }
+  input, select, textarea { width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:8px; font-size:1em; margin-top:5px; background:#f8fafc; transition:0.3s; }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:#2563eb; box-shadow:0 0 5px rgba(37,99,235,0.3); }
+  textarea { grid-column: span 2; resize:none; }
+  .preview { grid-column: span 2; display:flex; flex-wrap:wrap; gap:10px; }
+  .preview img { width:90px; height:90px; object-fit:cover; border-radius:8px; border:1px solid #e2e8f0; transition: transform 0.3s ease; }
+  .preview img:hover { transform:scale(1.05); }
+  .btn { grid-column: span 2; text-align:right; }
+  button { background: linear-gradient(90deg,#2563eb,#1e3a8a); color:white; padding:12px 25px; font-size:1em; border:none; border-radius:10px; cursor:pointer; transition: transform 0.2s, box-shadow 0.2s; }
+  button:hover { transform:scale(1.05); box-shadow:0 4px 15px rgba(37,99,235,0.3); }
+  #filtroInput { width:100%; padding:10px; border-radius:8px; border:1px solid #cbd5e1; font-size:1em; margin-bottom:20px; transition:0.3s; }
+  #filtroInput:focus { border-color:#2563eb; box-shadow:0 0 5px rgba(37,99,235,0.3); outline:none; }
+  table { width:100%; margin-top:20px; border-collapse:collapse; animation:fadeIn 0.8s ease-in; }
+  th, td { border-bottom:1px solid #e2e8f0; padding:12px; text-align:left; vertical-align:middle; }
+  th { background:#f1f5f9; color:#1e293b; font-weight:600; }
+  tr { transition:background-color 0.3s, transform 0.2s; }
+  tr:hover { background-color:#f9fafb; transform:scale(1.01); }
+  .no-data { text-align:center; color:#64748b; font-style:italic; }
+  .miniatura img { width:60px; height:60px; border-radius:8px; object-fit:cover; border:1px solid #cbd5e1; transition:0.3s; }
+  .miniatura img:hover { transform:scale(1.1); }
+  .acoes button { margin-right:6px; padding:6px 12px; font-size:0.9em; border-radius:6px; transition:0.3s; }
+  .editar { background-color:#16a34a; }
+  .editar:hover { background-color:#15803d; transform:scale(1.05); }
+  .excluir { background-color:#dc2626; }
+  .excluir:hover { background-color:#b91c1c; transform:scale(1.05); }
+  .add-cat-btn { background: linear-gradient(90deg,#2563eb,#1e3a8a); color:white; border:none; border-radius:8px; padding:8px 12px; font-size:1.4em; font-weight:bold; width:15px; height:30px; cursor:pointer; transition:0.3s; display:flex; align-items:center; justify-content:center; position:relative; left:950px; top:-55px; }
+  .add-cat-btn:hover { background: linear-gradient(90deg,#1e3a8a,#2563eb); transform:scale(1.1); box-shadow:0 3px 5px rgba(37,99,235,0.3); }
 </style>
 </head>
 <body>
-  <header>📦 Sistema - Cadastro de Produtos</header>
+<header>📦 Sistema - Cadastro de Produtos</header>
+<main>
+<h2>Adicionar Novo Produto</h2>
+<form id="productForm">
+  <div>
+    <label>Nome do Produto:</label>
+    <input type="text" id="nome" required>
+  </div>
+  <div>
+    <label>Categoria:</label>
+    <select id="categoria" required>
+      <option value="">Selecione...</option>
+      <option>Eletrônicos</option>
+      <option>Vestuário</option>
+      <option>Alimentos</option>
+      <option>Beleza</option>
+      <option>Outros</option>
+    </select>
+  </div>
+  <button type="button" id="addCategoriaBtn" class="add-cat-btn" title="Adicionar nova categoria">+</button>
 
-  <main>
-    <h2>Adicionar Novo Produto</h2>
-    <form id="productForm">
-      <div>
-        <label>Nome do Produto:</label>
-        <input type="text" id="nome" required>
-      </div>
-      <div>
-        <label>Categoria:</label>
-        <select id="categoria" required>
-          <option value="">Selecione...</option>
-          <option>Eletrônicos</option>
-          <option>Vestuário</option>
-          <option>Alimentos</option>
-          <option>Beleza</option>
-          <option>Outros</option>
-        </select>
-      </div>
-      <button type="button" id="addCategoriaBtn" class="add-cat-btn" title="Adicionar nova categoria">+</button>
-      <!-- Dentro do form, logo após o botão de adicionar categoria -->
-<input type="hidden" id="produtoId">
+  <div>
+    <label>Preço de Venda (R$):</label>
+    <input type="number" id="venda" step="0.01" required>
+  </div>
+  <div>
+    <label>Quantidade em Estoque:</label>
+    <input type="number" id="estoque" required>
+  </div>
+  <div>
+    <label>Código Interno:</label>
+    <input type="text" id="codigo" required>
+  </div>
+  <div style="grid-column: span 2;">
+    <label>Descrição:</label>
+    <textarea id="descricao" rows="3"></textarea>
+  </div>
+  <div style="grid-column: span 2;">
+    <label>Imagens do Produto:</label>
+    <input type="file" id="imagens" multiple accept="image/*">
+    <div class="preview" id="preview"></div>
+  </div>
+  <div class="btn">
+    <button type="submit">Salvar Produto</button>
+  </div>
+</form>
 
-      <div>
-        <label>Preço de Venda (R$):</label>
-        <input type="number" id="venda" step="0.01" required>
-      </div>
-      <div>
-        <label>Quantidade em Estoque:</label>
-        <input type="number" id="estoque" required>
-      </div>
-      <div>
-        <label>Código Interno:</label>
-        <input type="text" id="codigo" required>
-      </div>
-      <div style="grid-column: span 2;">
-        <label>Descrição:</label>
-        <textarea id="descricao" rows="3"></textarea>
-      </div>
-      <div style="grid-column: span 2;">
-        <label>Imagens do Produto:</label>
-        <input type="file" id="imagens" multiple accept="image/*">
-        <div class="preview" id="preview"></div>
-      </div>
-      <div class="btn">
-        <button type="submit">Salvar Produto</button>
-      </div>
-    </form>
+<h2>🔍 Filtrar Produtos</h2>
+<input type="text" id="filtroInput" placeholder="Pesquisar por Nome, Categoria ou Código...">
 
-    <!-- Filtro -->
-    <h2>🔍 Filtrar Produtos</h2>
-    <input type="text" id="filtroInput" placeholder="Pesquisar por Nome, Categoria ou Código...">
-
-    <h2>📋 Produtos Cadastrados</h2>
-    <table id="productTable">
-      <thead>
-        <tr>
-          <th>Imagem</th>
-          <th>Nome</th>
-          <th>Categoria</th>
-          <th>Preço (R$)</th>
-          <th>Estoque</th>
-          <th>Código</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="no-data"><td colspan="7">Nenhum produto cadastrado ainda.</td></tr>
-      </tbody>
-    </table>
-  </main>
+<h2>📋 Produtos Cadastrados</h2>
+<table id="productTable">
+  <thead>
+    <tr>
+      <th>Imagem</th>
+      <th>Nome</th>
+      <th>Categoria</th>
+      <th>Preço (R$)</th>
+      <th>Estoque</th>
+      <th>Código</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="no-data"><td colspan="7">Nenhum produto cadastrado ainda.</td></tr>
+  </tbody>
+</table>
+</main>
 
 <script>
 const form = document.getElementById('productForm');
@@ -340,7 +123,7 @@ const filtroInput = document.getElementById('filtroInput');
 
 let imagensSelecionadas = [];
 let produtos = [];
-let produtoEditando = null; // Guarda o produto sendo editado
+let produtoEditando = null;
 
 // Pré-visualização das imagens
 inputImagens.addEventListener('change', () => {
@@ -358,14 +141,14 @@ inputImagens.addEventListener('change', () => {
   });
 });
 
-// Função para carregar produtos do Neon via API
+// Carregar produtos
 async function carregarProdutos() {
   try {
-    const res = await fetch('/api/produtos'); // GET produtos
+    const res = await fetch('/api/produtos');
     produtos = await res.json();
     atualizarTabela();
-  } catch (err) {
-    console.error("Erro ao carregar produtos:", err);
+  } catch(err) {
+    console.error(err);
     tableBody.innerHTML = `<tr class="no-data"><td colspan="7">Erro ao carregar produtos</td></tr>`;
   }
 }
@@ -373,16 +156,13 @@ async function carregarProdutos() {
 // Atualizar tabela
 function atualizarTabela() {
   tableBody.innerHTML = "";
-
-  if (produtos.length === 0) {
+  if(produtos.length === 0) {
     tableBody.innerHTML = `<tr class="no-data"><td colspan="7">Nenhum produto cadastrado ainda.</td></tr>`;
     return;
   }
-
-  produtos.forEach((p, i) => {
+  produtos.forEach((p,i) => {
+    const imagem = p.imagens?.length > 0 ? `<img src="${p.imagens[0]}"/>` : '—';
     const linha = document.createElement('tr');
-    const imagem = p.imagens?.length > 0 ? `<img src="${p.imagens[0]}" />` : '—';
-
     linha.innerHTML = `
       <td class="miniatura">${imagem}</td>
       <td>${p.nome}</td>
@@ -395,15 +175,13 @@ function atualizarTabela() {
         <button class="excluir" onclick="excluirProduto(${i})">Excluir</button>
       </td>
     `;
-
     tableBody.appendChild(linha);
   });
 }
 
-// Adicionar produto (POST na API)
+// Adicionar/Editar Produto
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
-
   const nome = document.getElementById('nome').value;
   const categoria = document.getElementById('categoria').value;
   const venda = document.getElementById('venda').value;
@@ -411,78 +189,69 @@ form.addEventListener('submit', async (e) => {
   const codigo = document.getElementById('codigo').value;
   const descricao = document.getElementById('descricao').value;
 
-  if (!nome || !categoria || !venda || !estoque || !codigo) {
+  if(!nome || !categoria || !venda || !estoque || !codigo){
     alert('Por favor, preencha todos os campos obrigatórios.');
     return;
   }
 
   try {
-    let res, novoProduto;
-
-    if (produtoEditando) {
-      // Se estamos editando
+    let res, produtoSalvo;
+    if(produtoEditando) {
+      // Editar pelo nome
       res = await fetch('/api/produtos', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({nome, categoria, venda, estoque, codigo, descricao, imagens: imagensSelecionadas
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          nomeAntigo: produtoEditando.nome,
+          nome, categoria, venda, estoque, codigo, descricao, imagens: imagensSelecionadas
         })
       });
-      novoProduto = await res.json();
-
-      // Atualiza na lista local
+      produtoSalvo = await res.json();
       const index = produtos.findIndex(p => p.nome === produtoEditando.nome);
-      produtos[index] = novoProduto;
-
-      produtoEditando = null; // Reseta estado de edição
+      produtos[index] = produtoSalvo;
+      produtoEditando = null;
     } else {
-      // Adicionando novo
+      // Novo produto
       res = await fetch('/api/produtos', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, categoria, venda, estoque, codigo, descricao, imagens: imagensSelecionadas })
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({nome, categoria, venda, estoque, codigo, descricao, imagens: imagensSelecionadas})
       });
-      novoProduto = await res.json();
-      produtos.unshift(novoProduto);
+      produtoSalvo = await res.json();
+      produtos.unshift(produtoSalvo);
     }
-
     atualizarTabela();
     form.reset();
     preview.innerHTML = "";
     imagensSelecionadas = [];
-  } catch (err) {
+  } catch(err){
     console.error(err);
-    alert("Erro ao salvar produto");
+    alert('Erro ao salvar produto');
   }
 });
 
-
-// Excluir produto
-window.excluirProduto = async function(index) {
-  if (!confirm('Tem certeza que deseja excluir este produto?')) return;
-
+// Excluir Produto
+window.excluirProduto = async function(index){
+  if(!confirm('Tem certeza que deseja excluir este produto?')) return;
   const nome = produtos[index].nome;
-
   try {
-    const res = await fetch('/api/produtos', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nome })
+    const res = await fetch('/api/produtos',{
+      method:'DELETE',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({nome})
     });
-
-    if (!res.ok) throw new Error("Erro ao excluir produto");
-
-    produtos.splice(index, 1);
+    if(!res.ok) throw new Error('Erro ao excluir produto');
+    produtos.splice(index,1);
     atualizarTabela();
-  } catch (err) {
+  } catch(err){
     console.error(err);
-    alert("Erro ao excluir produto");
+    alert('Erro ao excluir produto');
   }
-};
+}
 
-
-// Editar produto
-window.editarProduto = function(index) {
-  produtoEditando = produtos[index]; // guarda o produto
+// Editar Produto
+window.editarProduto = function(index){
+  produtoEditando = produtos[index];
   document.getElementById('nome').value = produtoEditando.nome;
   document.getElementById('categoria').value = produtoEditando.categoria;
   document.getElementById('venda').value = produtoEditando.preco;
@@ -490,89 +259,37 @@ window.editarProduto = function(index) {
   document.getElementById('codigo').value = produtoEditando.codigo;
   document.getElementById('descricao').value = produtoEditando.descricao;
   imagensSelecionadas = produtoEditando.imagens || [];
-};
+}
 
-  // Substituir o submit temporariamente para atualizar
-  form.onsubmit = async (e) => {
-    e.preventDefault();
-
-    const nome = document.getElementById('nome').value;
-    const categoria = document.getElementById('categoria').value;
-    const venda = document.getElementById('venda').value;
-    const estoque = document.getElementById('estoque').value;
-    const codigo = document.getElementById('codigo').value;
-    const descricao = document.getElementById('descricao').value;
-
-    try {
-      const res = await fetch('/api/produtos', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({nome, categoria, venda, estoque, codigo, descricao, imagens: imagensSelecionadas })
-      });
-
-      if (!res.ok) throw new Error("Erro ao atualizar produto");
-
-      const atualizado = await res.json();
-      produtos[index] = atualizado;
-      atualizarTabela();
-
-      form.reset();
-      preview.innerHTML = "";
-      imagensSelecionadas = [];
-      form.onsubmit = adicionarProdutoOriginal; // volta ao normal
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao atualizar produto");
-    }
-  };
-
-
-// Filtro de produtos
-filtroInput.addEventListener('input', () => {
+// Filtro
+filtroInput.addEventListener('input',()=>{
   const termo = filtroInput.value.toLowerCase();
   const linhas = tableBody.querySelectorAll('tr');
-
-  linhas.forEach((linha) => {
-    if (linha.classList.contains('no-data')) return;
+  linhas.forEach(linha=>{
+    if(linha.classList.contains('no-data')) return;
     const nome = linha.children[1].textContent.toLowerCase();
     const categoria = linha.children[2].textContent.toLowerCase();
     const codigo = linha.children[5].textContent.toLowerCase();
-
     linha.style.display = (nome.includes(termo) || categoria.includes(termo) || codigo.includes(termo)) ? '' : 'none';
   });
 });
 
-// 🔹 Carregar categorias do banco e preencher o select
-async function carregarCategorias() {
-  try {
+// Carregar categorias
+async function carregarCategorias(){
+  try{
     const res = await fetch('/api/categorias');
     const categorias = await res.json();
-    console.log("Categorias carregadas do backend:", categorias); // <-- debug
-
     const select = document.getElementById('categoria');
-    select.innerHTML = '<option value="">Selecione...</option>'; // limpa e adiciona a opção padrão
-
-    if (categorias.length === 0) {
-      const option = document.createElement('option');
-      option.textContent = 'Nenhuma categoria cadastrada';
-      option.disabled = true;
-      select.appendChild(option);
-      return;
-    }
-
-    categorias.forEach(cat => {
+    select.innerHTML = '<option value="">Selecione...</option>';
+    categorias.forEach(cat=>{
       const option = document.createElement('option');
       option.value = cat.nome;
       option.textContent = cat.nome;
       select.appendChild(option);
     });
-  } catch (error) {
-    console.error('Erro ao carregar categorias:', error);
-  }
+  } catch(err){ console.error('Erro ao carregar categorias:', err); }
 }
 
-
-// Carrega produtos ao iniciar
 carregarProdutos();
 carregarCategorias();
 </script>
