@@ -229,10 +229,36 @@
     background-color: #b91c1c;
     transform: scale(1.05);
   }
+
+  .add-cat-btn {
+  background: linear-gradient(90deg, #2563eb, #1e3a8a);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 1.4em;
+  font-weight: bold;
+  width: 15px;
+  height: 30px;
+  cursor: pointer;
+  transition: 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  left: 950px;
+  top: -55px; /* 🔹 Sobe o botão um pouco */
+}
+
+.add-cat-btn:hover {
+  background: linear-gradient(90deg, #1e3a8a, #2563eb);
+  transform: scale(1.1);
+  box-shadow: 0 3px 5px rgba(37,99,235,0.3);
+}
 </style>
 </head>
 <body>
-  <header>📦 Sistema Empresarial - Cadastro de Produtos</header>
+  <header>📦 Sistema - Cadastro de Produtos</header>
 
   <main>
     <h2>Adicionar Novo Produto</h2>
@@ -252,6 +278,7 @@
           <option>Outros</option>
         </select>
       </div>
+      <button type="button" id="addCategoriaBtn" class="add-cat-btn" title="Adicionar nova categoria">+</button>
       <div>
         <label>Preço de Venda (R$):</label>
         <input type="number" id="venda" step="0.01" required>
@@ -445,6 +472,43 @@ filtroInput.addEventListener('input', () => {
 
     linha.style.display = (nome.includes(termo) || categoria.includes(termo) || codigo.includes(termo)) ? '' : 'none';
   });
+});
+
+// Adicionar nova categoria e salvar no banco
+const btnAddCategoria = document.getElementById('addCategoriaBtn');
+const selectCategoria = document.getElementById('categoria');
+
+btnAddCategoria.addEventListener('click', async () => {
+  const novaCategoria = prompt("Digite o nome da nova categoria:");
+
+  if (novaCategoria && novaCategoria.trim() !== "") {
+    try {
+      // 🔹 Envia a nova categoria para a API
+      const res = await fetch('/api/categorias', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome: novaCategoria.trim() })
+      });
+
+      if (res.ok) {
+        const categoriaSalva = await res.json();
+
+        // 🔹 Adiciona no <select>
+        const option = document.createElement("option");
+        option.textContent = categoriaSalva.nome;
+        option.value = categoriaSalva.nome;
+        selectCategoria.appendChild(option);
+        selectCategoria.value = categoriaSalva.nome;
+
+        alert(`Categoria "${categoriaSalva.nome}" salva com sucesso!`);
+      } else {
+        alert("Erro ao salvar categoria. Verifique o servidor.");
+      }
+    } catch (error) {
+      console.error("Erro ao salvar categoria:", error);
+      alert("Erro ao conectar ao servidor.");
+    }
+  }
 });
 
 // Carrega produtos ao iniciar
