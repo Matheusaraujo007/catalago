@@ -474,45 +474,39 @@ filtroInput.addEventListener('input', () => {
   });
 });
 
-// Adicionar nova categoria e salvar no banco
-const btnAddCategoria = document.getElementById('addCategoriaBtn');
-const selectCategoria = document.getElementById('categoria');
+// 🔹 Carregar categorias do banco e preencher o select
+async function carregarCategorias() {
+  try {
+    const res = await fetch('/api/categorias');
+    const categorias = await res.json();
+    console.log("Categorias carregadas do backend:", categorias); // <-- debug
 
-btnAddCategoria.addEventListener('click', async () => {
-  const novaCategoria = prompt("Digite o nome da nova categoria:");
+    const select = document.getElementById('categoria');
+    select.innerHTML = '<option value="">Selecione...</option>'; // limpa e adiciona a opção padrão
 
-  if (novaCategoria && novaCategoria.trim() !== "") {
-    try {
-      // 🔹 Envia a nova categoria para a API
-      const res = await fetch('/api/categorias', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome: novaCategoria.trim() })
-      });
-
-      if (res.ok) {
-        const categoriaSalva = await res.json();
-
-        // 🔹 Adiciona no <select>
-        const option = document.createElement("option");
-        option.textContent = categoriaSalva.nome;
-        option.value = categoriaSalva.nome;
-        selectCategoria.appendChild(option);
-        selectCategoria.value = categoriaSalva.nome;
-
-        alert(`Categoria "${categoriaSalva.nome}" salva com sucesso!`);
-      } else {
-        alert("Erro ao salvar categoria. Verifique o servidor.");
-      }
-    } catch (error) {
-      console.error("Erro ao salvar categoria:", error);
-      alert("Erro ao conectar ao servidor.");
+    if (categorias.length === 0) {
+      const option = document.createElement('option');
+      option.textContent = 'Nenhuma categoria cadastrada';
+      option.disabled = true;
+      select.appendChild(option);
+      return;
     }
+
+    categorias.forEach(cat => {
+      const option = document.createElement('option');
+      option.value = cat.nome;
+      option.textContent = cat.nome;
+      select.appendChild(option);
+    });
+  } catch (error) {
+    console.error('Erro ao carregar categorias:', error);
   }
-});
+}
+
 
 // Carrega produtos ao iniciar
 carregarProdutos();
+carregarCategorias();
 </script>
 </body>
 </html>
