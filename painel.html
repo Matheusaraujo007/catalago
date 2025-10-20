@@ -340,26 +340,70 @@ const filtroInput = document.getElementById('filtroInput');
 
 let imagensSelecionadas = [];
 let produtos = [];
-let produtoEditando = null; // guarda o produto sendo editado
+let produtoEditando = null; // Guarda o produto sendo editado
 
-// Quando clicar em editar
-window.editarProduto = function(index) {
-  produtoEditando = produtos[index]; // guarda o produto
-  document.getElementById('produtoId').value = produtoEditando.id; // define o id oculto
-  document.getElementById('nome').value = produtoEditando.nome;
-  document.getElementById('categoria').value = produtoEditando.categoria;
-  document.getElementById('venda').value = produtoEditando.preco;
-  document.getElementById('estoque').value = produtoEditando.estoque;
-  document.getElementById('codigo').value = produtoEditando.codigo;
-  document.getElementById('descricao').value = produtoEditando.descricao;
-  imagensSelecionadas = produtoEditando.imagens || [];
-};
+// Pré-visualização das imagens
+inputImagens.addEventListener('change', () => {
+  preview.innerHTML = "";
+  imagensSelecionadas = [];
+  Array.from(inputImagens.files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      preview.appendChild(img);
+      imagensSelecionadas.push(e.target.result);
+    };
+    reader.readAsDataURL(file);
+  });
+});
 
-// No submit do form
+// Função para carregar produtos do Neon via API
+async function carregarProdutos() {
+  try {
+    const res = await fetch('/api/produtos'); // GET produtos
+    produtos = await res.json();
+    atualizarTabela();
+  } catch (err) {
+    console.error("Erro ao carregar produtos:", err);
+    tableBody.innerHTML = `<tr class="no-data"><td colspan="7">Erro ao carregar produtos</td></tr>`;
+  }
+}
+
+// Atualizar tabela
+function atualizarTabela() {
+  tableBody.innerHTML = "";
+
+  if (produtos.length === 0) {
+    tableBody.innerHTML = `<tr class="no-data"><td colspan="7">Nenhum produto cadastrado ainda.</td></tr>`;
+    return;
+  }
+
+  produtos.forEach((p, i) => {
+    const linha = document.createElement('tr');
+    const imagem = p.imagens?.length > 0 ? `<img src="${p.imagens[0]}" />` : '—';
+
+    linha.innerHTML = `
+      <td class="miniatura">${imagem}</td>
+      <td>${p.nome}</td>
+      <td>${p.categoria}</td>
+      <td>${parseFloat(p.preco).toFixed(2)}</td>
+      <td>${p.estoque}</td>
+      <td>${p.codigo}</td>
+      <td class="acoes">
+        <button class="editar" onclick="editarProduto(${i})">Editar</button>
+        <button class="excluir" onclick="excluirProduto(${i})">Excluir</button>
+      </td>
+    `;
+
+    tableBody.appendChild(linha);
+  });
+}
+
+// Adicionar produto (POST na API)
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const id = document.getElementById('produtoId').value; // pega o id do campo oculto
   const nome = document.getElementById('nome').value;
   const categoria = document.getElementById('categoria').value;
   const venda = document.getElementById('venda').value;
@@ -375,20 +419,25 @@ form.addEventListener('submit', async (e) => {
   try {
     let res, novoProduto;
 
-    if (id) {
-      // Editando
-      res = await fetch(`/api/produtos/${id}`, {
+    if (produtoEditando) {
+      // Se estamos editando
+      res = await fetch('/api/produtos', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, categoria, venda, estoque, codigo, descricao, imagens: imagensSelecionadas })
+        body: JSON.stringify({
+          id: produtoEditando.id,
+          nome, categoria, venda, estoque, codigo, descricao, imagens: imagensSelecionadas
+        })
       });
       novoProduto = await res.json();
 
       // Atualiza na lista local
-      const index = produtos.findIndex(p => p.id == id);
+      const index = produtos.findIndex(p => p.id === produtoEditando.id);
       produtos[index] = novoProduto;
+
+      produtoEditando = null; // Reseta estado de edição
     } else {
-      // Novo produto
+      // Adicionando novo
       res = await fetch('/api/produtos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -400,7 +449,6 @@ form.addEventListener('submit', async (e) => {
 
     atualizarTabela();
     form.reset();
-    document.getElementById('produtoId').value = ''; // limpa o id
     preview.innerHTML = "";
     imagensSelecionadas = [];
   } catch (err) {
