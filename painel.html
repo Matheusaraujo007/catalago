@@ -481,16 +481,14 @@ window.excluirProduto = async function(index) {
 
 // Editar produto
 window.editarProduto = function(index) {
-  const p = produtos[index];
-  produtoEditando = p; // Marca que estamos editando
-
-  document.getElementById('nome').value = p.nome;
-  document.getElementById('categoria').value = p.categoria;
-  document.getElementById('venda').value = p.preco;
-  document.getElementById('estoque').value = p.estoque;
-  document.getElementById('codigo').value = p.codigo;
-  document.getElementById('descricao').value = p.descricao;
-  imagensSelecionadas = p.imagens || [];
+  produtoEditando = produtos[index]; // guarda o produto
+  document.getElementById('nome').value = produtoEditando.nome;
+  document.getElementById('categoria').value = produtoEditando.categoria;
+  document.getElementById('venda').value = produtoEditando.preco;
+  document.getElementById('estoque').value = produtoEditando.estoque;
+  document.getElementById('codigo').value = produtoEditando.codigo;
+  document.getElementById('descricao').value = produtoEditando.descricao;
+  imagensSelecionadas = produtoEditando.imagens || [];
 };
 
   // Substituir o submit temporariamente para atualizar
