@@ -132,6 +132,26 @@
 #conteudoDetalhes .detalhes-whatsapp:hover {
   transform: scale(1.05);
 }
+
+.modal-imagens {
+  display: flex;
+  flex-direction: column; /* Pode ser row se quiser horizontal */
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.modal-imagens img {
+  width: auto; /* largura natural */
+  max-width: 100%; /* nunca ultrapassar a largura do modal */
+  height: auto; /* mantém proporção */
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.modal-imagens img:hover {
+  transform: scale(1.05);
+}
 </style>
 </head>
 <body>
@@ -350,11 +370,15 @@ const conteudoDetalhes = document.getElementById('conteudoDetalhes');
 function abrirDetalhes(index){
   const p = produtos[index];
   let imagensHTML = '';
-  if(p.imagens && p.imagens.length > 0){
-    imagensHTML = `<img src="${p.imagens[0]}" alt="${p.nome}">`;
-  } else {
-    imagensHTML = `<div style="width:100%; height:200px; background:#e2e8f0; display:flex; align-items:center; justify-content:center; border-radius:8px;">Sem imagem</div>`;
-  }
+if(p.imagens && p.imagens.length > 0){
+  imagensHTML = '<div class="modal-imagens">';
+  p.imagens.forEach(img => {
+    imagensHTML += `<img src="${img}" alt="${p.nome}">`;
+  });
+  imagensHTML += '</div>';
+} else {
+  imagensHTML = `<div style="width:100%; height:200px; background:#e2e8f0; display:flex; align-items:center; justify-content:center; border-radius:8px;">Sem imagem</div>`;
+}
 
   conteudoDetalhes.innerHTML = `
     ${imagensHTML}
