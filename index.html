@@ -135,8 +135,8 @@
 
 #modalDetalhes .carrossel {
   width: 100%;
-  height: auto; /* altura automática para respeitar proporção */
-  max-height: 400px; /* opcional para não ficar gigante */
+  height: auto;
+  max-height: 400px;
   overflow: hidden;
   position: relative;
   border-radius: 8px;
@@ -147,7 +147,7 @@
   width: 100%;
   height: auto;
   display: none;
-  object-fit: contain; /* mantém proporção */
+  object-fit: contain;
 }
 
 #modalDetalhes .carrossel img.active {
@@ -161,13 +161,24 @@
   background: rgba(0,0,0,0.4);
   color: white;
   border: none;
-  padding: 5px 10px;
+  padding: 10px 12px;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 50%;
+  font-size: 1.5em;
+  z-index: 2;
 }
 
-#modalDetalhes .carrossel .prev { left: 10px; }
-#modalDetalhes .carrossel .next { right: 10px; }
+#modalDetalhes .carrossel .prev { 
+  left: -15px; /* sai um pouco para fora da imagem */
+}
+
+#modalDetalhes .carrossel .next { 
+  right: -15px; /* sai um pouco para fora da imagem */
+}
+
+#modalDetalhes .carrossel button:hover {
+  background: rgba(0,0,0,0.7);
+}
 
 </style>
 </head>
