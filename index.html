@@ -398,6 +398,87 @@
   justify-content: center;
   border-radius: 50%;
 }
+/* Link de contato */
+.contato-link {
+  display: inline-block;
+  margin-top: 6px;
+  color: #ffffff;
+  background: rgba(255,255,255,0.15);
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.contato-link:hover {
+  background: rgba(255,255,255,0.3);
+  transform: scale(1.05);
+}
+
+/* Modal de Contatos */
+.modal-contatos {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+.modal-contatos-content {
+  background: #fff;
+  border-radius: 12px;
+  padding: 30px 25px;
+  width: 90%;
+  max-width: 420px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  text-align: center;
+  animation: slideDown 0.3s ease;
+}
+.modal-contatos-content h2 {
+  margin-top: 0;
+  color: #1e3a8a;
+  margin-bottom: 20px;
+}
+.fechar-contatos {
+  position: absolute;
+  top: 15px;
+  right: 25px;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #444;
+}
+.contato-opcoes {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.contato-opcoes a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-decoration: none;
+  background: #f3f4f6;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 1em;
+  color: #1e293b;
+  transition: 0.3s;
+}
+.contato-opcoes a i {
+  font-size: 1.2em;
+}
+.contato-opcoes a:hover {
+  background: #2563eb;
+  color: white;
+  transform: scale(1.05);
+}
+@keyframes slideDown {
+  from { transform: translateY(-40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
 
 </style>
 </head>
@@ -409,6 +490,35 @@
   </div>
   <div class="header-text">
     Faça seu pedido agora mesmo 💬
+      <br>
+  <span class="contato-link" id="abrirContatos">📞 Contatos</span>
+</div>
+
+<!-- Modal de Contatos -->
+<div class="modal-contatos" id="modalContatos">
+  <div class="modal-contatos-content">
+    <span class="fechar-contatos" id="fecharContatos">&times;</span>
+    <h2>Entre em Contato</h2>
+    <div class="contato-opcoes">
+      <a href="https://wa.me/5588993800944" target="_blank">
+        <i class="fab fa-whatsapp"></i> WhatsApp
+      </a>
+      <a href="https://instagram.com/seuinstagram" target="_blank">
+        <i class="fab fa-instagram"></i> Instagram
+      </a>
+      <a href="mailto:seuemail@exemplo.com">
+        <i class="fas fa-envelope"></i> E-mail
+      </a>
+      <a href="tel:+558899999999">
+        <i class="fas fa-phone"></i> Telefone
+      </a>
+      <a href="https://www.google.com/maps?q=sua+localizacao" target="_blank">
+        <i class="fas fa-map-marker-alt"></i> Localização
+      </a>
+    </div>
+  </div>
+</div>
+
     <!-- Botão WhatsApp profissional -->
 <a href="https://wa.me/5588993800944" target="_blank" class="whatsapp-btn" title="Fale conosco no WhatsApp">
   <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
@@ -472,6 +582,23 @@ const catalogo = document.getElementById('catalogo');
 const itensCarrinho = document.getElementById('itensCarrinho');
 let carrinho = [];
 const filtroCategorias = document.getElementById('filtroCategorias');
+
+// Modal de Contatos
+const modalContatos = document.getElementById('modalContatos');
+const abrirContatos = document.getElementById('abrirContatos');
+const fecharContatos = document.getElementById('fecharContatos');
+
+abrirContatos.addEventListener('click', () => {
+  modalContatos.style.display = 'flex';
+});
+
+fecharContatos.addEventListener('click', () => {
+  modalContatos.style.display = 'none';
+});
+
+window.addEventListener('click', (e) => {
+  if (e.target === modalContatos) modalContatos.style.display = 'none';
+});
 
 // Carregar produtos
 async function carregarProdutos() {
