@@ -401,10 +401,10 @@ function abrirDetalhes(index){
   const p = produtos[index];
   
   let imagensHTML = '';
-  if(p.imagens && p.imagens.length > 0){
+  if (p.imagens && p.imagens.length > 0) {
     imagensHTML = `<div class="carrossel" id="carrossel-modal">`;
-    p.imagens.forEach((img,j)=>{
-      imagensHTML += `<img src="${img}" class="${j===0 ? 'active' : ''}" alt="${p.nome}">`;
+    p.imagens.forEach((img, j) => {
+      imagensHTML += `<img src="${img}" class="${j === 0 ? 'active' : ''}" alt="${p.nome}">`;
     });
     imagensHTML += `
       <button class="prev" onclick="mudarImagemModal(-1)">&#10094;</button>
@@ -419,10 +419,23 @@ function abrirDetalhes(index){
     <h3>${p.nome}</h3>
     <p><strong>Preço:</strong> R$ ${Number(p.preco).toFixed(2)}</p>
     <p><strong>Descrição:</strong> ${p.descricao || 'Sem descrição'}</p>
-    <a href="https://wa.me/5588993800944?text=Olá,%20gostaria%20de%20comprar%20o%20produto%20${encodeURIComponent(p.nome)}" target="_blank" class="detalhes-whatsapp">Chamar no WhatsApp</a>
+    <div style="display: flex; gap: 10px; margin-top: 15px;">
+      <a href="https://wa.me/5588993800944?text=Olá,%20gostaria%20de%20comprar%20o%20produto%20${encodeURIComponent(p.nome)}" 
+         target="_blank" 
+         class="detalhes-whatsapp"
+         style="flex: 1; text-align: center;">💬 WhatsApp</a>
+      <button onclick="adicionarCarrinho(${index}); fecharModalDetalhes()" 
+              style="flex: 1; background-color: #16a34a; border: none; color: white; border-radius: 8px; padding: 10px; font-weight: 500; cursor: pointer; transition: 0.3s;">
+        🛒 Comprar
+      </button>
+    </div>
   `;
 
   modalDetalhes.style.display = 'block';
+}
+
+function fecharModalDetalhes() {
+  modalDetalhes.style.display = 'none';
 }
 
 function mudarImagemModal(dir){
