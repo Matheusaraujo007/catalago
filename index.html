@@ -355,7 +355,9 @@
 /* Ícone do carrinho */
 /* Carrinho */
 .carrinho-icon {
-  position: relative;
+  position: fixed;
+  bottom: var(--posicao-vertical, 100px); /* controla a altura do botão */
+  right: var(--posicao-horizontal, 25px); /* controla a distância da direita */
   background: #2563EB;
   border: none;
   border-radius: 50%;
@@ -366,10 +368,19 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
 }
-.carrinho-icon img { width: 28px; height: 28px; filter: invert(1); }
-.carrinho-icon:hover { background: #1e40af; transform: scale(1.1); }
 
+.carrinho-icon img {
+  width: 28px;
+  height: 28px;
+  filter: invert(1);
+}
+
+.carrinho-icon:hover {
+  background: #1e40af;
+  transform: scale(1.1);
+}
 /* Contador de itens */
 #contadorCarrinho {
   position: absolute;
