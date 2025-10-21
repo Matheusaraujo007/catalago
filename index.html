@@ -341,16 +341,9 @@ function abrirDetalhes(index){
   const p = produtos[index];
   let imagensHTML = '';
   if(p.imagens && p.imagens.length > 0){
-    imagensHTML = `<div class="carrossel-detalhes" id="carrossel-detalhes-${index}">`;
-    p.imagens.forEach((img,j)=>{
-      imagensHTML += `<img src="${img}" class="${j===0 ? 'active' : ''}">`;
-    });
-    imagensHTML += `
-      <button class="prev" onclick="mudarImagemDetalhes(${index},-1)">&#10094;</button>
-      <button class="next" onclick="mudarImagemDetalhes(${index},1)">&#10095;</button>
-    </div>`;
+    imagensHTML = `<img src="${p.imagens[0]}" alt="${p.nome}">`;
   } else {
-    imagensHTML = `<div style="width:100%; height:200px; background:#e2e8f0; display:flex; align-items:center; justify-content:center; border-radius:8px; margin-bottom:10px;">Sem imagem</div>`;
+    imagensHTML = `<div style="width:100%; height:200px; background:#e2e8f0; display:flex; align-items:center; justify-content:center; border-radius:8px;">Sem imagem</div>`;
   }
 
   conteudoDetalhes.innerHTML = `
@@ -358,10 +351,7 @@ function abrirDetalhes(index){
     <h3>${p.nome}</h3>
     <p><strong>Preço:</strong> R$ ${Number(p.preco).toFixed(2)}</p>
     <p><strong>Descrição:</strong> ${p.descricao || 'Sem descrição'}</p>
-    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
-      <button onclick="adicionarCarrinho(${index})" style="background-color:#16a34a; color:white; padding:10px 15px; border:none; border-radius:8px; cursor:pointer; transition:0.3s;">Comprar</button>
-      <a href="https://wa.me/5588993800944?text=Olá,%20gostaria%20de%20comprar%20o%20produto%20${encodeURIComponent(p.nome)}" target="_blank" style="background-color:#25D366; color:white; padding:10px 15px; border-radius:8px; text-decoration:none; font-weight:500; transition:0.3s;">Chamar no WhatsApp</a>
-    </div>
+    <a href="https://wa.me/5588993800944?text=Olá,%20gostaria%20de%20comprar%20o%20produto%20${encodeURIComponent(p.nome)}" target="_blank" class="detalhes-whatsapp">Chamar no WhatsApp</a>
   `;
   modalDetalhes.style.display = 'block';
 }
