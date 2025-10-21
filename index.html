@@ -186,6 +186,46 @@
   right: 10px; /* 10px dentro da borda da imagem */
 }
 
+.botoes-detalhes {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-detalhe {
+  flex: 1;
+  padding: 12px 0;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+.btn-detalhe.whatsapp {
+  background: linear-gradient(90deg, #25D366, #1EBE57);
+}
+
+.btn-detalhe.whatsapp:hover {
+  background: linear-gradient(90deg, #1EBE57, #1DA851);
+  transform: translateY(-2px);
+}
+
+.btn-detalhe.comprar {
+  background: linear-gradient(90deg, #2563EB, #1E40AF);
+}
+
+.btn-detalhe.comprar:hover {
+  background: linear-gradient(90deg, #1E40AF, #1D4ED8);
+  transform: translateY(-2px);
+}
+
+
 </style>
 </head>
 <body>
@@ -419,15 +459,13 @@ function abrirDetalhes(index){
     <h3>${p.nome}</h3>
     <p><strong>Preço:</strong> R$ ${Number(p.preco).toFixed(2)}</p>
     <p><strong>Descrição:</strong> ${p.descricao || 'Sem descrição'}</p>
-    <div style="display: flex; gap: 10px; margin-top: 15px;">
+
+    <div class="botoes-detalhes">
       <a href="https://wa.me/5588993800944?text=Olá,%20gostaria%20de%20comprar%20o%20produto%20${encodeURIComponent(p.nome)}" 
          target="_blank" 
-         class="detalhes-whatsapp"
-         style="flex: 1; text-align: center;">💬 WhatsApp</a>
+         class="btn-detalhe whatsapp">💬 WhatsApp</a>
       <button onclick="adicionarCarrinho(${index}); fecharModalDetalhes()" 
-              style="flex: 1; background-color: #16a34a; border: none; color: white; border-radius: 8px; padding: 10px; font-weight: 500; cursor: pointer; transition: 0.3s;">
-        🛒 Comprar
-      </button>
+              class="btn-detalhe comprar">🛒 Comprar</button>
     </div>
   `;
 
