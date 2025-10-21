@@ -92,6 +92,36 @@
   .modal-content button { background-color: #16a34a; color: white; border: none; padding: 10px; width: 100%; font-size: 1em; border-radius: 8px; cursor: pointer; margin-top: 10px; }
   .modal-content button:hover { background-color: #15803d; }
   .fechar { float: right; font-size: 1.2em; cursor: pointer; }
+
+  /* Estilo do modal de detalhes */
+#conteudoDetalhes img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+#conteudoDetalhes h3 {
+  margin: 10px 0 5px;
+  color: #1e293b;
+}
+#conteudoDetalhes p {
+  margin: 5px 0 10px;
+  color: #334155;
+}
+#conteudoDetalhes .detalhes-whatsapp {
+  display: inline-block;
+  background-color: #25D366;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: transform 0.3s;
+}
+#conteudoDetalhes .detalhes-whatsapp:hover {
+  transform: scale(1.05);
+}
 </style>
 </head>
 <body>
@@ -140,6 +170,13 @@
       <label>CEP:</label><input type="text" id="cep" placeholder="CEP">
     </div>
     <button id="enviarPedido">Enviar Pedido via WhatsApp</button>
+  </div>
+</div>
+
+<div class="modal" id="modalDetalhes">
+  <div class="modal-content">
+    <span class="fechar" id="fecharDetalhes">&times;</span>
+    <div id="conteudoDetalhes"></div>
   </div>
 </div>
 
@@ -294,6 +331,67 @@ btnEnviar.addEventListener('click', ()=>{
   window.open(encodeURI(`https://wa.me/${whatsapp}?text=${mensagem}`), "_blank");
   modal.style.display = 'none';
 });
+
+// Modal de detalhes
+const modalDetalhes = document.getElementById('modalDetalhes');
+const fecharDetalhes = document.getElementById('fecharDetalhes');
+const conteudoDetalhes = document.getElementById('conteudoDetalhes');
+
+function abrirDetalhes(index){
+  const p = produtos[index];
+  let imagensHTML = '';
+  if(p.imagens && p.imagens.length > 0){
+    imagensHTML = `<img src="${p.imagens[0]}" alt="${p.nome}">`;
+  } else {
+    imagensHTML = `<div style="width:100%; height:200px; background:#e2e8f0; display:flex; align-items:center; justify-content:center; border-radius:8px;">Sem imagem</div>`;
+  }
+
+  conteudoDetalhes.innerHTML = `
+    ${imagensHTML}
+    <h3>${p.nome}</h3>
+    <p><strong>Preço:</strong> R$ ${Number(p.preco).toFixed(2)}</p>
+    <p><strong>Descrição:</strong> ${p.descricao || 'Sem descrição'}</p>
+    <a href="https://wa.me/5588993800944?text=Olá,%20gostaria%20de%20comprar%20o%20produto%20${encodeURIComponent(p.nome)}" target="_blank" class="detalhes-whatsapp">Chamar no WhatsApp</a>
+  `;
+  modalDetalhes.style.display = 'block';
+}
+
+fecharDetalhes.addEventListener('click', ()=> modalDetalhes.style.display='none');
+window.onclick = e=> { if(e.target===modalDetalhes) modalDetalhes.style.display='none'; };
+
+// Alterar mostrarProdutos para usar "Ver Detalhes"
+function mostrarProdutos(categoria = "Todos") {
+  catalogo.innerHTML = "";
+  produtos.forEach((p,i)=>{
+    if(categoria==='Todos' || p.categoria===categoria){
+      const div = document.createElement('div');
+      div.className = 'produto';
+
+      let imagensHTML = '';
+      if(p.imagens && p.imagens.length > 0){
+        imagensHTML = `<div class="carrossel" id="carrossel-${i}">`;
+        p.imagens.forEach((img,j)=>{
+          imagensHTML += `<img src="${img}" class="${j===0 ? 'active' : ''}">`;
+        });
+        imagensHTML += `
+          <button class="prev" onclick="mudarImagem(${i},-1)">&#10094;</button>
+          <button class="next" onclick="mudarImagem(${i},1)">&#10095;</button>
+        </div>`;
+      } else {
+        imagensHTML = `<div style="width:100%; height:160px; background:#e2e8f0; display:flex; align-items:center; justify-content:center; border-radius:8px; margin-bottom:10px;">Sem imagem</div>`;
+      }
+
+      div.innerHTML = `
+        ${imagensHTML}
+        <h3>${p.nome}</h3>
+        <p>Categoria: ${p.categoria}</p>
+        <p>Preço: R$ ${Number(p.preco).toFixed(2)}</p>
+        <button onclick="abrirDetalhes(${i})">Ver Detalhes</button>
+      `;
+      catalogo.appendChild(div);
+    }
+  });
+}
 
 // Iniciar
 carregarProdutos();
