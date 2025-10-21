@@ -25,6 +25,19 @@
     .header-text { margin-top: 10px; }
   }
   header { position: relative; text-align: center; }
+
+  .logo img {
+  max-width: 120px;    /* largura máxima */
+  height: auto;        /* mantém proporção */
+  object-fit: contain; /* evita distorção */
+  border-radius: 8px;  /* deixa cantos suaves */
+  transition: transform 0.3s ease;
+}
+
+.logo img:hover {
+  transform: scale(1.05); /* efeito sutil ao passar o mouse */
+}
+
   /* WhatsApp profissional */
 /* WhatsApp profissional */
 .whatsapp-btn {
