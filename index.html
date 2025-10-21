@@ -382,16 +382,20 @@ const conteudoDetalhes = document.getElementById('conteudoDetalhes');
 
 function abrirDetalhes(index){
   const p = produtos[index];
+  
   let imagensHTML = '';
-if(p.imagens && p.imagens.length > 0){
-  imagensHTML = '<div class="modal-imagens">';
-  p.imagens.forEach(img => {
-    imagensHTML += `<img src="${img}" alt="${p.nome}">`;
-  });
-  imagensHTML += '</div>';
-} else {
-  imagensHTML = `<div style="width:100%; height:200px; background:#e2e8f0; display:flex; align-items:center; justify-content:center; border-radius:8px;">Sem imagem</div>`;
-}
+  if(p.imagens && p.imagens.length > 0){
+    imagensHTML = `<div class="carrossel" id="carrossel-modal">`;
+    p.imagens.forEach((img,j)=>{
+      imagensHTML += `<img src="${img}" class="${j===0 ? 'active' : ''}" alt="${p.nome}">`;
+    });
+    imagensHTML += `
+      <button class="prev" onclick="mudarImagemModal(-1)">&#10094;</button>
+      <button class="next" onclick="mudarImagemModal(1)">&#10095;</button>
+    </div>`;
+  } else {
+    imagensHTML = `<div style="width:100%; height:200px; background:#e2e8f0; display:flex; align-items:center; justify-content:center; border-radius:8px;">Sem imagem</div>`;
+  }
 
   conteudoDetalhes.innerHTML = `
     ${imagensHTML}
@@ -400,7 +404,18 @@ if(p.imagens && p.imagens.length > 0){
     <p><strong>Descrição:</strong> ${p.descricao || 'Sem descrição'}</p>
     <a href="https://wa.me/5588993800944?text=Olá,%20gostaria%20de%20comprar%20o%20produto%20${encodeURIComponent(p.nome)}" target="_blank" class="detalhes-whatsapp">Chamar no WhatsApp</a>
   `;
+
   modalDetalhes.style.display = 'block';
+}
+
+function mudarImagemModal(dir){
+  const carrossel = document.getElementById('carrossel-modal');
+  if(!carrossel) return;
+  const imgs = carrossel.querySelectorAll('img');
+  let index = Array.from(imgs).findIndex(img => img.classList.contains('active'));
+  imgs[index].classList.remove('active');
+  index = (index + dir + imgs.length) % imgs.length;
+  imgs[index].classList.add('active');
 }
 
 fecharDetalhes.addEventListener('click', ()=> modalDetalhes.style.display='none');
