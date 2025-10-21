@@ -252,14 +252,27 @@ window.excluirProduto = async function(index){
 // Editar Produto
 window.editarProduto = function(index){
   produtoEditando = produtos[index];
+  
+  // Preenche os campos do formulário
   document.getElementById('nome').value = produtoEditando.nome;
   document.getElementById('categoria').value = produtoEditando.categoria;
   document.getElementById('venda').value = produtoEditando.preco;
   document.getElementById('estoque').value = produtoEditando.estoque;
   document.getElementById('codigo').value = produtoEditando.codigo;
   document.getElementById('descricao').value = produtoEditando.descricao;
+
+  // Mostra as imagens existentes do produto
   imagensSelecionadas = produtoEditando.imagens || [];
-}
+  preview.innerHTML = "";
+
+  if (imagensSelecionadas.length > 0) {
+    imagensSelecionadas.forEach(src => {
+      const img = document.createElement('img');
+      img.src = src;
+      preview.appendChild(img);
+    });
+  }
+};
 
 // Filtro
 filtroInput.addEventListener('input',()=>{
