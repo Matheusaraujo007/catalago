@@ -89,29 +89,24 @@
   .carrossel .next { right: 10px; }
 
   /* 🛒 Carrinho moderno e profissional */
+/* Carrinho modal (invisível por padrão) */
 .carrinho {
   position: fixed;
-  right: 20px;
-  top: 100px;
-  width: 340px;
+  right: -380px; /* começa escondido fora da tela */
+  top: 80px;
+  width: 360px;
   max-height: 80%;
   background: #ffffff;
   border-radius: 16px;
   box-shadow: 0 6px 25px rgba(0,0,0,0.15);
   padding: 20px;
   overflow-y: auto;
-  transition: all 0.3s ease;
-  border: 1px solid #e5e7eb;
-  font-family: 'Poppins', sans-serif;
+  transition: right 0.4s ease;
+  z-index: 1000;
 }
 
-.carrinho h3 {
-  margin-top: 0;
-  text-align: center;
-  color: #1e3a8a;
-  font-weight: 700;
-  border-bottom: 2px solid #e5e7eb;
-  padding-bottom: 8px;
+.carrinho.aberto {
+  right: 20px; /* entra na tela */
 }
 
 .carrinho-item {
@@ -356,6 +351,50 @@
   background: linear-gradient(90deg, #1E40AF, #1D4ED8);
   transform: translateY(-2px);
 }
+
+/* Ícone do carrinho */
+.carrinho-icon {
+  position: relative;
+  background: #2563EB;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.carrinho-icon img {
+  width: 25px;
+  height: 25px;
+  filter: invert(1);
+}
+
+.carrinho-icon:hover {
+  background: #1e40af;
+  transform: scale(1.1);
+}
+
+/* Contador de itens */
+#contadorCarrinho {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #ef4444;
+  color: white;
+  font-size: 0.75em;
+  font-weight: bold;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
 </style>
 </head>
 <body>
@@ -370,6 +409,11 @@
 <a href="https://wa.me/5588993800944" target="_blank" class="whatsapp-btn" title="Fale conosco no WhatsApp">
   <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
 </a>
+
+<!-- Carrinho -->
+      <button id="btnCarrinho" class="carrinho-icon" title="Ver Carrinho">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Shopping_cart_font_awesome.svg" alt="Carrinho" />
+        <span id="contadorCarrinho">0</span>
   </div>
 </header>
 
@@ -534,6 +578,46 @@ function removerCarrinho(index){
   atualizarCarrinho();
 }
 
+const btnCarrinho = document.getElementById('btnCarrinho');
+const carrinhoDiv = document.getElementById('carrinho');
+
+btnCarrinho.addEventListener('click', () => {
+  carrinhoDiv.classList.toggle('aberto');
+});
+
+// Atualizar contador do carrinho automaticamente
+function atualizarContador(){
+  const contador = document.getElementById('contadorCarrinho');
+  const totalItens = carrinho.reduce((sum, item)=> sum + item.quantidade, 0);
+  contador.textContent = totalItens;
+}
+
+// Atualizar contador sempre que o carrinho mudar
+function atualizarCarrinho(){
+  itensCarrinho.innerHTML = '';
+  let total = 0;
+
+  carrinho.forEach((item,index)=>{
+    const subtotal = Number(item.preco) * item.quantidade;
+    total += subtotal;
+
+    const div = document.createElement('div');
+    div.className = 'carrinho-item';
+    div.innerHTML = `
+      <img src="${item.imagens?.[0] || 'https://via.placeholder.com/50'}" alt="${item.nome}">
+      <div class="info">
+        <strong>${item.nome}</strong>
+        <span>Qtd: ${item.quantidade}</span>
+        <span>R$ ${subtotal.toFixed(2)}</span>
+      </div>
+      <button onclick="removerCarrinho(${index})">✕</button>
+    `;
+    itensCarrinho.appendChild(div);
+  });
+
+  document.querySelector('#totalCarrinho span:last-child').textContent = `R$ ${total.toFixed(2)}`;
+  atualizarContador();
+}
 // Modal
 const modal = document.getElementById('modalForm');
 const btnFinalizar = document.getElementById('finalizar');
