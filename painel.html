@@ -20,6 +20,8 @@
   input:focus, select:focus, textarea:focus { outline:none; border-color:#2563eb; box-shadow:0 0 5px rgba(37,99,235,0.3); }
   textarea { grid-column: span 2; resize:none; }
   .preview { grid-column: span 2; display:flex; flex-wrap:wrap; gap:10px; }
+  .preview img { width:90px; height:90px; object-fit:cover; border-radius:8px; border:1px solid #e2e8f0; transition: transform 0.3s ease; }
+  .preview img:hover { transform:scale(1.05); }
   .btn { grid-column: span 2; text-align:right; }
   button { background: linear-gradient(90deg,#2563eb,#1e3a8a); color:white; padding:12px 25px; font-size:1em; border:none; border-radius:10px; cursor:pointer; transition: transform 0.2s, box-shadow 0.2s; }
   button:hover { transform:scale(1.05); box-shadow:0 4px 15px rgba(37,99,235,0.3); }
@@ -29,7 +31,7 @@
   th, td { border-bottom:1px solid #e2e8f0; padding:12px; text-align:left; vertical-align:middle; }
   th { background:#f1f5f9; color:#1e293b; font-weight:600; }
   tr { transition:background-color 0.3s, transform 0.2s; }
-  tr:hover { background-color:#ffffff; transform:scale(1.01); }
+  tr:hover { background-color:#f9fafb; transform:scale(1.01); }
   .no-data { text-align:center; color:#64748b; font-style:italic; }
   .miniatura img { width:60px; height:60px; border-radius:8px; object-fit:cover; border:1px solid #cbd5e1; transition:0.3s; }
   .miniatura img:hover { transform:scale(1.1); }
@@ -123,53 +125,17 @@ let imagensSelecionadas = [];
 let produtos = [];
 let produtoEditando = null;
 
-// Função para atualizar pré-visualização
-function atualizarPreview() {
-  preview.innerHTML = "";
-  imagensSelecionadas.forEach((src, i) => {
-    const container = document.createElement('div');
-    container.style.position = "relative";
-    container.style.display = "inline-block";
-
-    const img = document.createElement('img');
-    img.src = src;
-    img.style.width = "90px";
-    img.style.height = "90px";
-    img.style.objectFit = "cover";
-    img.style.borderRadius = "8px";
-    img.style.border = "1px solid #e2e8f0";
-    container.appendChild(img);
-
-    const btn = document.createElement('button');
-    btn.textContent = "✖";
-    btn.style.position = "absolute";
-    btn.style.top = "-5px";
-    btn.style.right = "-5px";
-    btn.style.background = "#dc2626";
-    btn.style.color = "white";
-    btn.style.border = "none";
-    btn.style.borderRadius = "50%";
-    btn.style.width = "20px";
-    btn.style.height = "20px";
-    btn.style.cursor = "pointer";
-    btn.style.fontSize = "12px";
-    btn.addEventListener('click', () => {
-      imagensSelecionadas.splice(i, 1);
-      atualizarPreview();
-    });
-
-    container.appendChild(btn);
-    preview.appendChild(container);
-  });
-}
-
-// Pré-visualização ao selecionar novas imagens
+// Pré-visualização das imagens
 inputImagens.addEventListener('change', () => {
+  preview.innerHTML = "";
+  imagensSelecionadas = [];
   Array.from(inputImagens.files).forEach(file => {
     const reader = new FileReader();
     reader.onload = (e) => {
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      preview.appendChild(img);
       imagensSelecionadas.push(e.target.result);
-      atualizarPreview();
     };
     reader.readAsDataURL(file);
   });
@@ -231,19 +197,21 @@ form.addEventListener('submit', async (e) => {
   try {
     let res, produtoSalvo;
     if(produtoEditando) {
+      // Editar pelo nome
       res = await fetch('/api/produtos', {
         method: 'PUT',
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify({
-          id: produtoEditando.id,
+          nomeAntigo: produtoEditando.nome,
           nome, categoria, venda, estoque, codigo, descricao, imagens: imagensSelecionadas
         })
       });
       produtoSalvo = await res.json();
-      const index = produtos.findIndex(p => p.id === produtoEditando.id);
+      const index = produtos.findIndex(p => p.nome === produtoEditando.nome);
       produtos[index] = produtoSalvo;
       produtoEditando = null;
     } else {
+      // Novo produto
       res = await fetch('/api/produtos', {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
@@ -254,8 +222,8 @@ form.addEventListener('submit', async (e) => {
     }
     atualizarTabela();
     form.reset();
+    preview.innerHTML = "";
     imagensSelecionadas = [];
-    atualizarPreview();
   } catch(err){
     console.error(err);
     alert('Erro ao salvar produto');
@@ -265,12 +233,12 @@ form.addEventListener('submit', async (e) => {
 // Excluir Produto
 window.excluirProduto = async function(index){
   if(!confirm('Tem certeza que deseja excluir este produto?')) return;
-  const id = produtos[index].id;
+  const nome = produtos[index].nome;
   try {
     const res = await fetch('/api/produtos',{
       method:'DELETE',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({id})
+      body: JSON.stringify({nome})
     });
     if(!res.ok) throw new Error('Erro ao excluir produto');
     produtos.splice(index,1);
@@ -285,6 +253,7 @@ window.excluirProduto = async function(index){
 window.editarProduto = function(index){
   produtoEditando = produtos[index];
   
+  // Preenche os campos do formulário
   document.getElementById('nome').value = produtoEditando.nome;
   document.getElementById('categoria').value = produtoEditando.categoria;
   document.getElementById('venda').value = produtoEditando.preco;
@@ -292,8 +261,17 @@ window.editarProduto = function(index){
   document.getElementById('codigo').value = produtoEditando.codigo;
   document.getElementById('descricao').value = produtoEditando.descricao;
 
-  imagensSelecionadas = produtoEditando.imagens ? [...produtoEditando.imagens] : [];
-  atualizarPreview();
+  // Mostra as imagens existentes do produto
+  imagensSelecionadas = produtoEditando.imagens || [];
+  preview.innerHTML = "";
+
+  if (imagensSelecionadas.length > 0) {
+    imagensSelecionadas.forEach(src => {
+      const img = document.createElement('img');
+      img.src = src;
+      preview.appendChild(img);
+    });
+  }
 };
 
 // Filtro
