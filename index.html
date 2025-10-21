@@ -135,19 +135,19 @@
 
 #modalDetalhes .carrossel {
   width: 100%;
-  height: auto;
   max-height: 400px;
   overflow: hidden;
   position: relative;
-  border-radius: 8px;
+  border-radius: 12px;
   margin-bottom: 10px;
 }
 
 #modalDetalhes .carrossel img {
   width: 100%;
-  height: auto;
+  max-height: 400px;
   display: none;
   object-fit: contain;
+  border-radius: 12px;
 }
 
 #modalDetalhes .carrossel img.active {
@@ -158,26 +158,32 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(0,0,0,0.4);
+  background: rgba(0,0,0,0.35);
   color: white;
   border: none;
-  padding: 10px 12px;
+  width: 40px;
+  height: 40px;
   cursor: pointer;
   border-radius: 50%;
   font-size: 1.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s, transform 0.3s;
   z-index: 2;
-}
-
-#modalDetalhes .carrossel .prev { 
-  left: -300px; /* sai um pouco para fora da imagem */
-}
-
-#modalDetalhes .carrossel .next { 
-  right: -300px; /* sai um pouco para fora da imagem */
 }
 
 #modalDetalhes .carrossel button:hover {
   background: rgba(0,0,0,0.7);
+  transform: scale(1.1);
+}
+
+#modalDetalhes .carrossel .prev {
+  left: 10px; /* 10px dentro da borda da imagem */
+}
+
+#modalDetalhes .carrossel .next {
+  right: 10px; /* 10px dentro da borda da imagem */
 }
 
 </style>
