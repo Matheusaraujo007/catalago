@@ -191,6 +191,7 @@
   gap: 10px;
   margin-top: 20px;
   justify-content: space-between;
+  align-items: stretch; /* garante mesma altura exata */
 }
 
 .btn-detalhe {
@@ -198,9 +199,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 48px;
-  padding: 0 10px;
-  line-height: 1; /* garante altura igual */
+  height: 50px;
+  padding: 0 12px;
+  line-height: 1;
   border: none;
   border-radius: 8px;
   font-weight: 600;
@@ -212,11 +213,15 @@
   box-shadow: 0 3px 8px rgba(0,0,0,0.15);
 }
 
-.btn-detalhe.whatsapp,
-.btn-detalhe.comprar {
-  display: inline-flex; /* força mesmo comportamento entre <a> e <button> */
-  align-items: center;
-  justify-content: center;
+/* Força que tanto <a> quanto <button> se comportem idênticos */
+.btn-detalhe,
+.btn-detalhe:visited {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 .btn-detalhe.whatsapp {
@@ -236,9 +241,6 @@
   background: linear-gradient(90deg, #1E40AF, #1D4ED8);
   transform: translateY(-2px);
 }
-
-.btn-detalhe.whatsapp { display: flex !important; }
-
 </style>
 </head>
 <body>
