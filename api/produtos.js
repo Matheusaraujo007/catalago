@@ -8,9 +8,25 @@ const pool = new Pool({
 export default async function handler(req, res) {
   try {
     if (req.method === "GET") {
-      const result = await pool.query("SELECT * FROM produtos ORDER BY id ASC");
-      return res.status(200).json(result.rows || []);
-    }
+  const { search } = req.query; // recebe o parâmetro de busca
+  let result;
+
+  if (search) {
+    // Busca por nome, categoria ou código (case-insensitive)
+    result = await pool.query(
+      `SELECT * FROM produtos
+       WHERE LOWER(nome) LIKE LOWER($1)
+       OR LOWER(categoria) LIKE LOWER($1)
+       OR LOWER(codigo) LIKE LOWER($1)
+       ORDER BY id ASC`,
+      [`%${search}%`]
+    );
+  } else {
+    result = await pool.query("SELECT * FROM produtos ORDER BY id ASC");
+  }
+
+  return res.status(200).json(result.rows || []);
+}
 
     // ✅ INSERIR PRODUTO
     if (req.method === "POST") {
