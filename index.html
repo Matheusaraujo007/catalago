@@ -697,23 +697,6 @@
 </header>
 
 <main>
-  <div style="text-align: center; margin: 20px 0;">
-  <input
-    type="text"
-    id="searchInput"
-    placeholder="🔍 Buscar produtos..."
-    style="
-      width: 80%;
-      max-width: 400px;
-      padding: 10px;
-      border: 2px solid #25d366;
-      border-radius: 8px;
-      font-size: 16px;
-      outline: none;
-    "
-  />
-</div>
-
   <h2>Filtrar por Categoria</h2>
   <div class="filtro-categoria" id="filtroCategorias"></div>
   <div class="catalogo" id="catalogo"></div>
@@ -823,41 +806,6 @@ async function carregarProdutos() {
     catalogo.innerHTML = "<p>Erro ao carregar produtos.</p>";
   }
 }
-
-// pegar o input de busca
-const searchInput = document.getElementById('filtroInput');
-const tabela = document.getElementById('tabelaProdutos');
-
-// função para atualizar a tabela
-function atualizarTabela(produtos) {
-  tabela.querySelector('tbody').innerHTML = '';
-  produtos.forEach(produto => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${produto.nome}</td>
-      <td>${produto.descricao}</td>
-      <td>R$ ${produto.preco.toFixed(2)}</td>
-    `;
-    tabela.querySelector('tbody').appendChild(tr);
-  });
-}
-
-// carregar todos os produtos inicialmente
-async function carregarProdutos() {
-  const res = await fetch('/api/produtos');
-  const produtos = await res.json();
-  atualizarTabela(produtos);
-}
-carregarProdutos();
-
-// filtro ao digitar
-searchInput.addEventListener('input', async () => {
-  const termo = searchInput.value.trim();
-  const res = await fetch(`/api/produtos?search=${encodeURIComponent(termo)}`);
-  const produtosFiltrados = await res.json();
-  atualizarTabela(produtosFiltrados);
-});
-
 
 // Mostrar produtos com carrossel
 function mostrarProdutos(categoria = "Todos") {
