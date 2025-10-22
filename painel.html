@@ -303,6 +303,40 @@ async function carregarCategorias(){
   } catch(err){ console.error('Erro ao carregar categorias:', err); }
 }
 
+// === ADICIONAR NOVA CATEGORIA ===
+const addCatBtn = document.getElementById('addCategoriaBtn');
+
+addCatBtn.addEventListener('click', async () => {
+  const nomeCategoria = prompt("Digite o nome da nova categoria:");
+  if (!nomeCategoria || nomeCategoria.trim() === "") return;
+
+  try {
+    // Envia para o banco via /api/categorias (POST)
+    const res = await fetch('/api/categorias', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome: nomeCategoria })
+    });
+
+    if (!res.ok) throw new Error("Erro ao salvar categoria");
+
+    const novaCategoria = await res.json();
+
+    // Atualiza o select com a nova categoria
+    const select = document.getElementById('categoria');
+    const option = document.createElement('option');
+    option.value = novaCategoria.nome;
+    option.textContent = novaCategoria.nome;
+    select.appendChild(option);
+    select.value = novaCategoria.nome;
+
+    alert(`✅ Categoria "${novaCategoria.nome}" adicionada com sucesso!`);
+  } catch (err) {
+    console.error(err);
+    alert("❌ Erro ao adicionar categoria.");
+  }
+});
+
 carregarProdutos();
 carregarCategorias();
 </script>
