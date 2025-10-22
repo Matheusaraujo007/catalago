@@ -824,54 +824,40 @@ async function carregarProdutos() {
   }
 }
 
-/// --- BUSCA DE PRODUTOS --- //
-const searchInput = document.getElementById("searchInput");
+// pegar o input de busca
+const searchInput = document.getElementById('filtroInput');
+const tabela = document.getElementById('tabelaProdutos');
 
-searchInput.addEventListener("input", () => {
-  const termo = searchInput.value.toLowerCase().trim();
-  mostrarProdutos(termo);
+// função para atualizar a tabela
+function atualizarTabela(produtos) {
+  tabela.querySelector('tbody').innerHTML = '';
+  produtos.forEach(produto => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${produto.nome}</td>
+      <td>${produto.descricao}</td>
+      <td>R$ ${produto.preco.toFixed(2)}</td>
+    `;
+    tabela.querySelector('tbody').appendChild(tr);
+  });
+}
+
+// carregar todos os produtos inicialmente
+async function carregarProdutos() {
+  const res = await fetch('/api/produtos');
+  const produtos = await res.json();
+  atualizarTabela(produtos);
+}
+carregarProdutos();
+
+// filtro ao digitar
+searchInput.addEventListener('input', async () => {
+  const termo = searchInput.value.trim();
+  const res = await fetch(`/api/produtos?search=${encodeURIComponent(termo)}`);
+  const produtosFiltrados = await res.json();
+  atualizarTabela(produtosFiltrados);
 });
 
-// Função de exibição de produtos (com busca)
-function mostrarProdutos(filtroBusca = "", categoriaSelecionada = "Todos") {
-  catalogo.innerHTML = "";
-
-  let produtosFiltrados = produtos.filter(p => {
-    const nomeMatch = p.nome.toLowerCase().includes(filtroBusca);
-    const categoriaMatch = categoriaSelecionada === "Todos" || p.categoria === categoriaSelecionada;
-    return nomeMatch && categoriaMatch;
-  });
-
-  if (produtosFiltrados.length === 0) {
-    catalogo.innerHTML = "<p>Nenhum produto encontrado.</p>";
-    return;
-  }
-
-  produtosFiltrados.forEach(p => {
-    const card = document.createElement("div");
-    card.classList.add("produto");
-    card.innerHTML = `
-      <div class="carrossel">
-        ${(p.imagens || []).map((img, i) => 
-          `<img src="${img}" class="${i === 0 ? "active" : ""}">`
-        ).join('')}
-      </div>
-      <h3>${p.nome}</h3>
-      <p>${p.descricao}</p>
-      <p><strong>R$ ${p.preco.toFixed(2)}</strong></p>
-      <button onclick="adicionarAoCarrinho('${p.id}')">Adicionar</button>
-    `;
-    catalogo.appendChild(card);
-  });
-}
-
-// --- FILTRO POR CATEGORIA --- //
-function filtrarProdutos(categoria, botao) {
-  document.querySelectorAll('.filtro-categoria button').forEach(btn => btn.classList.remove('active'));
-  botao.classList.add('active');
-  const termoBusca = searchInput.value.toLowerCase().trim();
-  mostrarProdutos(termoBusca, categoria);
-}
 
 // Mostrar produtos com carrossel
 function mostrarProdutos(categoria = "Todos") {
