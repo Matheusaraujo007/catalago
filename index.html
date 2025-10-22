@@ -657,40 +657,24 @@
     Finalize tudo de forma rápida e segura pelo WhatsApp 💬
       <br>
   <span class="contato-link" id="abrirContatos">📞 Contatos</span>
-  <span class="contato-link" id="btnEntrega">📍 Entrega</span>
+  <button id="btnEntrega" class="botao-contato">
+  <i class="fas fa-map-marker-alt"></i> 📍 Localização
+</button>
 </div>
 
 <!-- Modal de Entrega -->
 <div id="modalEntrega" class="modal">
   <div class="modal-content">
-    <span class="fechar">&times;</span>
-    <h2>🚚 Opções de Entrega</h2>
+    <span class="close">&times;</span>
+    <h2>📍 Localização</h2>
+    <p>Retire seu pedido em nosso ponto físico:</p>
 
-    <div class="opcoes-entrega">
-      <button class="opcao-btn" id="btnOpcaoEntrega">Entrega</button>
-      <button class="opcao-btn" id="btnOpcaoRetirada">Retirada</button>
-    </div>
-    <a href="https://maps.app.goo.gl/1pYhqNPGsAPRFVi3A" target="_blank">
-        <i class="fas fa-map-marker-alt"></i> BR-222, Km 317 Posto L-CAR Caçimbas-Tianguá - CE
-      </a>
-
-    <div id="camposEntrega" class="campos-entrega" style="display:none;">
-      <h3>Endereço para Entrega</h3>
-      <input type="text" placeholder="Rua, número e complemento">
-      <input type="text" placeholder="Bairro">
-      <input type="text" placeholder="Cidade">
-      <input type="text" placeholder="CEP">
-      <button class="btn-confirmar">Confirmar Endereço</button>
-    </div>
-
-    <div id="enderecoRetirada" class="endereco-retirada" style="display:none;">
-      <h3>📍 Retirada no Local</h3>
-      <p><strong>Endereço:</strong><br>
-      BR-222, Km 317 Posto L-CAR Caçimbas<br>
-      Tianguá - CE<br>
-      CEP: 62320-000</p>
-      <button class="btn-confirmar">OK</button>
-    </div>
+    <a href="https://maps.app.goo.gl/1pYhqNPGsAPRFVi3A" 
+       target="_blank" 
+       class="botao-maps">
+      <i class="fas fa-map-marker-alt"></i> 
+      BR-222, Km 317 Posto L-CAR Caçimbas - Tianguá - CE
+    </a>
   </div>
 </div>
 
@@ -782,27 +766,23 @@ let carrinho = [];
 const filtroCategorias = document.getElementById('filtroCategorias');
 
 // Modal de Entregas
-const modalEntrega = document.getElementById("modalEntrega");
-  const btnEntrega = document.getElementById("btnEntrega");
-  const fechar = modalEntrega.querySelector(".fechar");
-  const btnOpcaoEntrega = document.getElementById("btnOpcaoEntrega");
-  const btnOpcaoRetirada = document.getElementById("btnOpcaoRetirada");
-  const camposEntrega = document.getElementById("camposEntrega");
-  const enderecoRetirada = document.getElementById("enderecoRetirada");
+const btnEntrega = document.getElementById("btnEntrega");
+  const modalEntrega = document.getElementById("modalEntrega");
+  const closeEntrega = modalEntrega.querySelector(".close");
 
-  btnEntrega.onclick = () => modalEntrega.style.display = "block";
-  fechar.onclick = () => modalEntrega.style.display = "none";
-  window.onclick = (e) => { if (e.target == modalEntrega) modalEntrega.style.display = "none"; };
+  btnEntrega.addEventListener("click", () => {
+    modalEntrega.style.display = "flex";
+  });
 
-  btnOpcaoEntrega.onclick = () => {
-    camposEntrega.style.display = "block";
-    enderecoRetirada.style.display = "none";
-  };
+  closeEntrega.addEventListener("click", () => {
+    modalEntrega.style.display = "none";
+  });
 
-  btnOpcaoRetirada.onclick = () => {
-    camposEntrega.style.display = "none";
-    enderecoRetirada.style.display = "block";
-  };
+  window.addEventListener("click", (e) => {
+    if (e.target === modalEntrega) {
+      modalEntrega.style.display = "none";
+    }
+  });
 
 // Modal de Contatos
 const modalContatos = document.getElementById('modalContatos');
