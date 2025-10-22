@@ -829,38 +829,33 @@ const searchInput = document.getElementById("searchInput");
 
 searchInput.addEventListener("input", () => {
   const termo = searchInput.value.toLowerCase().trim();
-  const produtosFiltrados = produtos.filter(produto =>
-    produto.nome.toLowerCase().includes(termo) ||
-    produto.categoria.toLowerCase().includes(termo) ||
-    (produto.descricao && produto.descricao.toLowerCase().includes(termo))
+
+  const produtosFiltrados = produtos.filter(p => 
+    p.nome.toLowerCase().includes(termo) || 
+    (p.descricao && p.descricao.toLowerCase().includes(termo)) ||
+    (p.categoria && p.categoria.toLowerCase().includes(termo))
   );
+
   mostrarProdutos(produtosFiltrados);
 });
-
-
-
-function filtrarProdutos(categoria, btn){
-  document.querySelectorAll('#filtroCategorias button').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  mostrarProdutos(categoria);
-}
-
 // Mostrar produtos com carrossel
 function mostrarProdutos(lista = produtos) {
-  catalogo.innerHTML = '';
+  catalogo.innerHTML = "";
   lista.forEach(produto => {
-    const card = document.createElement('div');
-    card.classList.add('produto');
-    card.innerHTML = `
+    const div = document.createElement("div");
+    div.classList.add("produto");
+    div.innerHTML = `
       <div class="carrossel">
-        ${produto.imagens.map((img, i) => `<img src="${img}" class="${i===0?'active':''}" alt="${produto.nome}">`).join('')}
+        ${produto.imagens.map((img, i) =>
+          `<img src="${img}" class="${i === 0 ? "active" : ""}" alt="${produto.nome}">`
+        ).join('')}
       </div>
       <h3>${produto.nome}</h3>
       <p>${produto.descricao}</p>
-      <strong>R$ ${produto.preco.toFixed(2)}</strong>
-      <button onclick="adicionarAoCarrinho(${produto.id})">Adicionar ao carrinho</button>
+      <p><strong>R$ ${produto.preco.toFixed(2)}</strong></p>
+      <button onclick="adicionarAoCarrinho(${produto.id})">Adicionar</button>
     `;
-    catalogo.appendChild(card);
+    catalogo.appendChild(div);
   });
 }
 
