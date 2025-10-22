@@ -874,26 +874,6 @@ function filtrarProdutos(categoria, botao) {
 }
 
 // Mostrar produtos com carrossel
-function mostrarProdutos(lista = produtos) {
-  catalogo.innerHTML = "";
-  lista.forEach(produto => {
-    const div = document.createElement("div");
-    div.classList.add("produto");
-    div.innerHTML = `
-      <div class="carrossel">
-        ${produto.imagens.map((img, i) =>
-          `<img src="${img}" class="${i === 0 ? "active" : ""}" alt="${produto.nome}">`
-        ).join('')}
-      </div>
-      <h3>${produto.nome}</h3>
-      <p>${produto.descricao}</p>
-      <p><strong>R$ ${produto.preco.toFixed(2)}</strong></p>
-      <button onclick="adicionarAoCarrinho(${produto.id})">Adicionar</button>
-    `;
-    catalogo.appendChild(div);
-  });
-}
-
 function mostrarProdutos(categoria = "Todos") {
   catalogo.innerHTML = "";
   produtos.forEach((p,i)=>{
