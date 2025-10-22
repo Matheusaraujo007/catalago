@@ -846,6 +846,24 @@ function filtrarProdutos(categoria, btn){
 }
 
 // Mostrar produtos com carrossel
+function mostrarProdutos(lista = produtos) {
+  catalogo.innerHTML = '';
+  lista.forEach(produto => {
+    const card = document.createElement('div');
+    card.classList.add('produto');
+    card.innerHTML = `
+      <div class="carrossel">
+        ${produto.imagens.map((img, i) => `<img src="${img}" class="${i===0?'active':''}" alt="${produto.nome}">`).join('')}
+      </div>
+      <h3>${produto.nome}</h3>
+      <p>${produto.descricao}</p>
+      <strong>R$ ${produto.preco.toFixed(2)}</strong>
+      <button onclick="adicionarAoCarrinho(${produto.id})">Adicionar ao carrinho</button>
+    `;
+    catalogo.appendChild(card);
+  });
+}
+
 function mostrarProdutos(categoria = "Todos") {
   catalogo.innerHTML = "";
   produtos.forEach((p,i)=>{
