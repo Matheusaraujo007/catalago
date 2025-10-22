@@ -595,19 +595,6 @@
   background: #0056b3;
 }
 
-.botoes-contato-entrega {
-  display: flex;
-  gap: 10px;          /* Espaço entre os dois */
-  justify-content: flex-start; /* Alinha à esquerda, você pode mudar para center se quiser */
-  margin-top: 10px;   /* Pequeno espaçamento do texto acima */
-}
-
-.botoes-contato-entrega .contato-link,
-.botoes-contato-entrega #btnEntrega {
-  margin: 0; /* Remove margens extras para ficar alinhado */
-}
-
-
 </style>
 </head>
 <body>
@@ -622,7 +609,7 @@
     Finalize tudo de forma rápida e segura pelo WhatsApp 💬
       <br>
   <span class="contato-link" id="abrirContatos">📞 Contatos</span>
-  <button id="btnEntrega" class="botao-contato">
+  <button id="btnEntrega" class="contato-link botao-contato">
   <i class="fas fa-map-marker-alt"></i> 📍 Localização
 </button>
 </div>
