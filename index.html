@@ -783,58 +783,77 @@ window.addEventListener('click', (e) => {
   if (e.target === modalContatos) modalContatos.style.display = 'none';
 });
 
-// Carregar produtos
+// Mostrar produtos no catálogo
+function mostrarProdutos(categoria = "Todos") {
+  catalogo.innerHTML = "";
+  const filtrados = categoria === "Todos"
+    ? produtos
+    : produtos.filter(p => p.categoria === categoria);
+
+  if (filtrados.length === 0) {
+    catalogo.innerHTML = "<p>Nenhum produto encontrado nesta categoria.</p>";
+    return;
+  }
+
+  filtrados.forEach((p, i) => {
+    const div = document.createElement("div");
+    div.className = "produto";
+    div.innerHTML = `
+      <div class="carrossel">
+        ${p.imagens.map((img, idx) =>
+          `<img src="${img}" class="${idx === 0 ? "active" : ""}">`
+        ).join("")}
+      </div>
+      <h3>${p.nome}</h3>
+      <p>${p.descricao}</p>
+      <strong>R$ ${p.preco.toFixed(2)}</strong>
+      <button onclick="adicionarCarrinho(${i})">Adicionar ao Carrinho</button>
+    `;
+    catalogo.appendChild(div);
+
+    // Controle simples de carrossel
+    const imgs = div.querySelectorAll(".carrossel img");
+    let atual = 0;
+    setInterval(() => {
+      imgs[atual].classList.remove("active");
+      atual = (atual + 1) % imgs.length;
+      imgs[atual].classList.add("active");
+    }, 2500);
+  });
+}
+
+// Função para filtrar produtos e ativar botão
+function filtrarProdutos(categoria, botaoClicado) {
+  // Remove o destaque dos outros botões
+  document.querySelectorAll("#filtroCategorias button").forEach(b => b.classList.remove("active"));
+  // Ativa o botão atual
+  botaoClicado.classList.add("active");
+  // Mostra produtos filtrados
+  mostrarProdutos(categoria);
+}
+
+// Carregar produtos (mantém o seu código original)
 async function carregarProdutos() {
   try {
-    const res = await fetch('/api/produtos'); 
+    const res = await fetch('/api/produtos');
     produtos = await res.json();
 
-    const categorias = ['Todos', ...new Set(produtos.map(p=>p.categoria))];
+    const categorias = ['Todos', ...new Set(produtos.map(p => p.categoria))];
     filtroCategorias.innerHTML = '';
-    categorias.forEach(cat=>{
+    categorias.forEach(cat => {
       const btn = document.createElement('button');
       btn.textContent = cat;
       btn.dataset.categoria = cat;
-      if(cat==='Todos') btn.classList.add('active');
-      btn.addEventListener('click', ()=> filtrarProdutos(cat, btn));
+      if (cat === 'Todos') btn.classList.add('active');
+      btn.addEventListener('click', () => filtrarProdutos(cat, btn));
       filtroCategorias.appendChild(btn);
     });
 
     mostrarProdutos();
-  } catch(err){
+  } catch (err) {
     console.error("Erro ao carregar produtos:", err);
     catalogo.innerHTML = "<p>Erro ao carregar produtos.</p>";
   }
-}
-
-// Mostrar produtos com carrossel
-function mostrarProdutos(categoria = "Todos") {
-  catalogo.innerHTML = "";
-  produtos.forEach((p,i)=>{
-    if(categoria==='Todos' || p.categoria===categoria){
-      const div = document.createElement('div');
-      div.className = 'produto';
-
-      function mudarImagemModal(dir){
-  const carrossel = document.getElementById('carrossel-modal');
-  if(!carrossel) return;
-  const imgs = carrossel.querySelectorAll('img');
-  let index = Array.from(imgs).findIndex(img => img.classList.contains('active'));
-  imgs[index].classList.remove('active');
-  index = (index + dir + imgs.length) % imgs.length;
-  imgs[index].classList.add('active');
-}
-
-      div.innerHTML = `
-        ${imagensHTML}
-        <h3>${p.nome}</h3>
-        <p>Categoria: ${p.categoria}</p>
-        <p>Preço: R$ ${Number(p.preco).toFixed(2)}</p>
-        <button onclick="adicionarCarrinho(${i})">Comprar</button>
-      `;
-      catalogo.appendChild(div);
-    }
-  });
 }
 
 // Navegar carrossel
