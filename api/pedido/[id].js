@@ -1,36 +1,27 @@
 import { Client } from "pg";
 
 export default async function handler(req, res) {
-  if(req.method !== "GET") return res.status(405).end();
-
   const { id } = req.query;
+
+  if (req.method !== "GET") return res.status(405).end();
+
   const client = new Client({ connectionString: process.env.NEON_DB_URL });
   await client.connect();
 
   try {
     const resultado = await client.query(
-      `SELECT * FROM pedidos WHERE id = $1`,
+      "SELECT * FROM pedidos WHERE id=$1",
       [id]
     );
 
-    if(resultado.rows.length === 0){
-      return res.status(404).json({ sucesso: false, erro: "Pedido não encontrado" });
+    if (resultado.rows.length === 0) {
+      res.status(404).json({ sucesso: false, erro: "Pedido não encontrado" });
+      return;
     }
 
     const pedido = resultado.rows[0];
 
-    res.status(200).json({ 
-      sucesso: true, 
-      pedido: {
-        cliente: pedido.cliente,
-        itens: JSON.parse(pedido.itens),
-        total: pedido.total,
-        endereco: pedido.endereco,
-        telefone: pedido.telefone,
-        formaPagamento: pedido.forma_pagamento,
-        tipoPagamento: pedido.tipo_pagamento
-      }
-    });
+    res.status(200).json({ sucesso: true, pedido });
   } catch (err) {
     console.log(err);
     res.status(500).json({ sucesso: false, erro: err.message });
