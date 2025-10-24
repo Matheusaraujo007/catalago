@@ -1,31 +1,59 @@
-import { Client } from "pg";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
-export default async function handler(req, res) {
-  const { id } = req.query;
+export default function Pedido() {
+  const router = useRouter();
+  const { id } = router.query;
 
-  if (req.method !== "GET") return res.status(405).end();
+  const [pedido, setPedido] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState(null);
 
-  const client = new Client({ connectionString: process.env.NEON_DB_URL });
-  await client.connect();
+  useEffect(() => {
+    if (!id) return;
 
-  try {
-    const resultado = await client.query(
-      "SELECT * FROM pedidos WHERE id=$1",
-      [id]
-    );
+    async function fetchPedido() {
+      try {
+        const res = await fetch(`/api/obterPedido?id=${id}`);
+        const data = await res.json();
 
-    if (resultado.rows.length === 0) {
-      res.status(404).json({ sucesso: false, erro: "Pedido não encontrado" });
-      return;
+        if (!data.sucesso) {
+          setErro(data.erro);
+          setLoading(false);
+          return;
+        }
+
+        setPedido(data.pedido);
+        setLoading(false);
+      } catch (err) {
+        setErro(err.message);
+        setLoading(false);
+      }
     }
 
-    const pedido = resultado.rows[0];
+    fetchPedido();
+  }, [id]);
 
-    res.status(200).json({ sucesso: true, pedido });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ sucesso: false, erro: err.message });
-  } finally {
-    await client.end();
-  }
+  if (loading) return <p>Carregando pedido...</p>;
+  if (erro) return <p>Erro: {erro}</p>;
+
+  return (
+    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+      <h1>Resumo do Pedido #{pedido.id}</h1>
+      <p><strong>Cliente:</strong> {pedido.cliente}</p>
+      <p><strong>Total:</strong> R$ {pedido.total}</p>
+      <p><strong>Endereço:</strong> {pedido.endereco || "Retirada na loja"}</p>
+      <p><strong>Contato:</strong> (88) 99490-7177</p>
+      <p><strong>Pagamento:</strong> {pedido.tipo_pagamento}</p>
+
+      <h2>Itens:</h2>
+      <ul>
+        {JSON.parse(pedido.itens).map((item, index) => (
+          <li key={index}>
+            {item.quantidade || 1} x {item.nome} - R$ {(item.preco * (item.quantidade || 1)).toFixed(2)}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
