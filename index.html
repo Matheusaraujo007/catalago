@@ -970,95 +970,76 @@ btnFinalizar.addEventListener('click', () => {
   modal.style.display = 'block';
 });
 
-btnEnviar.addEventListener('click', async () => {
-  const nomeCliente = document.getElementById('nomeCliente').value.trim();
-  if (!nomeCliente) { 
-    alert("Preencha seu nome!"); 
-    return; 
-  }
-
-  btnEnviar.addEventListener('click', async () => {
-  const nomeCliente = document.getElementById('nomeCliente')?.value.trim();
-  const telefone = document.getElementById('telefone')?.value.trim();
-
-  if (!nomeCliente || !telefone) { 
-    alert("Preencha nome e telefone!"); 
-    return; 
-  }
-
-  // Total do carrinho
-  const total = carrinho.reduce((soma, item) => soma + item.preco * (item.quantidade || 1), 0);
-
-  // Monta endereço somente se for entrega
-  let enderecoCompleto = "";
-  if (tipoEntrega.value === 'Entrega') {
-    const rua = document.getElementById('rua')?.value.trim() || "";
-    const numero = document.getElementById('numero')?.value.trim() || "";
-    const bairro = document.getElementById('bairro')?.value.trim() || "";
-    const cidade = document.getElementById('cidade')?.value.trim() || "";
-    const cep = document.getElementById('cep')?.value.trim() || "";
-
-    if (!rua || !numero || !bairro || !cidade || !cep) {
-      alert("Preencha todos os campos de endereço!");
-      return;
-    }
-
-    enderecoCompleto = `${rua}, ${numero}, ${bairro}, ${cidade}, CEP: ${cep}`;
-  }
-
-  // restante do código...
+btnFechar.addEventListener('click', () => modal.style.display = 'none');
+window.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
+tipoEntrega.addEventListener('change', () => {
+  dadosEntrega.style.display = tipoEntrega.value === 'Entrega' ? 'block' : 'none';
 });
 
+btnEnviar.addEventListener('click', () => {
+  const nomeCliente = document.getElementById('nomeCliente').value.trim();
+  if (!nomeCliente) {
+    alert("Preencha seu nome!");
+    return;
+  }
 
-  const pedidoData = {
-    nomeCliente,
-    carrinho,
-    total: total.toFixed(2),
-    endereco: enderecoCompleto,
-    telefone: document.getElementById('telefone').value.trim(),
-    formaPagamento: formaPagamento,
-    tipoPagamento: tipoPagamento
-  };
+  // Variáveis de exemplo (você pode ajustar conforme seu sistema)
+  const nomeLoja = "Manchinha Px Arts";
+  const formaPagamento = document.getElementById('formaPagamento')?.value || "PIX";
+  const tipoPagamento = "Online";
+  const numeroPedido = Math.floor(Math.random() * 10000);
+  const telefone = "(88) 99490-7177";
+  const linkResumo = "https://manchinhapxarts.vendizap.com/pedido/manchinha-px-arts-3398221c20912b39fb81";
 
-  try {
-    const res = await fetch("/api/salvarPedido", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(pedidoData)
-    });
+  let totalItens = carrinho.length;
+  let totalItensValor = carrinho.reduce((sum, item) => sum + item.preco * item.quantidade, 0);
+  let valorTotal = totalItensValor;
 
-    const data = await res.json();
-    if (!data.sucesso) throw new Error(data.erro);
+  let itensTexto = carrinho.map((item, index) =>
+    `*${index + 1}* x *${item.nome}*: R$ ${(item.preco * item.quantidade).toFixed(2)}`
+  ).join('\n');
 
-    const linkResumo = data.linkResumo;
-
-    // 📨 Mensagem formatada
-    let mensagem = `Olá, meu nome é *${nomeCliente}*, esse é o meu pedido realizado através da loja *${nomeLoja}* 
+  // Monta mensagem principal no estilo profissional
+  let mensagem = `Olá, meu nome é *${nomeCliente}*, esse é o meu pedido realizado através da loja *${nomeLoja}*
 --------
-${carrinho.map((item, index) => `*${index + 1}* x *${item.nome}*: R$ ${(item.preco * (item.quantidade || 1)).toFixed(2)}`).join('\n')}
+${itensTexto}
 --------
-Quantidade de itens: *${totalItens}* 
-Total dos itens: *R$ ${totalItensValor}*
+Quantidade de itens: *${totalItens}*
+Total dos itens: *R$ ${totalItensValor.toFixed(2)}*
 --------
 Valor da entrega: *A DEFINIR*
-Valor Total: *R$ ${total.toFixed(2)}*
+Valor Total: *R$ ${valorTotal.toFixed(2)}*
 Forma de pagamento: *${formaPagamento}*
 Pagamento: *${tipoPagamento}*
-Veja o resumo do seu pedido aqui: 👇 
+Veja o resumo do seu pedido aqui: 👇
 ${linkResumo}
 --------
-Para entregar em: *${enderecoCompleto || 'Retirada na loja'}*
-Contato: *${document.getElementById('telefone').value.trim()}*
+`;
+
+  // Se for entrega, adiciona endereço
+  if (tipoEntrega.value === 'Entrega') {
+    const rua = document.getElementById('rua').value.trim();
+    const numero = document.getElementById('numero').value.trim();
+    const bairro = document.getElementById('bairro').value.trim();
+    const cidade = document.getElementById('cidade').value.trim();
+    const cep = document.getElementById('cep').value.trim();
+    mensagem += `Para entregar em: *Rua ${rua}, Nº ${numero}, ${bairro}, ${cidade} - CEP: ${cep}*
+`;
+  } else {
+    mensagem += `Retirada em loja: *${nomeLoja}*
+`;
+  }
+
+  mensagem += `Contato: *${telefone}*
+Número do pedido: *${numeroPedido}*
 --------
 Pedido feito com *${nomeLoja}*`;
 
-    const whatsapp = "5588993800944";
-    window.open(encodeURI(`https://wa.me/${whatsapp}?text=${mensagem}`), "_blank");
-    modal.style.display = 'none';
+  // Envia para o WhatsApp
+  const whatsapp = "5588993800944"; // seu número
+  window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(mensagem)}`, "_blank");
 
-  } catch (err) {
-    alert("Erro ao enviar pedido: " + err.message);
-  }
+  modal.style.display = 'none';
 });
 
 
