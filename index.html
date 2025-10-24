@@ -984,7 +984,7 @@ btnEnviar.addEventListener('click', async () => {
   }
 
   // Calcula total
-  const total = carrinho.reduce((sum, item) => sum + item.preco * (item.quantidade || 1), 0);
+  const total = carrinho.reduce((soma, item) => soma + item.preco * (item.quantidade || 1), 0);
 
   // Monta endereço se for entrega
   let enderecoCompleto = "";
@@ -997,18 +997,18 @@ btnEnviar.addEventListener('click', async () => {
     enderecoCompleto = `${rua}, ${numero}, ${bairro}, ${cidade}, CEP: ${cep}`;
   }
 
+  // Dados do pedido
   const pedidoData = {
     nomeCliente,
     carrinho,
     total: total.toFixed(2),
     endereco: enderecoCompleto,
-    telefone: "(88) 99490-7177", // contato fixo
-    formaPagamento: "",           // removido
-    tipoPagamento: ""             // removido
+    telefone: "(88) 99490-7177", // fixo
+    tipoPagamento: "Online"
   };
 
   try {
-    // Envia para a API
+    // Salva pedido na API
     const res = await fetch("/api/salvarPedido", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1018,10 +1018,10 @@ btnEnviar.addEventListener('click', async () => {
     const data = await res.json();
     if (!data.sucesso) throw new Error(data.erro);
 
-    const linkResumo = data.linkResumo; // aqui já vem o link correto
+    const linkResumo = data.linkResumo; // Link gerado automaticamente
 
-    // Monta mensagem para WhatsApp
-    const itensTexto = carrinho.map((item, index) =>
+    // Mensagem para WhatsApp
+    let itensTexto = carrinho.map((item, index) =>
       `*${index + 1}* x *${item.nome}*: R$ ${(item.preco * (item.quantidade || 1)).toFixed(2)}`
     ).join('\n');
 
@@ -1036,17 +1036,13 @@ Valor da entrega: *A DEFINIR*
 Valor Total: *R$ ${total.toFixed(2)}*
 Veja o resumo do seu pedido aqui: 👇
 ${linkResumo}
---------`;
+--------
+${tipoEntrega.value === 'Entrega' ? `Para entregar em: *${enderecoCompleto}*\n` : `Retirada em loja: *Manchinha Px Arts*\n`}
+Contato: *(88) 99490-7177*
+--------
+Pedido feito com *Manchinha Px Arts*`;
 
-    if (tipoEntrega.value === 'Entrega') {
-      mensagem += `Para entregar em: *${enderecoCompleto}*\n`;
-    } else {
-      mensagem += `Retirada em loja: *Manchinha Px Arts*\n`;
-    }
-
-    mensagem += `Contato: *(88) 99490-7177*\nNúmero do pedido: *${data.linkResumo.split("/").pop()}*\n--------\nPedido feito com *Manchinha Px Arts*`;
-
-    const whatsapp = "5588993800944";
+    const whatsapp = "5588993800944"; 
     window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(mensagem)}`, "_blank");
 
     modal.style.display = 'none';
