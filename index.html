@@ -970,18 +970,21 @@ btnFinalizar.addEventListener('click', () => {
   modal.style.display = 'block';
 });
 
-btnFechar.addEventListener('click', () => modal.style.display = 'none');
-window.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
-tipoEntrega.addEventListener('change', () => {
-  dadosEntrega.style.display = tipoEntrega.value === 'Entrega' ? 'block' : 'none';
-});
-
 btnEnviar.addEventListener('click', async () => {
   const nomeCliente = document.getElementById('nomeCliente').value.trim();
-  if(!nomeCliente){ alert("Preencha seu nome!"); return; }
+  if (!nomeCliente) { 
+    alert("Preencha seu nome!"); 
+    return; 
+  }
 
+  // 🧮 Calcula o total com base no carrinho
+  const total = carrinho.reduce((soma, item) => soma + item.preco * (item.quantidade || 1), 0);
+  const totalItens = carrinho.length;
+  const totalItensValor = total.toFixed(2);
+
+  // Monta o endereço, se for entrega
   let enderecoCompleto = "";
-  if(tipoEntrega.value === 'Entrega'){
+  if (tipoEntrega.value === 'Entrega') {
     const rua = document.getElementById('rua').value.trim();
     const numero = document.getElementById('numero').value.trim();
     const bairro = document.getElementById('bairro').value.trim();
@@ -1008,14 +1011,14 @@ btnEnviar.addEventListener('click', async () => {
     });
 
     const data = await res.json();
-    if(!data.sucesso) throw new Error(data.erro);
+    if (!data.sucesso) throw new Error(data.erro);
 
     const linkResumo = data.linkResumo;
 
-    // Monta a mensagem
+    // 📨 Mensagem formatada
     let mensagem = `Olá, meu nome é *${nomeCliente}*, esse é o meu pedido realizado através da loja *${nomeLoja}* 
 --------
-${carrinho.map((item, index) => `*${index + 1}* x *${item.nome}*: R$ ${item.preco}`).join('\n')}
+${carrinho.map((item, index) => `*${index + 1}* x *${item.nome}*: R$ ${(item.preco * (item.quantidade || 1)).toFixed(2)}`).join('\n')}
 --------
 Quantidade de itens: *${totalItens}* 
 Total dos itens: *R$ ${totalItensValor}*
@@ -1027,20 +1030,20 @@ Pagamento: *${tipoPagamento}*
 Veja o resumo do seu pedido aqui: 👇 
 ${linkResumo}
 --------
-Para entregar em: *${enderecoCompleto}*
+Para entregar em: *${enderecoCompleto || 'Retirada na loja'}*
 Contato: *${document.getElementById('telefone').value.trim()}*
-Número do pedido: *${numeroPedido}*
 --------
-Pedido feito com ${nomeLoja}`;
+Pedido feito com *${nomeLoja}*`;
 
     const whatsapp = "5588993800944";
     window.open(encodeURI(`https://wa.me/${whatsapp}?text=${mensagem}`), "_blank");
     modal.style.display = 'none';
 
-  } catch(err) {
+  } catch (err) {
     alert("Erro ao enviar pedido: " + err.message);
   }
 });
+
 
 
 // Modal de detalhes
