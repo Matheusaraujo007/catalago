@@ -975,13 +975,25 @@ btnEnviar.addEventListener('click', ()=>{
   const nomeCliente = document.getElementById('nomeCliente').value.trim();
   if(!nomeCliente){ alert("Preencha seu nome!"); return; }
 
-  let mensagem = `Olá, meu nome é ${nomeCliente}.%0APedido:%0A`;
-  let total = 0;
-  carrinho.forEach(item=>{
-    const subtotal = Number(item.preco) * item.quantidade;
-    total += subtotal;
-    mensagem += `- ${item.nome} x${item.quantidade} (R$ ${subtotal.toFixed(2)})%0A`;
-  });
+  let mensagem = `Olá, meu nome é *${nomeCliente}*, esse é o meu pedido realizado através da loja *${nomeLoja}* 
+--------
+${itens.map((item, index) => `*${index + 1}* x *${item.nome}*: R$ ${item.preco}`).join('\n')}
+--------
+Quantidade de itens: *${totalItens}* 
+Total dos itens: *R$ ${totalItensValor}*
+--------
+Valor da entrega: *A DEFINIR*
+Valor Total: *R$ ${valorTotal}*
+Forma de pagamento: *${formaPagamento}*
+Pagamento: *${tipoPagamento}*
+Veja o resumo do seu pedido aqui: 👇 
+${linkResumo}
+--------
+Para entregar em: *${endereco}*
+Contato: *${telefone}*
+Número do pedido: *${numeroPedido}*
+--------
+Pedido feito com ${nomeLoja}`;
 
   mensagem += `Opção: ${tipoEntrega.value}%0A`;
   if(tipoEntrega.value === 'Entrega'){
