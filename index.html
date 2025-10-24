@@ -978,9 +978,12 @@ tipoEntrega.addEventListener('change', () => {
 
 btnEnviar.addEventListener('click', async () => {
   const nomeCliente = document.getElementById('nomeCliente')?.value.trim();
-  
+  const telefone = document.getElementById('telefone')?.value.trim(); // opcional
 
-  
+  if (!nomeCliente) {
+    alert("Preencha seu nome!");
+    return;
+  }
 
   // Monta endereço se for entrega
   let enderecoCompleto = "";
@@ -1006,6 +1009,7 @@ btnEnviar.addEventListener('click', async () => {
     carrinho,
     total: total.toFixed(2),
     endereco: enderecoCompleto,
+    telefone: telefone || "", // se não preencher, envia vazio
     formaPagamento: document.getElementById('formaPagamento')?.value || "PIX",
     tipoPagamento: "Online"
   };
@@ -1049,7 +1053,11 @@ ${linkResumo}
       mensagem += `Retirada em loja: *Manchinha Px Arts*\n`;
     }
 
-    mensagem += `Contato: *${telefone}*\n--------\nPedido feito com *Manchinha Px Arts*`;
+    if (telefone) {
+      mensagem += `Contato: *${telefone}*\n`;
+    }
+
+    mensagem += `--------\nPedido feito com *Manchinha Px Arts*`;
 
     // Abre WhatsApp
     const whatsapp = "5588993800944";
@@ -1061,6 +1069,7 @@ ${linkResumo}
     alert("Erro ao enviar pedido: " + err.message);
   }
 });
+
 
 
 
