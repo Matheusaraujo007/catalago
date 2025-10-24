@@ -976,71 +976,96 @@ tipoEntrega.addEventListener('change', () => {
   dadosEntrega.style.display = tipoEntrega.value === 'Entrega' ? 'block' : 'none';
 });
 
-btnEnviar.addEventListener('click', () => {
-  const nomeCliente = document.getElementById('nomeCliente').value.trim();
-  if (!nomeCliente) {
-    alert("Preencha seu nome!");
+btnEnviar.addEventListener('click', async () => {
+  const nomeCliente = document.getElementById('nomeCliente')?.value.trim();
+  const telefone = document.getElementById('telefone')?.value.trim();
+
+  if (!nomeCliente || !telefone) {
+    alert("Preencha nome e telefone!");
     return;
   }
 
-  // Variáveis de exemplo (você pode ajustar conforme seu sistema)
-  const nomeLoja = "Manchinha Px Arts";
-  const formaPagamento = document.getElementById('formaPagamento')?.value || "PIX";
-  const tipoPagamento = "Online";
-  const numeroPedido = Math.floor(Math.random() * 10000);
-  const telefone = "(88) 99490-7177";
-  const linkResumo = "https://manchinhapxarts.vendizap.com/pedido/manchinha-px-arts-3398221c20912b39fb81";
+  // Monta endereço se for entrega
+  let enderecoCompleto = "";
+  if (tipoEntrega.value === 'Entrega') {
+    const rua = document.getElementById('rua')?.value.trim();
+    const numero = document.getElementById('numero')?.value.trim();
+    const bairro = document.getElementById('bairro')?.value.trim();
+    const cidade = document.getElementById('cidade')?.value.trim();
+    const cep = document.getElementById('cep')?.value.trim();
+    if (!rua || !numero || !bairro || !cidade || !cep) {
+      alert("Preencha todos os campos do endereço!");
+      return;
+    }
+    enderecoCompleto = `${rua}, ${numero}, ${bairro}, ${cidade}, CEP: ${cep}`;
+  }
 
-  let totalItens = carrinho.length;
-  let totalItensValor = carrinho.reduce((sum, item) => sum + item.preco * item.quantidade, 0);
-  let valorTotal = totalItensValor;
+  // Calcula total
+  const total = carrinho.reduce((sum, item) => sum + item.preco * (item.quantidade || 1), 0);
 
-  let itensTexto = carrinho.map((item, index) =>
-    `*${index + 1}* x *${item.nome}*: R$ ${(item.preco * item.quantidade).toFixed(2)}`
-  ).join('\n');
+  // Dados para API
+  const pedidoData = {
+    nomeCliente,
+    carrinho,
+    total: total.toFixed(2),
+    endereco: enderecoCompleto,
+    telefone,
+    formaPagamento: document.getElementById('formaPagamento')?.value || "PIX",
+    tipoPagamento: "Online"
+  };
 
-  // Monta mensagem principal no estilo profissional
-  let mensagem = `Olá, meu nome é *${nomeCliente}*, esse é o meu pedido realizado através da loja *${nomeLoja}*
+  try {
+    // Envia para a API
+    const res = await fetch("/api/salvarPedido", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(pedidoData)
+    });
+
+    const data = await res.json();
+    if (!data.sucesso) throw new Error(data.erro);
+
+    const linkResumo = data.linkResumo;
+
+    // Mensagem para WhatsApp
+    let itensTexto = carrinho.map((item, index) =>
+      `*${index + 1}* x *${item.nome}*: R$ ${(item.preco * (item.quantidade || 1)).toFixed(2)}`
+    ).join('\n');
+
+    let mensagem = `Olá, meu nome é *${nomeCliente}*, esse é o meu pedido realizado através da loja *Manchinha Px Arts*
 --------
 ${itensTexto}
 --------
-Quantidade de itens: *${totalItens}*
-Total dos itens: *R$ ${totalItensValor.toFixed(2)}*
+Quantidade de itens: *${carrinho.length}*
+Total dos itens: *R$ ${total.toFixed(2)}*
 --------
 Valor da entrega: *A DEFINIR*
-Valor Total: *R$ ${valorTotal.toFixed(2)}*
-Forma de pagamento: *${formaPagamento}*
-Pagamento: *${tipoPagamento}*
+Valor Total: *R$ ${total.toFixed(2)}*
+Forma de pagamento: *${pedidoData.formaPagamento}*
+Pagamento: *${pedidoData.tipoPagamento}*
 Veja o resumo do seu pedido aqui: 👇
 ${linkResumo}
---------
-`;
+--------`;
 
-  // Se for entrega, adiciona endereço
-  if (tipoEntrega.value === 'Entrega') {
-    const rua = document.getElementById('rua').value.trim();
-    const numero = document.getElementById('numero').value.trim();
-    const bairro = document.getElementById('bairro').value.trim();
-    const cidade = document.getElementById('cidade').value.trim();
-    const cep = document.getElementById('cep').value.trim();
-    mensagem += `Para entregar em: *Rua ${rua}, Nº ${numero}, ${bairro}, ${cidade} - CEP: ${cep}*
-`;
-  } else {
-    mensagem += `Retirada em loja: *${nomeLoja}*
-`;
+    if (tipoEntrega.value === 'Entrega') {
+      mensagem += `Para entregar em: *${enderecoCompleto}*\n`;
+    } else {
+      mensagem += `Retirada em loja: *Manchinha Px Arts*\n`;
+    }
+
+    mensagem += `Contato: *${telefone}*\n--------\nPedido feito com *Manchinha Px Arts*`;
+
+    // Abre WhatsApp
+    const whatsapp = "5588993800944";
+    window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(mensagem)}`, "_blank");
+
+    modal.style.display = 'none';
+
+  } catch (err) {
+    alert("Erro ao enviar pedido: " + err.message);
   }
-
-  mensagem += `Contato: *${telefone}*
-Número do pedido: *${numeroPedido}*
---------
-Pedido feito com *${nomeLoja}*`;
-
-  // Envia para o WhatsApp
-  const whatsapp = "5588993800944"; // seu número
-  window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(mensagem)}`, "_blank");
-
-  modal.style.display = 'none';
 });
+
 
 
 
