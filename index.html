@@ -1018,7 +1018,7 @@ btnEnviar.addEventListener('click', async () => {
     const data = await res.json();
     if (!data.sucesso) throw new Error(data.erro);
 
-    const linkResumo = `https://catalago-ashen.vercel.app/pedido.html?id=${pedidoID}`;
+    const linkResumo = data.linkResumo; // aqui já vem o link correto
 
     // Monta mensagem para WhatsApp
     const itensTexto = carrinho.map((item, index) =>
