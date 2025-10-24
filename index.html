@@ -976,70 +976,70 @@ tipoEntrega.addEventListener('change', () => {
   dadosEntrega.style.display = tipoEntrega.value === 'Entrega' ? 'block' : 'none';
 });
 
-btnEnviar.addEventListener('click', () => {
+btnEnviar.addEventListener('click', async () => {
   const nomeCliente = document.getElementById('nomeCliente').value.trim();
-  if (!nomeCliente) {
-    alert("Preencha seu nome!");
-    return;
-  }
+  if(!nomeCliente){ alert("Preencha seu nome!"); return; }
 
-  // Variáveis de exemplo (você pode ajustar conforme seu sistema)
-  const nomeLoja = "Manchinha Px Arts";
-  const formaPagamento = document.getElementById('formaPagamento')?.value || "PIX";
-  const tipoPagamento = "Online";
-  const numeroPedido = Math.floor(Math.random() * 10000);
-  const telefone = "(88) 99490-7177";
-  const linkResumo = "https://manchinhapxarts.vendizap.com/pedido/manchinha-px-arts-3398221c20912b39fb81";
-
-  let totalItens = carrinho.length;
-  let totalItensValor = carrinho.reduce((sum, item) => sum + item.preco * item.quantidade, 0);
-  let valorTotal = totalItensValor;
-
-  let itensTexto = carrinho.map((item, index) =>
-    `*${index + 1}* x *${item.nome}*: R$ ${(item.preco * item.quantidade).toFixed(2)}`
-  ).join('\n');
-
-  // Monta mensagem principal no estilo profissional
-  let mensagem = `Olá, meu nome é *${nomeCliente}*, esse é o meu pedido realizado através da loja *${nomeLoja}*
---------
-${itensTexto}
---------
-Quantidade de itens: *${totalItens}*
-Total dos itens: *R$ ${totalItensValor.toFixed(2)}*
---------
-Valor da entrega: *A DEFINIR*
-Valor Total: *R$ ${valorTotal.toFixed(2)}*
-Forma de pagamento: *${formaPagamento}*
-Pagamento: *${tipoPagamento}*
-Veja o resumo do seu pedido aqui: 👇
-${linkResumo}
---------
-`;
-
-  // Se for entrega, adiciona endereço
-  if (tipoEntrega.value === 'Entrega') {
+  let enderecoCompleto = "";
+  if(tipoEntrega.value === 'Entrega'){
     const rua = document.getElementById('rua').value.trim();
     const numero = document.getElementById('numero').value.trim();
     const bairro = document.getElementById('bairro').value.trim();
     const cidade = document.getElementById('cidade').value.trim();
     const cep = document.getElementById('cep').value.trim();
-    mensagem += `Para entregar em: *Rua ${rua}, Nº ${numero}, ${bairro}, ${cidade} - CEP: ${cep}*
-`;
-  } else {
-    mensagem += `Retirada em loja: *${nomeLoja}*
-`;
+    enderecoCompleto = `${rua}, ${numero}, ${bairro}, ${cidade}, CEP: ${cep}`;
   }
 
-  mensagem += `Contato: *${telefone}*
+  const pedidoData = {
+    nomeCliente,
+    carrinho,
+    total: total.toFixed(2),
+    endereco: enderecoCompleto,
+    telefone: document.getElementById('telefone').value.trim(),
+    formaPagamento: formaPagamento,
+    tipoPagamento: tipoPagamento
+  };
+
+  try {
+    const res = await fetch("/api/salvarPedido", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(pedidoData)
+    });
+
+    const data = await res.json();
+    if(!data.sucesso) throw new Error(data.erro);
+
+    const linkResumo = data.linkResumo;
+
+    // Monta a mensagem
+    let mensagem = `Olá, meu nome é *${nomeCliente}*, esse é o meu pedido realizado através da loja *${nomeLoja}* 
+--------
+${carrinho.map((item, index) => `*${index + 1}* x *${item.nome}*: R$ ${item.preco}`).join('\n')}
+--------
+Quantidade de itens: *${totalItens}* 
+Total dos itens: *R$ ${totalItensValor}*
+--------
+Valor da entrega: *A DEFINIR*
+Valor Total: *R$ ${total.toFixed(2)}*
+Forma de pagamento: *${formaPagamento}*
+Pagamento: *${tipoPagamento}*
+Veja o resumo do seu pedido aqui: 👇 
+${linkResumo}
+--------
+Para entregar em: *${enderecoCompleto}*
+Contato: *${document.getElementById('telefone').value.trim()}*
 Número do pedido: *${numeroPedido}*
 --------
-Pedido feito com *${nomeLoja}*`;
+Pedido feito com ${nomeLoja}`;
 
-  // Envia para o WhatsApp
-  const whatsapp = "5588993800944"; // seu número
-  window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(mensagem)}`, "_blank");
+    const whatsapp = "5588993800944";
+    window.open(encodeURI(`https://wa.me/${whatsapp}?text=${mensagem}`), "_blank");
+    modal.style.display = 'none';
 
-  modal.style.display = 'none';
+  } catch(err) {
+    alert("Erro ao enviar pedido: " + err.message);
+  }
 });
 
 
