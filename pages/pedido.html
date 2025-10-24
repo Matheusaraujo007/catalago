@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resumo do Pedido</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    .pedido-container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #ccc;
+      margin: 10px 0;
+    }
+    .item {
+      margin-bottom: 5px;
+    }
+    .info {
+      margin: 5px 0;
+    }
+    .link-whatsapp {
+      display: block;
+      margin-top: 15px;
+      text-align: center;
+      background: #25D366;
+      color: white;
+      padding: 10px;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="pedido-container">
+    <h1>Resumo do Pedido</h1>
+    <div id="pedidoConteudo">
+      Carregando pedido...
+    </div>
+  </div>
+
+  <script>
+    async function carregarPedido() {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+      if(!id) {
+        document.getElementById('pedidoConteudo').innerText = "ID do pedido não informado!";
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/pedido/${id}`);
+        const data = await res.json();
+
+        if(!data.sucesso) {
+          document.getElementById('pedidoConteudo').innerText = "Pedido não encontrado!";
+          return;
+        }
+
+        const pedido = data.pedido;
+
+        // Itens do pedido
+        const itensTexto = pedido.itens.map((item, i) =>
+          `<div class="item">*${i+1}* x *${item.nome}*: R$ ${Number(item.preco).toFixed(2)}</div>`
+        ).join('');
+
+        document.getElementById('pedidoConteudo').innerHTML = `
+          ${itensTexto}
+          <hr>
+          <div class="info">Quantidade de itens: <b>${pedido.itens.length}</b></div>
+          <div class="info">Total dos itens: <b>R$ ${Number(pedido.total).toFixed(2)}</b></div>
+          <div class="info">Valor da entrega: <b>A DEFINIR</b></div>
+          <div class="info">Valor Total: <b>R$ ${Number(pedido.total).toFixed(2)}</b></div>
+          <div class="info">Para entregar em: <b>${pedido.endereco || 'Retirada na loja'}</b></div>
+          <div class="info">Contato: <b>(88) 99490-7177</b></div>
+          <div class="info">Número do pedido: <b>${id}</b></div>
+          <hr>
+          <a class="link-whatsapp" href="https://wa.me/5588993800944?text=Ol%C3%A1%2C%20meu%20pedido%20ID%20${id}" target="_blank">Abrir no WhatsApp</a>
+        `;
+      } catch(err) {
+        document.getElementById('pedidoConteudo').innerText = "Erro ao carregar pedido: " + err.message;
+      }
+    }
+
+    carregarPedido();
+  </script>
+
+</body>
+</html>
