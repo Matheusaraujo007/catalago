@@ -977,6 +977,13 @@ btnEnviar.addEventListener('click', async () => {
     return; 
   }
 
+  document.addEventListener('DOMContentLoaded', () => {
+  const btnEnviar = document.getElementById('enviarPedido');
+  btnEnviar.addEventListener('click', async () => {
+    // seu código de envio
+  });
+});
+
   // 🧮 Calcula o total com base no carrinho
   const total = carrinho.reduce((soma, item) => soma + item.preco * (item.quantidade || 1), 0);
   const totalItens = carrinho.length;
