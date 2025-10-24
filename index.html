@@ -977,39 +977,34 @@ tipoEntrega.addEventListener('change', () => {
 });
 
 btnEnviar.addEventListener('click', async () => {
-  const nomeCliente = document.getElementById('nomeCliente')?.value.trim();
-
+  const nomeCliente = document.getElementById('nomeCliente').value.trim();
   if (!nomeCliente) {
     alert("Preencha seu nome!");
     return;
   }
 
-  // Monta endereço se for entrega
-  let enderecoCompleto = "";
-  if (tipoEntrega.value === 'Entrega') {
-    const rua = document.getElementById('rua')?.value.trim();
-    const numero = document.getElementById('numero')?.value.trim();
-    const bairro = document.getElementById('bairro')?.value.trim();
-    const cidade = document.getElementById('cidade')?.value.trim();
-    const cep = document.getElementById('cep')?.value.trim();
-    if (!rua || !numero || !bairro || !cidade || !cep) {
-      alert("Preencha todos os campos do endereço!");
-      return;
-    }
-    enderecoCompleto = `${rua}, ${numero}, ${bairro}, ${cidade}, CEP: ${cep}`;
-  }
-
   // Calcula total
   const total = carrinho.reduce((sum, item) => sum + item.preco * (item.quantidade || 1), 0);
 
-  // Dados para API
+  // Monta endereço se for entrega
+  let enderecoCompleto = "";
+  if (tipoEntrega.value === 'Entrega') {
+    const rua = document.getElementById('rua').value.trim();
+    const numero = document.getElementById('numero').value.trim();
+    const bairro = document.getElementById('bairro').value.trim();
+    const cidade = document.getElementById('cidade').value.trim();
+    const cep = document.getElementById('cep').value.trim();
+    enderecoCompleto = `${rua}, ${numero}, ${bairro}, ${cidade}, CEP: ${cep}`;
+  }
+
   const pedidoData = {
     nomeCliente,
     carrinho,
     total: total.toFixed(2),
     endereco: enderecoCompleto,
-    telefone: "(88) 99490-7177", // fixo
-    tipoPagamento: "Online"
+    telefone: "(88) 99490-7177", // contato fixo
+    formaPagamento: "",           // removido
+    tipoPagamento: ""             // removido
   };
 
   try {
@@ -1025,8 +1020,8 @@ btnEnviar.addEventListener('click', async () => {
 
     const linkResumo = data.linkResumo;
 
-    // Mensagem para WhatsApp
-    let itensTexto = carrinho.map((item, index) =>
+    // Monta mensagem para WhatsApp
+    const itensTexto = carrinho.map((item, index) =>
       `*${index + 1}* x *${item.nome}*: R$ ${(item.preco * (item.quantidade || 1)).toFixed(2)}`
     ).join('\n');
 
@@ -1041,7 +1036,6 @@ Valor da entrega: *A DEFINIR*
 Valor Total: *R$ ${total.toFixed(2)}*
 Veja o resumo do seu pedido aqui: 👇
 ${linkResumo}
-
 --------`;
 
     if (tipoEntrega.value === 'Entrega') {
@@ -1050,11 +1044,8 @@ ${linkResumo}
       mensagem += `Retirada em loja: *Manchinha Px Arts*\n`;
     }
 
-    mensagem += `Contato: *(88) 99490-7177*\n`;
-    mensagem += `Número do pedido: *${Math.floor(Math.random() * 10000)}*\n`;
-    mensagem += `--------\nPedido feito com *Manchinha Px Arts*`;
+    mensagem += `Contato: *(88) 99490-7177*\nNúmero do pedido: *${data.linkResumo.split("/").pop()}*\n--------\nPedido feito com *Manchinha Px Arts*`;
 
-    // Abre WhatsApp
     const whatsapp = "5588993800944";
     window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(mensagem)}`, "_blank");
 
