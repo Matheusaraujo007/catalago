@@ -1089,6 +1089,9 @@ function adicionarCarrinhoDetalhes(index){
 }
 
 
+fecharDetalhes.addEventListener('click', ()=> modalDetalhes.style.display='none');
+window.onclick = e=> { if(e.target===modalDetalhes) modalDetalhes.style.display='none'; };
+
 // Alterar mostrarProdutos para usar "Ver Detalhes"
 function mostrarProdutos(categoria = "Todos") {
   catalogo.innerHTML = "";
