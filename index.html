@@ -978,12 +978,9 @@ tipoEntrega.addEventListener('change', () => {
 
 btnEnviar.addEventListener('click', async () => {
   const nomeCliente = document.getElementById('nomeCliente')?.value.trim();
-  const telefone = document.getElementById('telefone')?.value.trim();
+  
 
-  if (!nomeCliente || !telefone) {
-    alert("Preencha nome e telefone!");
-    return;
-  }
+  
 
   // Monta endereço se for entrega
   let enderecoCompleto = "";
