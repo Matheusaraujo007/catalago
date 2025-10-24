@@ -977,28 +977,38 @@ btnEnviar.addEventListener('click', async () => {
     return; 
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-  const btnEnviar = document.getElementById('enviarPedido');
   btnEnviar.addEventListener('click', async () => {
-    // seu código de envio
-  });
-});
+  const nomeCliente = document.getElementById('nomeCliente')?.value.trim();
+  const telefone = document.getElementById('telefone')?.value.trim();
 
-  // 🧮 Calcula o total com base no carrinho
+  if (!nomeCliente || !telefone) { 
+    alert("Preencha nome e telefone!"); 
+    return; 
+  }
+
+  // Total do carrinho
   const total = carrinho.reduce((soma, item) => soma + item.preco * (item.quantidade || 1), 0);
-  const totalItens = carrinho.length;
-  const totalItensValor = total.toFixed(2);
 
-  // Monta o endereço, se for entrega
+  // Monta endereço somente se for entrega
   let enderecoCompleto = "";
   if (tipoEntrega.value === 'Entrega') {
-    const rua = document.getElementById('rua').value.trim();
-    const numero = document.getElementById('numero').value.trim();
-    const bairro = document.getElementById('bairro').value.trim();
-    const cidade = document.getElementById('cidade').value.trim();
-    const cep = document.getElementById('cep').value.trim();
+    const rua = document.getElementById('rua')?.value.trim() || "";
+    const numero = document.getElementById('numero')?.value.trim() || "";
+    const bairro = document.getElementById('bairro')?.value.trim() || "";
+    const cidade = document.getElementById('cidade')?.value.trim() || "";
+    const cep = document.getElementById('cep')?.value.trim() || "";
+
+    if (!rua || !numero || !bairro || !cidade || !cep) {
+      alert("Preencha todos os campos de endereço!");
+      return;
+    }
+
     enderecoCompleto = `${rua}, ${numero}, ${bairro}, ${cidade}, CEP: ${cep}`;
   }
+
+  // restante do código...
+});
+
 
   const pedidoData = {
     nomeCliente,
