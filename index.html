@@ -1049,7 +1049,7 @@ const conteudoDetalhes = document.getElementById('conteudoDetalhes');
 
 function abrirDetalhes(index){
   const p = produtos[index];
-  
+
   let imagensHTML = '';
   if (p.imagens && p.imagens.length > 0) {
     imagensHTML = `<div class="carrossel" id="carrossel-modal">`;
@@ -1074,7 +1074,7 @@ function abrirDetalhes(index){
       <a href="https://wa.me/5588993800944?text=Olá,%20gostaria%20de%20comprar%20o%20produto%20${encodeURIComponent(p.nome)}" 
          target="_blank" 
          class="btn-detalhe whatsapp">Chamar no WhatsApp</a>
-      <button onclick="adicionarCarrinho(${index}); fecharModalDetalhes()" 
+      <button onclick="adicionarCarrinhoDetalhes(${index})" 
               class="btn-detalhe comprar">🛒 Comprar</button>
     </div>
   `;
@@ -1082,22 +1082,12 @@ function abrirDetalhes(index){
   modalDetalhes.style.display = 'block';
 }
 
-function fecharModalDetalhes() {
-  modalDetalhes.style.display = 'none';
+// Função separada para adicionar do modal
+function adicionarCarrinhoDetalhes(index){
+  adicionarCarrinho(index); // chama sua função normal
+  fecharModalDetalhes();    // fecha o modal
 }
 
-function mudarImagemModal(dir){
-  const carrossel = document.getElementById('carrossel-modal');
-  if(!carrossel) return;
-  const imgs = carrossel.querySelectorAll('img');
-  let index = Array.from(imgs).findIndex(img => img.classList.contains('active'));
-  imgs[index].classList.remove('active');
-  index = (index + dir + imgs.length) % imgs.length;
-  imgs[index].classList.add('active');
-}
-
-fecharDetalhes.addEventListener('click', ()=> modalDetalhes.style.display='none');
-window.onclick = e=> { if(e.target===modalDetalhes) modalDetalhes.style.display='none'; };
 
 // Alterar mostrarProdutos para usar "Ver Detalhes"
 function mostrarProdutos(categoria = "Todos") {
