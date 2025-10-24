@@ -976,80 +976,70 @@ tipoEntrega.addEventListener('change', () => {
   dadosEntrega.style.display = tipoEntrega.value === 'Entrega' ? 'block' : 'none';
 });
 
-btnEnviar.addEventListener('click', async () => {
+btnEnviar.addEventListener('click', () => {
   const nomeCliente = document.getElementById('nomeCliente').value.trim();
   if (!nomeCliente) {
     alert("Preencha seu nome!");
     return;
   }
 
-  // Calcula total
-  const total = carrinho.reduce((soma, item) => soma + item.preco * (item.quantidade || 1), 0);
+  // Variáveis de exemplo (você pode ajustar conforme seu sistema)
+  const nomeLoja = "Manchinha Px Arts";
+  const formaPagamento = document.getElementById('formaPagamento')?.value || "PIX";
+  const tipoPagamento = "Online";
+  const numeroPedido = Math.floor(Math.random() * 10000);
+  const telefone = "(88) 99490-7177";
+  const linkResumo = "https://manchinhapxarts.vendizap.com/pedido/manchinha-px-arts-3398221c20912b39fb81";
 
-  // Monta endereço se for entrega
-  let enderecoCompleto = "";
+  let totalItens = carrinho.length;
+  let totalItensValor = carrinho.reduce((sum, item) => sum + item.preco * item.quantidade, 0);
+  let valorTotal = totalItensValor;
+
+  let itensTexto = carrinho.map((item, index) =>
+    `*${index + 1}* x *${item.nome}*: R$ ${(item.preco * item.quantidade).toFixed(2)}`
+  ).join('\n');
+
+  // Monta mensagem principal no estilo profissional
+  let mensagem = `Olá, meu nome é *${nomeCliente}*, esse é o meu pedido realizado através da loja *${nomeLoja}*
+--------
+${itensTexto}
+--------
+Quantidade de itens: *${totalItens}*
+Total dos itens: *R$ ${totalItensValor.toFixed(2)}*
+--------
+Valor da entrega: *A DEFINIR*
+Valor Total: *R$ ${valorTotal.toFixed(2)}*
+Forma de pagamento: *${formaPagamento}*
+Pagamento: *${tipoPagamento}*
+Veja o resumo do seu pedido aqui: 👇
+${linkResumo}
+--------
+`;
+
+  // Se for entrega, adiciona endereço
   if (tipoEntrega.value === 'Entrega') {
     const rua = document.getElementById('rua').value.trim();
     const numero = document.getElementById('numero').value.trim();
     const bairro = document.getElementById('bairro').value.trim();
     const cidade = document.getElementById('cidade').value.trim();
     const cep = document.getElementById('cep').value.trim();
-    enderecoCompleto = `${rua}, ${numero}, ${bairro}, ${cidade}, CEP: ${cep}`;
+    mensagem += `Para entregar em: *Rua ${rua}, Nº ${numero}, ${bairro}, ${cidade} - CEP: ${cep}*
+`;
+  } else {
+    mensagem += `Retirada em loja: *${nomeLoja}*
+`;
   }
 
-  // Dados do pedido
-  const pedidoData = {
-    nomeCliente,
-    carrinho,
-    total: total.toFixed(2),
-    endereco: enderecoCompleto,
-    telefone: "(88) 99490-7177", // fixo
-    tipoPagamento: "Online"
-  };
-
-  try {
-    // Salva pedido na API
-    const res = await fetch("/api/salvarPedido", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(pedidoData)
-    });
-
-    const data = await res.json();
-    if (!data.sucesso) throw new Error(data.erro);
-
-    const linkResumo = data.linkResumo; // Link gerado automaticamente
-
-    // Mensagem para WhatsApp
-    let itensTexto = carrinho.map((item, index) =>
-      `*${index + 1}* x *${item.nome}*: R$ ${(item.preco * (item.quantidade || 1)).toFixed(2)}`
-    ).join('\n');
-
-    let mensagem = `Olá, meu nome é *${nomeCliente}*, esse é o meu pedido realizado através da loja *Manchinha Px Arts*
+  mensagem += `Contato: *${telefone}*
+Número do pedido: *${numeroPedido}*
 --------
-${itensTexto}
---------
-Quantidade de itens: *${carrinho.length}*
-Total dos itens: *R$ ${total.toFixed(2)}*
---------
-Valor da entrega: *A DEFINIR*
-Valor Total: *R$ ${total.toFixed(2)}*
-Veja o resumo do seu pedido aqui: 👇
-${linkResumo}
---------
-${tipoEntrega.value === 'Entrega' ? `Para entregar em: *${enderecoCompleto}*\n` : `Retirada em loja: *Manchinha Px Arts*\n`}
-Contato: *(88) 99490-7177*
---------
-Pedido feito com *Manchinha Px Arts*`;
+Pedido feito com *${nomeLoja}*`;
 
-    const whatsapp = "5588993800944"; 
-    window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(mensagem)}`, "_blank");
+  // Envia para o WhatsApp
+  const whatsapp = "5588993800944"; // seu número
+  window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(mensagem)}`, "_blank");
 
-    modal.style.display = 'none';
-
-  } catch (err) {
-    alert("Erro ao enviar pedido: " + err.message);
-  }
+  modal.style.display = 'none';
 });
 
 
