@@ -978,7 +978,6 @@ tipoEntrega.addEventListener('change', () => {
 
 btnEnviar.addEventListener('click', async () => {
   const nomeCliente = document.getElementById('nomeCliente')?.value.trim();
-  const telefone = document.getElementById('telefone')?.value.trim(); // opcional
 
   if (!nomeCliente) {
     alert("Preencha seu nome!");
@@ -1009,8 +1008,7 @@ btnEnviar.addEventListener('click', async () => {
     carrinho,
     total: total.toFixed(2),
     endereco: enderecoCompleto,
-    telefone: telefone || "", // se não preencher, envia vazio
-    formaPagamento: document.getElementById('formaPagamento')?.value || "PIX",
+    telefone: "(88) 99490-7177", // fixo
     tipoPagamento: "Online"
   };
 
@@ -1041,8 +1039,6 @@ Total dos itens: *R$ ${total.toFixed(2)}*
 --------
 Valor da entrega: *A DEFINIR*
 Valor Total: *R$ ${total.toFixed(2)}*
-Forma de pagamento: *${pedidoData.formaPagamento}*
-Pagamento: *${pedidoData.tipoPagamento}*
 Veja o resumo do seu pedido aqui: 👇
 ${linkResumo}
 --------`;
@@ -1053,10 +1049,8 @@ ${linkResumo}
       mensagem += `Retirada em loja: *Manchinha Px Arts*\n`;
     }
 
-    if (telefone) {
-      mensagem += `Contato: *${telefone}*\n`;
-    }
-
+    mensagem += `Contato: *(88) 99490-7177*\n`;
+    mensagem += `Número do pedido: *${Math.floor(Math.random() * 10000)}*\n`;
     mensagem += `--------\nPedido feito com *Manchinha Px Arts*`;
 
     // Abre WhatsApp
