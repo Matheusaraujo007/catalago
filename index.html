@@ -355,21 +355,68 @@ $('#q').addEventListener('input', (e) => {
   renderProdutos(filtrado);
 });
 
-/* ---- CARRINHO: adicionar por codigo (usa codigo único) ---- */
+// Função para adicionar produto ao carrinho pelo código
 function adicionarAoCarrinhoByCode(code) {
-  const produto = produtos.find(x => String(x.codigo) === String(code));
-  if (!produto) return alert('Produto não encontrado.');
+  // Garante que o código é comparado corretamente como string
+  const produto = produtos.find(p => String(p.codigo) === String(code));
+  if (!produto) {
+    alert("Produto não encontrado!");
+    return;
+  }
 
-  const itemExistente = cart.find(i => String(i.codigo) === String(produto.codigo));
+  // Verifica se o produto já existe no carrinho
+  const itemExistente = cart.find(item => String(item.codigo) === String(produto.codigo));
+
   if (itemExistente) {
+    // Se o produto já está no carrinho, apenas aumenta a quantidade
     itemExistente.quantidade += 1;
   } else {
+    // Caso contrário, adiciona como um novo item
     cart.push({ ...produto, quantidade: 1 });
   }
 
   saveCart();
   renderCart();
 }
+
+// Função para renderizar o carrinho
+function renderCart() {
+  const container = document.getElementById("carrinhoContainer");
+  container.innerHTML = "";
+
+  if (cart.length === 0) {
+    container.innerHTML = "<p>Seu carrinho está vazio.</p>";
+    return;
+  }
+
+  cart.forEach(item => {
+    const div = document.createElement("div");
+    div.classList.add("item-carrinho");
+    div.innerHTML = `
+      <strong>${item.nome}</strong><br>
+      Quantidade: ${item.quantidade}<br>
+      Preço: R$ ${(item.preco * item.quantidade).toFixed(2)}
+    `;
+    container.appendChild(div);
+  });
+
+  const total = cart.reduce((acc, item) => acc + item.preco * item.quantidade, 0);
+  const totalDiv = document.createElement("div");
+  totalDiv.innerHTML = `<hr><strong>Total: R$ ${total.toFixed(2)}</strong>`;
+  container.appendChild(totalDiv);
+}
+
+// Funções para salvar e carregar o carrinho
+function saveCart() {
+  localStorage.setItem("carrinho", JSON.stringify(cart));
+}
+
+function loadCart() {
+  const saved = localStorage.getItem("carrinho");
+  if (saved) cart = JSON.parse(saved);
+  renderCart();
+}
+
 
 
 
