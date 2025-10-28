@@ -147,7 +147,6 @@
 <aside id="drawer" class="drawer" aria-hidden="true">
   <h3>🛒 Meu Carrinho</h3>
   <div id="cartItems"></div>
-
   <div class="cart-footer">
     <div class="total-row">
       <div>Total</div>
@@ -168,9 +167,7 @@
       <button id="closeModal" class="btn ghost">Fechar</button>
     </div>
     <div class="modal-grid">
-      <div class="modal-thumb center" id="modalImgWrap">
-        <!-- imagem -->
-      </div>
+      <div class="modal-thumb center" id="modalImgWrap"></div>
       <div class="modal-info">
         <h2 id="modalTitle"></h2>
         <div class="muted" id="modalCategory"></div>
@@ -179,67 +176,21 @@
           <div style="font-weight:800;font-size:1.1rem" id="modalPrice"></div>
           <div class="chip" id="modalCode"></div>
         </div>
-
-        <div style="margin-top:18px;display:flex;gap:10px" id="modalActions">
-          <!-- botões via JS -->
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal Checkout (entrega) -->
-<div id="modalCheckout" class="modal" aria-hidden="true">
-  <div class="modal-card" style="max-width:520px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <strong>Finalizar Pedido</strong>
-      <button id="closeCheckout" class="btn ghost">Fechar</button>
-    </div>
-
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <label>Nome:</label>
-      <input id="clientName" type="text" placeholder="Seu nome" style="padding:10px;border-radius:8px;border:1px solid var(--line)">
-
-      <label>Opção:</label>
-      <select id="deliveryType" style="padding:10px;border-radius:8px;border:1px solid var(--line)">
-        <option value="Retirada">Retirada</option>
-        <option value="Entrega">Entrega</option>
-      </select>
-
-      <div id="deliveryFields" style="display:none;flex-direction:column;gap:8px">
-        <input id="addrStreet" type="text" placeholder="Rua" style="padding:10px;border-radius:8px;border:1px solid var(--line)">
-        <input id="addrNumber" type="text" placeholder="Número" style="padding:10px;border-radius:8px;border:1px solid var(--line)">
-        <input id="addrDistrict" type="text" placeholder="Bairro" style="padding:10px;border-radius:8px;border:1px solid var(--line)">
-        <input id="addrCity" type="text" placeholder="Cidade" style="padding:10px;border-radius:8px;border:1px solid var(--line)">
-      </div>
-
-      <label>Observação (opcional)</label>
-      <textarea id="obs" placeholder="Ex.: trocar tamanho" style="padding:10px;border-radius:8px;border:1px solid var(--line)"></textarea>
-
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <button id="sendWhats" class="btn primary" style="flex:1">Enviar pelo WhatsApp</button>
-        <button id="backToCart" class="btn ghost">Voltar</button>
+        <div style="margin-top:18px;display:flex;gap:10px" id="modalActions"></div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-/* ========== CONFIG ========== */
-const API_URL = '/api/produtos'; // rota que puxa do seu banco (mantenha como no seu código)
-const WHATSAPP_NUMBER = '5588993800944'; // altere se quiser
-/* ============================ */
+const API_URL = '/api/produtos';
+const WHATSAPP_NUMBER = '5588993800944';
 
 let produtos = [];
 let categorias = ['Todos'];
 let cart = JSON.parse(localStorage.getItem('cart_mancha')) || [];
 
-/* ---- helpers ---- */
 const $ = sel => document.querySelector(sel);
-const $$ = sel => Array.from(document.querySelectorAll(sel));
-const money = v => 'R$ ' + Number(v || 0).toFixed(2).replace('.',',');
-
-/* ---- elementos ---- */
 const grid = $('#produtosGrid');
 const filtrosWrap = $('#filtros');
 const cartCount = $('#cartCount');
@@ -260,40 +211,34 @@ const modalPrice = $('#modalPrice');
 const modalCode = $('#modalCode');
 const modalActions = $('#modalActions');
 
-const modalCheckout = $('#modalCheckout');
-const closeCheckout = $('#closeCheckout');
-const deliveryType = $('#deliveryType');
-const deliveryFields = $('#deliveryFields');
-const clientName = $('#clientName');
-const sendWhats = $('#sendWhats');
-const backToCart = $('#backToCart');
-const obs = $('#obs');
+/* ---- helpers ---- */
+const money = v => 'R$ ' + Number(v || 0).toFixed(2).replace('.',',');
+function escapeHtml(str=''){ return String(str).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
 
-/* ---- FETCH PRODUTOS ---- */
+/* ---- carregar produtos ---- */
 async function carregarProdutos(){
   try{
     const res = await fetch(API_URL);
-    if(!res.ok) throw new Error('Resposta inválida da API');
+    if(!res.ok) throw new Error('Erro API');
     produtos = await res.json();
-    // categorias
     const setCat = new Set(produtos.map(p => p.categoria).filter(Boolean));
     categorias = ['Todos', ...setCat];
     renderFiltros();
     renderProdutos(produtos);
   }catch(err){
-    console.error('Erro ao carregar produtos:', err);
-    grid.innerHTML = `<div style="grid-column:1/-1;padding:24px;border-radius:12px;background:#fff6f6;color:#b91c1c">Erro ao carregar produtos.</div>`;
+    console.error(err);
+    grid.innerHTML = '<div style="grid-column:1/-1;padding:24px;color:red">Erro ao carregar produtos.</div>';
   }
 }
 
-/* ---- RENDER FILTROS ---- */
+/* ---- filtros ---- */
 function renderFiltros(){
   filtrosWrap.innerHTML = '';
   categorias.forEach((c,i)=>{
     const btn = document.createElement('button');
     btn.textContent = c;
-    btn.className = i===0 ? 'active' : '';
-    btn.addEventListener('click', ()=> {
+    btn.className = i===0?'active':'';
+    btn.addEventListener('click',()=>{
       filtrosWrap.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
       filtrar(c);
@@ -302,304 +247,149 @@ function renderFiltros(){
   });
 }
 
-/* ---- RENDER PRODUTOS ---- */
+function filtrar(categoria){
+  if(categoria==='Todos') return renderProdutos(produtos);
+  renderProdutos(produtos.filter(p=>p.categoria===categoria));
+}
+
+/* ---- render produtos ---- */
 function renderProdutos(lista){
   grid.innerHTML = '';
-  if(!lista || lista.length === 0){
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--muted-text);padding:40px">Nenhum produto encontrado.</div>';
-    return;
-  }
-  lista.forEach((p, idx) => {
+  lista.forEach((p,idx)=>{
     const card = document.createElement('article');
-    card.className = 'card';
-
+    card.className='card';
     const thumb = document.createElement('div');
-    thumb.className = 'thumb';
+    thumb.className='thumb';
     const img = document.createElement('img');
+    img.src = (p.imagens && p.imagens[0]) || 'https://via.placeholder.com/600x400';
     img.alt = p.nome || 'Produto';
-    img.src = (p.imagens && p.imagens[0]) || 'https://via.placeholder.com/600x400?text=Sem+imagem';
     thumb.appendChild(img);
 
     const body = document.createElement('div');
-    body.className = 'card-body';
+    body.className='card-body';
     body.innerHTML = `
       <h3>${escapeHtml(p.nome)}</h3>
-      <p title="${escapeHtml(p.descricao || '')}">${escapeHtml(p.descricao || '')}</p>
-      <div class="price-row">
-        <div class="price">${money(p.preco)}</div>
-      </div>
+      <p title="${escapeHtml(p.descricao||'')}">${escapeHtml(p.descricao||'')}</p>
+      <div class="price-row"><div class="price">${money(p.preco)}</div></div>
       <div class="card-actions">
-        <button class="btn ghost" data-idx="${idx}" onclick="verDetalhes('${p.codigo}')">Ver Detalhes</button>
-        <button class="btn primary" onclick="adicionarAoCarrinhoByCode('${p.codigo}')">Adicionar</button>
+        <button class="btn ghost btn-detalhes" data-code="${escapeHtml(p.codigo)}">Ver Detalhes</button>
+        <button class="btn primary btn-add" data-code="${escapeHtml(p.codigo)}">Adicionar</button>
       </div>
     `;
-
     card.appendChild(thumb);
     card.appendChild(body);
     grid.appendChild(card);
   });
+
+  // adicionar event listeners
+  $$('.btn-add').forEach(b=>b.addEventListener('click',()=>adicionarAoCarrinhoByCode(b.dataset.code)));
+  $$('.btn-detalhes').forEach(b=>b.addEventListener('click',()=>verDetalhes(b.dataset.code)));
 }
 
-/* ---- FILTRAR ---- */
-function filtrar(categoria){
-  if(categoria === 'Todos') return renderProdutos(produtos);
-  const list = produtos.filter(p => p.categoria === categoria);
-  renderProdutos(list);
-}
-
-/* ---- BUSCA ---- */
-$('#q').addEventListener('input', (e) => {
+/* ---- busca ---- */
+$('#q').addEventListener('input',e=>{
   const q = e.target.value.trim().toLowerCase();
   if(!q) return renderProdutos(produtos);
-  const filtrado = produtos.filter(p => (p.nome||'').toLowerCase().includes(q) || (p.descricao||'').toLowerCase().includes(q));
-  renderProdutos(filtrado);
+  renderProdutos(produtos.filter(p=>(p.nome||'').toLowerCase().includes(q)||(p.descricao||'').toLowerCase().includes(q)));
 });
 
-// Função para adicionar produto ao carrinho pelo código
-function adicionarAoCarrinhoByCode(code) {
-  // Garante que o código é comparado corretamente como string
-  const produto = produtos.find(p => String(p.codigo) === String(code));
-  if (!produto) {
-    alert("Produto não encontrado!");
-    return;
-  }
+/* ---- carrinho ---- */
+function adicionarAoCarrinhoByCode(code){
+  const produto = produtos.find(p=>String(p.codigo)===String(code));
+  if(!produto){ alert('Produto não encontrado'); return; }
 
-  // Verifica se o produto já existe no carrinho
-  const itemExistente = cart.find(item => String(item.codigo) === String(produto.codigo));
-
-  if (itemExistente) {
-    // Se o produto já está no carrinho, apenas aumenta a quantidade
-    itemExistente.quantidade += 1;
-  } else {
-    // Caso contrário, adiciona como um novo item
-    cart.push({ ...produto, quantidade: 1 });
-  }
-
-  saveCart();
-  renderCart();
+  const exist = cart.find(i=>String(i.codigo)===String(code));
+  if(exist) exist.quantidade=(exist.quantidade||1)+1;
+  else cart.push({...produto,quantidade:1});
+  saveCart(); renderCart(); abrirDrawer();
 }
 
-// Função para renderizar o carrinho
-function renderCart() {
-  const container = document.getElementById("carrinhoContainer");
-  container.innerHTML = "";
-
-  if (cart.length === 0) {
-    container.innerHTML = "<p>Seu carrinho está vazio.</p>";
-    return;
-  }
-
-  cart.forEach(item => {
-    const div = document.createElement("div");
-    div.classList.add("item-carrinho");
-    div.innerHTML = `
-      <strong>${item.nome}</strong><br>
-      Quantidade: ${item.quantidade}<br>
-      Preço: R$ ${(item.preco * item.quantidade).toFixed(2)}
-    `;
-    container.appendChild(div);
-  });
-
-  const total = cart.reduce((acc, item) => acc + item.preco * item.quantidade, 0);
-  const totalDiv = document.createElement("div");
-  totalDiv.innerHTML = `<hr><strong>Total: R$ ${total.toFixed(2)}</strong>`;
-  container.appendChild(totalDiv);
-}
-
-// Funções para salvar e carregar o carrinho
-function saveCart() {
-  localStorage.setItem("carrinho", JSON.stringify(cart));
-}
-
-function loadCart() {
-  const saved = localStorage.getItem("carrinho");
-  if (saved) cart = JSON.parse(saved);
-  renderCart();
-}
-
-
-
-
-/* ---- Ver detalhes (abre modal) ---- */
-function verDetalhes(code){
-  const p = produtos.find(x => x.codigo === code) || produtos.find((_,i)=>i==code);
-  if(!p) return;
-  modalImgWrap.innerHTML = `<img src="${(p.imagens && p.imagens[0]) || 'https://via.placeholder.com/600x400?text=Sem+imagem'}" alt="${escapeHtml(p.nome)}">`;
-  modalTitle.textContent = p.nome || '—';
-  modalDesc.textContent = p.descricao || '';
-  modalCategory.textContent = p.categoria || '';
-  modalPrice.textContent = money(p.preco);
-  modalCode.textContent = p.codigo || '';
-
-  modalActions.innerHTML = '';
-  // botão WhatsApp direto
-  const a = document.createElement('a');
-  a.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Olá, tenho interesse no produto: ' + p.nome)}`;
-  a.target = '_blank';
-  a.className = 'btn ghost';
-  a.style.display = 'inline-flex';
-  a.style.alignItems = 'center';
-  a.style.gap = '8px';
-  a.textContent = 'Chamar no WhatsApp';
-  a.onclick = ()=>{}; // preserve
-
-  const btnAdd = document.createElement('button');
-  btnAdd.className = 'btn primary';
-  btnAdd.textContent = 'Adicionar ao carrinho';
-  btnAdd.onclick = () => {
-  adicionarAoCarrinhoByCode(String(p.codigo));
-  fecharModalDetalhes();
-  abrirDrawer();
-};
-
-  modalActions.appendChild(a);
-  modalActions.appendChild(btnAdd);
-
-  openModalDetalhes();
-}
-
-/* ---- MODAL helpers ---- */
-function openModalDetalhes(){ modalDetalhes.classList.add('open'); modalDetalhes.setAttribute('aria-hidden','false'); }
-function fecharModalDetalhes(){ modalDetalhes.classList.remove('open'); modalDetalhes.setAttribute('aria-hidden','true'); }
-closeModal.addEventListener('click', fecharModalDetalhes);
-modalDetalhes.addEventListener('click', (e)=> { if(e.target === modalDetalhes) fecharModalDetalhes(); });
-
-/* ---- Drawer carrinho ---- */
-function abrirDrawer(){ drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); }
-function fecharDrawer(){ drawer.classList.remove('open'); drawer.setAttribute('aria-hidden','true'); }
-abrirCarrinho.addEventListener('click', ()=> drawer.classList.toggle('open'));
-
-/* ---- render cart ---- */
 function renderCart(){
-  cartItems.innerHTML = '';
-  if(cart.length === 0){
-    cartItems.innerHTML = '<div class="muted" style="padding:12px">Seu carrinho está vazio.</div>';
-    cartCount.textContent = '0';
-    cartTotal.textContent = money(0);
-    localStorage.setItem('cart_mancha', JSON.stringify(cart));
+  cartItems.innerHTML='';
+  if(cart.length===0){
+    cartItems.innerHTML='<div class="muted" style="padding:12px">Seu carrinho está vazio.</div>';
+    cartCount.textContent='0';
+    cartTotal.textContent=money(0);
+    localStorage.setItem('cart_mancha',JSON.stringify(cart));
     return;
   }
-  let total = 0;
-  cart.forEach((it, i) => {
-    const sub = Number(it.preco || 0) * (it.quantidade || 1);
-    total += sub;
-    const div = document.createElement('div');
-    div.className = 'cart-item';
-    div.innerHTML = `
-      <img src="${(it.imagens && it.imagens[0]) || 'https://via.placeholder.com/80'}" alt="${escapeHtml(it.nome)}">
-      <div class="meta">
-        <strong>${escapeHtml(it.nome)}</strong>
-        <div class="muted">Qtd: ${it.quantidade} • ${money(sub)}</div>
-      </div>
+  let total=0;
+  cart.forEach((it,i)=>{
+    const sub=Number(it.preco||0)*(it.quantidade||1);
+    total+=sub;
+    const div=document.createElement('div');
+    div.className='cart-item';
+    div.innerHTML=`
+      <img src="${(it.imagens&&it.imagens[0])||'https://via.placeholder.com/80'}" alt="${escapeHtml(it.nome)}">
+      <div class="meta"><strong>${escapeHtml(it.nome)}</strong><div class="muted">Qtd: ${it.quantidade} • ${money(sub)}</div></div>
       <div style="display:flex;flex-direction:column;gap:6px">
-        <button style="padding:6px 8px;border-radius:8px;border:0;background:#111;color:#fff;cursor:pointer" onclick="increment(${i},1)">+</button>
-        <button style="padding:6px 8px;border-radius:8px;border:0;background:#ef4444;color:#fff;cursor:pointer" onclick="removeItem(${i})">✕</button>
+        <button onclick="increment(${i},1)">+</button>
+        <button onclick="removeItem(${i})">✕</button>
       </div>
     `;
     cartItems.appendChild(div);
   });
-
-  cartCount.textContent = String(cart.reduce((s,i)=>s+i.quantidade,0));
-  cartTotal.textContent = money(total);
-  localStorage.setItem('cart_mancha', JSON.stringify(cart));
+  cartCount.textContent=String(cart.reduce((s,i)=>s+i.quantidade,0));
+  cartTotal.textContent=money(total);
+  localStorage.setItem('cart_mancha',JSON.stringify(cart));
 }
 
-function increment(index, delta){
-  cart[index].quantidade = Math.max(1, (cart[index].quantidade || 1) + delta);
-  saveCart();
-  renderCart();
-}
+function increment(i,d){cart[i].quantidade=Math.max(1,(cart[i].quantidade||1)+d); saveCart(); renderCart();}
+function removeItem(i){cart.splice(i,1); saveCart(); renderCart();}
+function saveCart(){localStorage.setItem('cart_mancha',JSON.stringify(cart));}
 
-function removeItem(index){
-  cart.splice(index,1);
-  saveCart();
-  renderCart();
-}
-
-function saveCart(){
-  localStorage.setItem('cart_mancha', JSON.stringify(cart));
-}
-
-/* ---- limpar carrinho ---- */
-btnClear.addEventListener('click', ()=>{
+/* limpar carrinho */
+btnClear.addEventListener('click',()=>{
   if(!confirm('Limpar o carrinho?')) return;
-  cart = [];
-  saveCart();
-  renderCart();
+  cart=[]; saveCart(); renderCart();
 });
 
-/* ---- checkout flow ---- */
-btnCheckout.addEventListener('click', ()=>{
-  if(cart.length === 0) { alert('Carrinho vazio'); return; }
-  openCheckout();
-});
+/* drawer */
+function abrirDrawer(){drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false');}
+function fecharDrawer(){drawer.classList.remove('open'); drawer.setAttribute('aria-hidden','true');}
+abrirCarrinho.addEventListener('click',()=>drawer.classList.toggle('open'));
 
-function openCheckout(){
-  modalCheckout.classList.add('open');
-  modalCheckout.setAttribute('aria-hidden','false');
+/* modal detalhes */
+function verDetalhes(code){
+  const p = produtos.find(x=>String(x.codigo)===String(code));
+  if(!p) return;
+  modalImgWrap.innerHTML=`<img src="${(p.imagens&&p.imagens[0])||'https://via.placeholder.com/600x400'}" alt="${escapeHtml(p.nome)}">`;
+  modalTitle.textContent=p.nome||'—';
+  modalDesc.textContent=p.descricao||'';
+  modalCategory.textContent=p.categoria||'';
+  modalPrice.textContent=money(p.preco);
+  modalCode.textContent=p.codigo||'';
+
+  modalActions.innerHTML='';
+  const btnAdd=document.createElement('button');
+  btnAdd.className='btn primary';
+  btnAdd.textContent='Adicionar ao carrinho';
+  btnAdd.addEventListener('click',()=>{
+    adicionarAoCarrinhoByCode(String(p.codigo));
+    fecharModalDetalhes();
+  });
+  modalActions.appendChild(btnAdd);
+
+  modalDetalhes.classList.add('open');
+  modalDetalhes.setAttribute('aria-hidden','false');
 }
-function closeCheckoutModal(){
-  modalCheckout.classList.remove('open');
-  modalCheckout.setAttribute('aria-hidden','true');
-}
-closeCheckout.addEventListener('click', closeCheckoutModal);
-modalCheckout.addEventListener('click', (e)=> { if(e.target===modalCheckout) closeCheckoutModal(); });
-backToCart.addEventListener('click', ()=> { closeCheckoutModal(); abrirDrawer(); });
 
-deliveryType.addEventListener('change', ()=> {
-  deliveryFields.style.display = deliveryType.value === 'Entrega' ? 'flex' : 'none';
-});
+function fecharModalDetalhes(){modalDetalhes.classList.remove('open'); modalDetalhes.setAttribute('aria-hidden','true');}
+closeModal.addEventListener('click',fecharModalDetalhes);
+modalDetalhes.addEventListener('click',e=>{if(e.target===modalDetalhes) fecharModalDetalhes();});
 
-/* ---- montar mensagem e abrir WhatsApp ---- */
-sendWhats.addEventListener('click', ()=> {
-  const name = clientName.value.trim();
-  if(!name){ alert('Preencha o seu nome'); return; }
-
-  let total = cart.reduce((s,i)=>s + (Number(i.preco)||0) * i.quantidade, 0);
-  let itensTexto = cart.map((it, idx) => `${idx+1}. ${it.nome} — Qtd: ${it.quantidade} — ${money(Number(it.preco)*it.quantidade)}`).join('\n');
-
-  let msg = `Olá, meu nome é *${name}*%0A`;
-  msg += `*Pedido:*%0A${encodeURIComponent(itensTexto)}%0A`;
-  msg += `*Total:* ${encodeURIComponent(money(total))}%0A`;
-  msg += `*Opção:* ${encodeURIComponent(deliveryType.value)}%0A`;
-
-  if(deliveryType.value === 'Entrega'){
-    const rua = encodeURIComponent($('#addrStreet').value.trim() || '');
-    const numero = encodeURIComponent($('#addrNumber').value.trim() || '');
-    const bairro = encodeURIComponent($('#addrDistrict').value.trim() || '');
-    const cidade = encodeURIComponent($('#addrCity').value.trim() || '');
-    msg += `*Endereço:* Rua ${rua}, Nº ${numero}, ${bairro}, ${cidade}%0A`;
-  } else {
-    msg += `*Retirada em loja*%0A`;
-  }
-
-  if(obs.value.trim()) msg += `*Obs:* ${encodeURIComponent(obs.value.trim())}%0A`;
-
-  // abrir WhatsApp
-  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
-  window.open(url, '_blank');
-
-  // limpa carrinho? opcional — aqui não apaga automaticamente
-  closeCheckoutModal();
-});
-
-/* ---- misc ---- */
-window.addEventListener('load', ()=>{
+/* load */
+window.addEventListener('load',()=>{
   carregarProdutos();
   renderCart();
 });
 
-/* ---- utility ---- */
-function escapeHtml(str=''){ return String(str).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
-
-/* ---- expose some functions to global so buttons inline can call them ---- */
-window.adicionarAoCarrinhoByCode = adicionarAoCarrinhoByCode;
-window.verDetalhes = verDetalhes;
-window.increment = increment;
-window.removeItem = removeItem;
-window.abrirDrawer = abrirDrawer;
-window.fecharModalDetalhes = fecharModalDetalhes;
-
+/* expose */
+window.adicionarAoCarrinhoByCode=adicionarAoCarrinhoByCode;
+window.increment=increment;
+window.removeItem=removeItem;
+window.abrirDrawer=abrirDrawer;
 </script>
+
 </body>
 </html>
