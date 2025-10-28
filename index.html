@@ -357,14 +357,20 @@ $('#q').addEventListener('input', (e) => {
 
 /* ---- CARRINHO: adicionar por codigo (usa codigo único) ---- */
 function adicionarAoCarrinhoByCode(code){
-  const produto = produtos.find(x => x.codigo === code) || produtos.find((_,i)=>i==code);
+  const produto = produtos.find(x => String(x.codigo) === String(code));
   if(!produto) return alert('Produto não encontrado');
+
   const exist = cart.find(i => i.codigo === produto.codigo);
-  if(exist) exist.quantidade += 1;
-  else cart.push({...produto, quantidade:1});
+  if (exist) {
+    exist.quantidade += 1;
+  } else {
+    cart.push({ ...produto, quantidade: 1 });
+  }
+
   saveCart();
   renderCart();
 }
+
 
 /* ---- Ver detalhes (abre modal) ---- */
 function verDetalhes(code){
