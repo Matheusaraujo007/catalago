@@ -356,13 +356,13 @@ $('#q').addEventListener('input', (e) => {
 });
 
 /* ---- CARRINHO: adicionar por codigo (usa codigo único) ---- */
-function adicionarAoCarrinhoByCode(code){
+function adicionarAoCarrinhoByCode(code) {
   const produto = produtos.find(x => String(x.codigo) === String(code));
-  if(!produto) return alert('Produto não encontrado');
+  if (!produto) return alert('Produto não encontrado.');
 
-  const exist = cart.find(i => i.codigo === produto.codigo);
-  if (exist) {
-    exist.quantidade += 1;
+  const itemExistente = cart.find(i => String(i.codigo) === String(produto.codigo));
+  if (itemExistente) {
+    itemExistente.quantidade += 1;
   } else {
     cart.push({ ...produto, quantidade: 1 });
   }
@@ -370,6 +370,7 @@ function adicionarAoCarrinhoByCode(code){
   saveCart();
   renderCart();
 }
+
 
 
 /* ---- Ver detalhes (abre modal) ---- */
@@ -399,10 +400,10 @@ function verDetalhes(code){
   btnAdd.className = 'btn primary';
   btnAdd.textContent = 'Adicionar ao carrinho';
   btnAdd.onclick = () => {
-    adicionarAoCarrinhoByCode(p.codigo);
-    fecharModalDetalhes();
-    abrirDrawer();
-  };
+  adicionarAoCarrinhoByCode(String(p.codigo));
+  fecharModalDetalhes();
+  abrirDrawer();
+};
 
   modalActions.appendChild(a);
   modalActions.appendChild(btnAdd);
