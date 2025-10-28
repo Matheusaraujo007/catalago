@@ -1,311 +1,277 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>🛍️ Loja Estilo Nuvem Shop</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🛍️ ManchinhaPx Arts</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #ffffff;
-  --accent: #111111;
-  --muted: #f5f5f5;
-  --line: #e5e5e5;
-  --radius: 10px;
-}
-body {
-  font-family: 'Inter', sans-serif;
-  background: var(--bg);
-  margin: 0;
-  color: #222;
-}
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 24px;
-  border-bottom: 1px solid var(--line);
-  position: sticky;
-  top: 0;
-  background: white;
-  z-index: 10;
-}
-.brand {
-  font-weight: 700;
-  font-size: 1.2rem;
-}
-.cart-btn {
-  background: var(--accent);
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: var(--radius);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  position: relative;
-}
-.cart-count {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  background: red;
-  color: white;
-  border-radius: 50%;
-  font-size: 12px;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-main {
-  max-width: 1100px;
-  margin: 24px auto;
-  padding: 0 16px;
-}
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-}
-.card {
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  overflow: hidden;
-  background: white;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.2s;
-}
-.card:hover {
-  transform: translateY(-4px);
-}
-.thumb {
-  height: 200px;
-  overflow: hidden;
-}
-.thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.card-body {
-  padding: 12px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-.price {
-  font-weight: 700;
-  margin: 8px 0;
-}
-.btn {
-  padding: 10px;
-  border: none;
-  border-radius: var(--radius);
-  cursor: pointer;
-  font-weight: 600;
-}
-.btn.primary {
-  background: var(--accent);
-  color: white;
-}
-.btn.ghost {
-  background: transparent;
-  border: 1px solid var(--line);
-}
+  body {
+    font-family: "Poppins", sans-serif;
+    background: linear-gradient(135deg, #f7e9ff, #ffe8f0);
+    margin: 0;
+    padding: 0;
+    color: #333;
+  }
 
-/* Drawer carrinho */
-.drawer {
-  position: fixed;
-  right: -400px;
-  top: 0;
-  width: 360px;
-  height: 100vh;
-  background: white;
-  box-shadow: -6px 0 20px rgba(0,0,0,0.15);
-  transition: right 0.3s;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  z-index: 100;
-}
-.drawer.open {
-  right: 0;
-}
-.drawer h3 {
-  margin-top: 0;
-}
-.cart-items {
-  flex: 1;
-  overflow-y: auto;
-  margin-top: 16px;
-}
-.cart-item {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 12px;
-  border-bottom: 1px solid var(--line);
-  padding-bottom: 8px;
-}
-.cart-item img {
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
-  object-fit: cover;
-}
-.cart-item .meta {
-  flex: 1;
-}
-.cart-footer {
-  border-top: 1px solid var(--line);
-  padding-top: 12px;
-}
-.total-row {
-  display: flex;
-  justify-content: space-between;
-  font-weight: 700;
-  margin-bottom: 10px;
-}
+  header {
+    text-align: center;
+    background-color: #9b4de3;
+    color: #fff;
+    padding: 20px;
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+
+  #produtosContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 15px;
+    padding: 20px;
+  }
+
+  .produto {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    padding: 10px;
+    text-align: center;
+    transition: transform 0.2s;
+  }
+
+  .produto:hover {
+    transform: scale(1.04);
+  }
+
+  .produto img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+
+  .produto h3 {
+    margin: 8px 0;
+    font-size: 1.1rem;
+  }
+
+  .produto p {
+    font-size: 0.9rem;
+    color: #777;
+  }
+
+  .produto button {
+    background: #9b4de3;
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 8px;
+    font-weight: bold;
+    transition: background 0.2s;
+  }
+
+  .produto button:hover {
+    background: #7c36be;
+  }
+
+  /* MODAL */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-content {
+    background: #fff;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 400px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .modal-content img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+
+  .modal-content h2 {
+    margin: 10px 0 5px;
+  }
+
+  .modal-content p {
+    margin: 5px 0;
+    font-size: 0.9rem;
+  }
+
+  .close-btn {
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+
+  #abrirCarrinho {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #9b4de3;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+
+  /* CARRINHO */
+  #modalCarrinho .modal-content {
+    max-width: 500px;
+  }
+
+  .item-carrinho {
+    display: flex;
+    justify-content: space-between;
+    margin: 8px 0;
+    font-size: 0.95rem;
+  }
+
+  #finalizarBtn {
+    background: #27ae60;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="brand">ManchinhaPx Arts</div>
-  <button class="cart-btn" id="abrirCarrinho">🛒 Carrinho <span id="cartCount" class="cart-count">0</span></button>
-</header>
+<header>🛒 ManchinhaPx Arts</header>
 
-<main>
-  <div class="grid" id="produtosGrid"></div>
-</main>
+<main id="produtosContainer"></main>
 
-<!-- Drawer Carrinho -->
-<aside id="drawer" class="drawer">
-  <h3>🛒 Seu carrinho</h3>
-  <div id="cartItems" class="cart-items"></div>
-  <div class="cart-footer">
-    <div class="total-row">
-      <span>Total:</span>
-      <span id="cartTotal">R$ 0,00</span>
-    </div>
-    <button id="btnFinalizar" class="btn primary" style="width:100%">Finalizar pelo WhatsApp</button>
+<button id="abrirCarrinho">🛍️</button>
+
+<!-- MODAL DETALHES -->
+<div id="modalDetalhes" class="modal">
+  <div class="modal-content" id="modalDetalhesContent"></div>
+</div>
+
+<!-- MODAL CARRINHO -->
+<div id="modalCarrinho" class="modal">
+  <div class="modal-content">
+    <h2>🛒 Seu Carrinho</h2>
+    <div id="listaCarrinho"></div>
+    <p><strong>Total:</strong> R$ <span id="totalCarrinho">0.00</span></p>
+    <button id="finalizarBtn">Finalizar Pedido</button>
+    <button class="close-btn" onclick="fecharModalCarrinho()">Fechar</button>
   </div>
-</aside>
+</div>
 
 <script>
-const WHATSAPP_NUMBER = '5588993800944';
-let cart = JSON.parse(localStorage.getItem('carrinho_loja')) || [];
+let produtos = [];
+let carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
 
-const produtos = [
-  {codigo: 1, nome: 'Camiseta Estampada', preco: 59.9, imagem: 'https://via.placeholder.com/400x400?text=Camiseta'},
-  {codigo: 2, nome: 'Caneca Personalizada', preco: 39.9, imagem: 'https://via.placeholder.com/400x400?text=Caneca'},
-  {codigo: 3, nome: 'Chaveiro Criativo', preco: 14.9, imagem: 'https://via.placeholder.com/400x400?text=Chaveiro'},
-  {codigo: 4, nome: 'Quadro Decorativo', preco: 89.9, imagem: 'https://via.placeholder.com/400x400?text=Quadro'}
-];
+// 🔹 Carregar produtos do banco
+async function carregarProdutos() {
+  const res = await fetch("/api/produtos");
+  produtos = await res.json();
 
-const grid = document.getElementById('produtosGrid');
-const cartItems = document.getElementById('cartItems');
-const cartCount = document.getElementById('cartCount');
-const cartTotal = document.getElementById('cartTotal');
-const drawer = document.getElementById('drawer');
-const abrirCarrinho = document.getElementById('abrirCarrinho');
-const btnFinalizar = document.getElementById('btnFinalizar');
+  const container = document.getElementById("produtosContainer");
+  container.innerHTML = "";
 
-function money(v){ return 'R$ ' + v.toFixed(2).replace('.', ','); }
-
-function renderProdutos(){
-  grid.innerHTML = '';
-  produtos.forEach(p=>{
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML = `
-      <div class="thumb"><img src="${p.imagem}" alt="${p.nome}"></div>
-      <div class="card-body">
-        <h3>${p.nome}</h3>
-        <div class="price">${money(p.preco)}</div>
-        <button class="btn primary" onclick="adicionarAoCarrinho(${p.codigo})">Adicionar ao Carrinho</button>
-      </div>`;
-    grid.appendChild(card);
-  });
-}
-
-function adicionarAoCarrinho(codigo){
-  const produto = produtos.find(p=>p.codigo===codigo);
-  const existente = cart.find(i=>i.codigo===codigo);
-  if(existente) existente.qtd++;
-  else cart.push({...produto, qtd:1});
-  salvarCarrinho();
-  renderCarrinho();
-}
-
-function removerDoCarrinho(codigo){
-  cart = cart.filter(i=>i.codigo!==codigo);
-  salvarCarrinho();
-  renderCarrinho();
-}
-
-function salvarCarrinho(){
-  localStorage.setItem('carrinho_loja', JSON.stringify(cart));
-}
-
-function renderCarrinho(){
-  cartItems.innerHTML = '';
-  if(cart.length===0){
-    cartItems.innerHTML = '<p style="color:#777">Seu carrinho está vazio.</p>';
-  }
-  let total = 0;
-  cart.forEach(item=>{
-    total += item.preco * item.qtd;
-    const div = document.createElement('div');
-    div.className = 'cart-item';
+  produtos.forEach(p => {
+    const div = document.createElement("div");
+    div.classList.add("produto");
     div.innerHTML = `
-      <img src="${item.imagem}">
-      <div class="meta">
-        <strong>${item.nome}</strong><br>
-        ${money(item.preco)} x ${item.qtd}
-      </div>
-      <div>
-        <button class="btn ghost" onclick="mudarQtd(${item.codigo},1)">+</button>
-        <button class="btn ghost" onclick="mudarQtd(${item.codigo},-1)">-</button>
-      </div>
+      <img src="${p.imagens?.[0] || 'https://via.placeholder.com/300'}" alt="${p.nome}">
+      <h3>${p.nome}</h3>
+      <p>R$ ${p.preco}</p>
+      <button onclick="abrirModalDetalhes('${p.id}')">Ver Detalhes</button>
     `;
-    cartItems.appendChild(div);
+    container.appendChild(div);
   });
-  cartCount.textContent = cart.reduce((acc, i)=> acc + i.qtd, 0);
-  cartTotal.textContent = money(total);
 }
 
-function mudarQtd(codigo, delta){
-  const item = cart.find(i=>i.codigo===codigo);
-  if(!item) return;
-  item.qtd += delta;
-  if(item.qtd<=0) removerDoCarrinho(codigo);
-  else salvarCarrinho();
-  renderCarrinho();
+function abrirModalDetalhes(id) {
+  const produto = produtos.find(p => p.id == id);
+  if (!produto) return;
+
+  const modalContent = document.getElementById("modalDetalhesContent");
+  modalContent.innerHTML = `
+    <img src="${produto.imagens?.[0] || 'https://via.placeholder.com/400'}" alt="${produto.nome}">
+    <h2>${produto.nome}</h2>
+    <p>${produto.descricao || ''}</p>
+    <p><strong>Preço:</strong> R$ ${produto.preco}</p>
+    <button onclick="adicionarCarrinho(${produto.id})">Adicionar ao Carrinho</button>
+    <button class="close-btn" onclick="fecharModalDetalhes()">Fechar</button>
+  `;
+  document.getElementById("modalDetalhes").style.display = "flex";
 }
 
-abrirCarrinho.addEventListener('click', ()=>{
-  drawer.classList.toggle('open');
-});
+function fecharModalDetalhes() {
+  document.getElementById("modalDetalhes").style.display = "none";
+}
 
-btnFinalizar.addEventListener('click', ()=>{
-  if(cart.length===0){ alert('Seu carrinho está vazio'); return; }
-  let msg = "Olá! Gostaria de fazer um pedido:\n\n";
-  cart.forEach(i=>{
-    msg += `• ${i.nome} x${i.qtd} (${money(i.preco)})\n`;
+// 🔹 Carrinho
+function adicionarCarrinho(id) {
+  const produto = produtos.find(p => p.id == id);
+  if (!produto) return;
+
+  const existente = carrinho.find(item => item.id == id);
+  if (existente) {
+    existente.qtd++;
+  } else {
+    carrinho.push({ ...produto, qtd: 1 });
+  }
+
+  localStorage.setItem("carrinho", JSON.stringify(carrinho));
+  alert("Produto adicionado ao carrinho!");
+  fecharModalDetalhes();
+}
+
+document.getElementById("abrirCarrinho").addEventListener("click", abrirModalCarrinho);
+
+function abrirModalCarrinho() {
+  const lista = document.getElementById("listaCarrinho");
+  lista.innerHTML = "";
+
+  let total = 0;
+  carrinho.forEach(item => {
+    total += item.preco * item.qtd;
+    const div = document.createElement("div");
+    div.classList.add("item-carrinho");
+    div.innerHTML = `
+      <span>${item.qtd}x ${item.nome}</span>
+      <span>R$ ${(item.preco * item.qtd).toFixed(2)}</span>
+    `;
+    lista.appendChild(div);
   });
-  msg += `\nTotal: ${cartTotal.textContent}`;
-  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
-  window.open(url, '_blank');
-});
 
-renderProdutos();
-renderCarrinho();
+  document.getElementById("totalCarrinho").textContent = total.toFixed(2);
+  document.getElementById("modalCarrinho").style.display = "flex";
+}
+
+function fecharModalCarrinho() {
+  document.getElementById("modalCarrinho").style.display = "none";
+}
+
+carregarProdutos();
 </script>
-
 </body>
 </html>
