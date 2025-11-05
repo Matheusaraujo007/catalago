@@ -121,47 +121,52 @@
       form.style.display = form.style.display === 'block' ? 'none' : 'block';
     }
 
-    function salvarProduto() {
-      const nome = document.getElementById('nome').value;
-      const preco = document.getElementById('preco').value;
-      const estoque = document.getElementById('estoque').value;
-      const categoria = document.getElementById('categoria').value;
+    async function salvarProduto() {
+  const nome = document.getElementById('nome').value;
+  const preco = document.getElementById('preco').value;
+  const estoque = document.getElementById('estoque').value;
+  const categoria = document.getElementById('categoria').value;
 
-      if (!nome || !preco || !estoque || !categoria) {
-        alert("Preencha todos os campos!");
-        return;
-      }
+  if (!nome || !preco || !estoque || !categoria) {
+    alert("Preencha todos os campos!");
+    return;
+  }
 
-      const novoProduto = {
-        id: produtos.length + 1,
-        nome,
-        preco: parseFloat(preco).toFixed(2),
-        estoque: parseInt(estoque),
-        categoria
-      };
+  const produto = { nome, preco, estoque, categoria };
 
-      produtos.push(novoProduto);
-      atualizarTabela();
+  const resposta = await fetch('/api/produtos', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(produto)
+  });
 
-      // Limpar campos e esconder formulário
-      document.getElementById('nome').value = '';
-      document.getElementById('preco').value = '';
-      document.getElementById('estoque').value = '';
-      document.getElementById('categoria').value = '';
-      toggleForm();
-    }
+  if (resposta.ok) {
+    alert('✅ Produto salvo com sucesso!');
+    carregarProdutos();
+    toggleForm();
+  } else {
+    alert('❌ Erro ao salvar o produto.');
+  }
+}
 
-    function atualizarTabela() {
-      tabela.innerHTML = produtos.map(p => `
-        <tr>
-          <td>${p.id}</td>
-          <td>${p.nome}</td>
-          <td>R$ ${p.preco}</td>
-          <td>${p.estoque}</td>
-          <td>${p.categoria}</td>
-        </tr>
-      `).join('');
-    }
+async function carregarProdutos() {
+  const resposta = await fetch('/api/produtos');
+  const produtos = await resposta.json();
+
+  tabela.innerHTML = produtos.map(p => `
+    <tr>
+      <td>${p.id}</td>
+      <td>${p.nome}</td>
+      <td>R$ ${parseFloat(p.preco).toFixed(2)}</td>
+      <td>${p.estoque}</td>
+      <td>${p.categoria}</td>
+    </tr>
+  `).join('');
+}
+
+// Carregar produtos automaticamente ao abrir a página
+window.onload = carregarProdutos;
+
   </script>
 
 </body>
