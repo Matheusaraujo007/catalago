@@ -1,36 +1,36 @@
-import { pool } from "../db.js";
+// api/produtos.js
+import { Client } from 'pg';
 
 export default async function handler(req, res) {
-  const { method } = req;
+  const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+  });
 
-  switch (method) {
-    case "GET":
-      const { rows } = await pool.query(`
-        SELECT p.*, c.nome AS categoria_nome 
-        FROM produtos p
-        LEFT JOIN categorias c ON c.id = p.categoria_id
-        ORDER BY p.id DESC
-      `);
-      res.status(200).json(rows);
-      break;
+  await client.connect();
 
-    case "POST":
-      const { nome, descricao, preco, estoque, codigo_produto, categoria_id, imagem_url } = req.body;
-      await pool.query(
-        `INSERT INTO produtos (nome, descricao, preco, estoque, codigo_produto, categoria_id, imagem_url)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        [nome, descricao, preco, estoque, codigo_produto, categoria_id, imagem_url]
+  try {
+    if (req.method === 'GET') {
+      const result = await client.query('SELECT * FROM produtos ORDER BY id DESC');
+      res.status(200).json(result.rows);
+    }
+
+    else if (req.method === 'POST') {
+      const { nome, preco, estoque, categoria } = req.body;
+      await client.query(
+        'INSERT INTO produtos (nome, preco, estoque, categoria) VALUES ($1, $2, $3, $4)',
+        [nome, preco, estoque, categoria]
       );
-      res.status(201).json({ message: "Produto cadastrado" });
-      break;
+      res.status(201).json({ message: 'Produto cadastrado com sucesso!' });
+    }
 
-    case "DELETE":
-      const { id } = req.query;
-      await pool.query("DELETE FROM produtos WHERE id = $1", [id]);
-      res.status(200).json({ message: "Produto excluído" });
-      break;
-
-    default:
-      res.status(405).end();
+    else {
+      res.status(405).json({ message: 'Método não permitido' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erro no servidor' });
+  } finally {
+    await client.end();
   }
 }
