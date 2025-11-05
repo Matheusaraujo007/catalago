@@ -1,43 +1,30 @@
-// /api/categorias.js
-import { Pool } from "pg";
-
-const pool = new Pool({
-  connectionString: process.env.NEON_DB_URL,
-  ssl: { rejectUnauthorized: false },
-});
+import { pool } from "../db.js";
 
 export default async function handler(req, res) {
-  if (req.method === "GET") {
-    try {
-      const result = await pool.query("SELECT * FROM categorias ORDER BY id DESC");
-      res.status(200).json(result.rows || []);
-    } catch (error) {
-      console.error("Erro ao buscar categorias:", error);
-      res.status(500).json({ error: "Erro ao buscar categorias" });
-    }
-  }
+  const { method } = req;
 
-  else if (req.method === "POST") {
-    try {
-      const { nome } = req.body;
+  switch (method) {
+    case "GET":
+      const { rows } = await pool.query("SELECT * FROM categorias ORDER BY id DESC");
+      res.status(200).json(rows);
+      break;
 
-      if (!nome || nome.trim() === "") {
-        return res.status(400).json({ error: "Nome da categoria é obrigatório" });
-      }
-
-      const result = await pool.query(
-        "INSERT INTO categorias (nome) VALUES ($1) RETURNING *",
-        [nome.trim()]
+    case "POST":
+      const { nome, descricao } = req.body;
+      await pool.query(
+        "INSERT INTO categorias (nome, descricao) VALUES ($1, $2)",
+        [nome, descricao]
       );
+      res.status(201).json({ message: "Categoria criada" });
+      break;
 
-      res.status(200).json(result.rows[0]);
-    } catch (error) {
-      console.error("Erro ao salvar categoria:", error);
-      res.status(500).json({ error: "Erro ao salvar categoria" });
-    }
-  }
+    case "DELETE":
+      const { id } = req.query;
+      await pool.query("DELETE FROM categorias WHERE id = $1", [id]);
+      res.status(200).json({ message: "Categoria removida" });
+      break;
 
-  else {
-    res.status(405).json({ error: "Método não permitido" });
+    default:
+      res.status(405).end();
   }
 }
