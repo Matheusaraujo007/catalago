@@ -121,53 +121,61 @@
   </table>
 
   <script>
-    let categorias = [];
-    const tabela = document.getElementById('lista-categorias');
-    const form = document.getElementById('form-categoria');
+  const tabela = document.getElementById('lista-categorias');
+  const form = document.getElementById('form-categoria');
+  const API_URL = "/api/categorias";
 
-    function toggleForm() {
-      form.style.display = form.style.display === 'block' ? 'none' : 'block';
+  async function carregarCategorias() {
+    const res = await fetch(API_URL);
+    const data = await res.json();
+    atualizarTabela(data);
+  }
+
+  function toggleForm() {
+    form.style.display = form.style.display === 'block' ? 'none' : 'block';
+  }
+
+  async function salvarCategoria() {
+    const nome = document.getElementById('nome-categoria').value.trim();
+    if (!nome) {
+      alert("Informe o nome da categoria!");
+      return;
     }
 
-    function salvarCategoria() {
-      const nome = document.getElementById('nome-categoria').value.trim();
-      if (!nome) {
-        alert("Informe o nome da categoria!");
-        return;
-      }
+    await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nome })
+    });
 
-      const novaCategoria = {
-        id: categorias.length + 1,
-        nome
-      };
+    document.getElementById('nome-categoria').value = '';
+    toggleForm();
+    carregarCategorias();
+  }
 
-      categorias.push(novaCategoria);
-      atualizarTabela();
+  async function removerCategoria(id) {
+    await fetch(`${API_URL}?id=${id}`, { method: "DELETE" });
+    carregarCategorias();
+  }
 
-      document.getElementById('nome-categoria').value = '';
-      toggleForm();
+  function atualizarTabela(categorias) {
+    if (categorias.length === 0) {
+      tabela.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#888;">Nenhuma categoria cadastrada</td></tr>`;
+      return;
     }
 
-    function removerCategoria(id) {
-      categorias = categorias.filter(cat => cat.id !== id);
-      atualizarTabela();
-    }
+    tabela.innerHTML = categorias.map(c => `
+      <tr>
+        <td>${c.id}</td>
+        <td>${c.nome}</td>
+        <td><button onclick="removerCategoria(${c.id})">Excluir</button></td>
+      </tr>
+    `).join('');
+  }
 
-    function atualizarTabela() {
-      if (categorias.length === 0) {
-        tabela.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#888;">Nenhuma categoria cadastrada</td></tr>`;
-        return;
-      }
+  carregarCategorias();
+</script>
 
-      tabela.innerHTML = categorias.map(c => `
-        <tr>
-          <td>${c.id}</td>
-          <td>${c.nome}</td>
-          <td><button onclick="removerCategoria(${c.id})">Excluir</button></td>
-        </tr>
-      `).join('');
-    }
-  </script>
 
 </body>
 </html>
