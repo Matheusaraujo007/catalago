@@ -1,29 +1,45 @@
-import { pool } from "../db.js";
+import { Pool } from "pg";
+
+const pool = new Pool({
+  connectionString: process.env.NEON_DB_URL,
+  ssl: { rejectUnauthorized: false },
+});
 
 export default async function handler(req, res) {
-  const { method } = req;
+  if (req.method === "GET") {
+    const result = await pool.query(`
+      SELECT 
+        promocoes.id,
+        promocoes.tipo,
+        promocoes.valor,
+        promocoes.data_fim,
+        produtos.nome AS nome_produto
+      FROM promocoes
+      JOIN produtos ON produtos.id = promocoes.produto_id
+      ORDER BY promocoes.id DESC
+    `);
+    res.status(200).json(result.rows);
+  }
 
-  switch (method) {
-    case "GET":
-      const { rows } = await pool.query(`
-        SELECT p.*, pr.nome AS produto_nome 
-        FROM promocoes p 
-        LEFT JOIN produtos pr ON pr.id = p.produto_id
-        ORDER BY p.id DESC
-      `);
-      res.status(200).json(rows);
-      break;
+  if (req.method === "POST") {
+    const { produto_id, tipo, valor, data_fim } = req.body;
+    if (!produto_id || !tipo || !valor || !data_fim) {
+      return res.status(400).json({ error: "Preencha todos os campos!" });
+    }
 
-    case "POST":
-      const { produto_id, tipo, valor, data_fim } = req.body;
-      await pool.query(
-        "INSERT INTO promocoes (produto_id, tipo, valor, data_fim) VALUES ($1, $2, $3, $4)",
-        [produto_id, tipo, valor, data_fim]
-      );
-      res.status(201).json({ message: "Promoção criada" });
-      break;
+    const result = await pool.query(
+      `INSERT INTO promocoes (produto_id, tipo, valor, data_fim)
+       VALUES ($1, $2, $3, $4)
+       RETURNING *`,
+      [produto_id, tipo, valor, data_fim]
+    );
 
-    default:
-      res.status(405).end();
+    res.status(201).json(result.rows[0]);
+  }
+
+  if (req.method === "DELETE") {
+    const { id } = req.query;
+    await pool.query("DELETE FROM promocoes WHERE id = $1", [id]);
+    res.status(204).end();
   }
 }
