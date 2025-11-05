@@ -149,7 +149,7 @@
   <script>
     async function carregarProdutos() {
       const select = document.getElementById('produtoSelect');
-      const res = await fetch('https://seu-backend.vercel.app/api/produtos');
+      const res = await fetch('/api/produtos');
       const produtos = await res.json();
 
       produtos.forEach(p => {
@@ -162,7 +162,7 @@
 
     async function carregarPromocoes() {
       const tbody = document.querySelector('#tabelaPromocoes tbody');
-      const res = await fetch('https://seu-backend.vercel.app/api/promocoes');
+      const res = await fetch('/api/promocoes');
       const promocoes = await res.json();
 
       tbody.innerHTML = "";
