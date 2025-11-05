@@ -195,7 +195,7 @@
         data_fim: document.getElementById('dataFim').value
       };
 
-      await fetch('https://seu-backend.vercel.app/api/promocoes', {
+      await fetch('/api/promocoes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dados)
@@ -208,7 +208,7 @@
     async function removerPromocao(id) {
       if (!confirm('Deseja realmente remover esta promoção?')) return;
 
-      await fetch(`https://seu-backend.vercel.app/api/promocoes?id=${id}`, { method: 'DELETE' });
+      await fetch(`/api/promocoes?id=${id}`, { method: 'DELETE' });
       carregarPromocoes();
     }
 
