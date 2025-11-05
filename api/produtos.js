@@ -10,6 +10,7 @@ export default async function handler(req, res) {
   await client.connect();
 
   try {
+    // === LISTAR PRODUTOS ===
     if (req.method === "GET") {
       const result = await client.query(`
         SELECT 
@@ -18,7 +19,9 @@ export default async function handler(req, res) {
           p.preco,
           p.estoque,
           p.categoria,
-          p.imagem, -- <== Aqui garantimos que o campo de imagem venha
+          p.codigo,
+          p.descricao,
+          p.imagens,
           pr.tipo AS tipo_promocao,
           pr.valor AS valor_promocao,
           pr.data_fim
@@ -50,7 +53,9 @@ export default async function handler(req, res) {
           preco_final: preco_final.toFixed(2),
           estoque: p.estoque,
           categoria: p.categoria,
-          imagem: p.imagem, // ✅ agora o frontend recebe a imagem também
+          codigo: p.codigo,
+          descricao: p.descricao,
+          imagens: p.imagens || [],
           desconto_label,
         };
       });
@@ -58,15 +63,52 @@ export default async function handler(req, res) {
       res.status(200).json(produtos);
     }
 
+    // === CADASTRAR PRODUTO ===
     else if (req.method === "POST") {
-      const { nome, preco, estoque, categoria, imagem } = req.body;
-      await client.query(
-        "INSERT INTO produtos (nome, preco, estoque, categoria, imagem) VALUES ($1, $2, $3, $4, $5)",
-        [nome, preco, estoque, categoria, imagem]
+      const { nome, categoria, venda, estoque, codigo, descricao, imagens } = req.body;
+
+      const result = await client.query(
+        `INSERT INTO produtos (nome, categoria, preco, estoque, codigo, descricao, imagens)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         RETURNING *`,
+        [nome, categoria, venda, estoque, codigo, descricao, imagens]
       );
-      res.status(201).json({ message: "Produto cadastrado com sucesso!" });
+
+      res.status(201).json(result.rows[0]);
     }
 
+    // === EDITAR PRODUTO ===
+    else if (req.method === "PUT") {
+      const { nomeAntigo, nome, categoria, venda, estoque, codigo, descricao, imagens } = req.body;
+
+      const result = await client.query(
+        `UPDATE produtos
+         SET nome=$1, categoria=$2, preco=$3, estoque=$4, codigo=$5, descricao=$6, imagens=$7
+         WHERE nome=$8
+         RETURNING *`,
+        [nome, categoria, venda, estoque, codigo, descricao, imagens, nomeAntigo]
+      );
+
+      if (result.rowCount === 0) {
+        return res.status(404).json({ message: "Produto não encontrado" });
+      }
+
+      res.status(200).json(result.rows[0]);
+    }
+
+    // === EXCLUIR PRODUTO ===
+    else if (req.method === "DELETE") {
+      const { nome } = req.body;
+      const result = await client.query(`DELETE FROM produtos WHERE nome=$1`, [nome]);
+
+      if (result.rowCount === 0) {
+        return res.status(404).json({ message: "Produto não encontrado" });
+      }
+
+      res.status(200).json({ message: "Produto excluído com sucesso!" });
+    }
+
+    // === MÉTODO INVÁLIDO ===
     else {
       res.status(405).json({ message: "Método não permitido" });
     }
