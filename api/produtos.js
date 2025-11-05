@@ -18,6 +18,7 @@ export default async function handler(req, res) {
           p.preco,
           p.estoque,
           p.categoria,
+          p.imagem, -- <== Aqui garantimos que o campo de imagem venha
           pr.tipo AS tipo_promocao,
           pr.valor AS valor_promocao,
           pr.data_fim
@@ -49,6 +50,7 @@ export default async function handler(req, res) {
           preco_final: preco_final.toFixed(2),
           estoque: p.estoque,
           categoria: p.categoria,
+          imagem: p.imagem, // ✅ agora o frontend recebe a imagem também
           desconto_label,
         };
       });
@@ -57,10 +59,10 @@ export default async function handler(req, res) {
     }
 
     else if (req.method === "POST") {
-      const { nome, preco, estoque, categoria } = req.body;
+      const { nome, preco, estoque, categoria, imagem } = req.body;
       await client.query(
-        "INSERT INTO produtos (nome, preco, estoque, categoria) VALUES ($1, $2, $3, $4)",
-        [nome, preco, estoque, categoria]
+        "INSERT INTO produtos (nome, preco, estoque, categoria, imagem) VALUES ($1, $2, $3, $4, $5)",
+        [nome, preco, estoque, categoria, imagem]
       );
       res.status(201).json({ message: "Produto cadastrado com sucesso!" });
     }
