@@ -6,59 +6,58 @@
 <title>Loja — ManchinhaPx Arts</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#0f0f10; --card:#121214; --accent:#ffcc00; --muted:#bfbfbf; --white:#fff;
-  }
-  *{box-sizing:border-box}
-  body{
-    margin:0; font-family:"Poppins",sans-serif; background:linear-gradient(180deg,#0b0b0c,#111);
-    color:var(--white); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
-  }
-  header{
-    padding:18px 24px; display:flex; align-items:center; justify-content:space-between;
-    background:linear-gradient(90deg,#0b0b0c,#161616); border-bottom:1px solid rgba(255,255,255,0.03);
-  }
-  .brand{display:flex; align-items:center; gap:12px}
-  .brand .logo{width:46px;height:46px;border-radius:8px;background:linear-gradient(135deg,#222,#111);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent)}
-  .search{flex:1; margin:0 20px}
-  .search input{width:100%; padding:10px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:#0b0b0b; color:var(--white)}
-  .cart-btn{background:var(--accent); color:#000; padding:10px 14px; border-radius:8px; border:none; cursor:pointer; font-weight:600}
+:root{
+  --bg:#0f0f10; --card:#131313; --accent:#ffcc00; --muted:#bfbfbf; --white:#fff;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; font-family:"Poppins",sans-serif; background:linear-gradient(180deg,#0b0b0c,#111);
+  color:var(--white);
+}
+header{
+  padding:18px 24px; display:flex; align-items:center; justify-content:space-between;
+  background:linear-gradient(90deg,#0b0b0c,#161616); border-bottom:1px solid rgba(255,255,255,0.03);
+}
+.brand{display:flex; align-items:center; gap:12px}
+.brand .logo{width:46px;height:46px;border-radius:8px;background:linear-gradient(135deg,#222,#111);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent)}
+.search{flex:1; margin:0 20px}
+.search input{width:100%; padding:10px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:#0b0b0b; color:var(--white)}
+.cart-btn{background:var(--accent); color:#000; padding:10px 14px; border-radius:8px; border:none; cursor:pointer; font-weight:600}
 
-  /* Grid produtos */
-  .container{max-width:1200px;margin:28px auto;padding:0 18px}
-  .filters{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px}
-  .filters select, .filters button{padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:#0b0b0b;color:var(--white)}
-  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
-  @media(max-width:1000px){.grid{grid-template-columns:repeat(3,1fr)}}
-  @media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)} .search{display:none}}
-  @media(max-width:420px){.grid{grid-template-columns:1fr}}
+/* Grid produtos */
+.container{max-width:1200px;margin:28px auto;padding:0 18px}
+.filters{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.filters select, .filters button{padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:#0b0b0b;color:var(--white)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+@media(max-width:1000px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)} .search{display:none}}
+@media(max-width:420px){.grid{grid-template-columns:1fr}}
 
-  .card{background:var(--card);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;box-shadow:0 6px 18px rgba(0,0,0,0.6)}
-  .thumb{height:160px;border-radius:8px;background:#0a0a0a;display:flex;align-items:center;justify-content:center;overflow:hidden}
-  .thumb img{width:100%;height:100%;object-fit:cover}
-  .title{font-weight:600;font-size:1rem}
-  .price{font-weight:700;color:var(--accent)}
-  .actions{display:flex;gap:8px;margin-top:auto}
-  .btn{flex:1;padding:8px 10px;border-radius:8px;border:none;cursor:pointer;font-weight:600}
-  .btn.info{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--white)}
-  .btn.buy{background:var(--accent);color:#000}
+.card{background:var(--card);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;box-shadow:0 6px 18px rgba(0,0,0,0.6)}
+.thumb{height:160px;border-radius:8px;background:#0a0a0a;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.title{font-weight:600;font-size:1rem}
+.price{font-weight:700;color:var(--accent)}
+.actions{display:flex;gap:8px;margin-top:auto}
+.btn{flex:1;padding:8px 10px;border-radius:8px;border:none;cursor:pointer;font-weight:600}
+.btn.info{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--white)}
+.btn.buy{background:var(--accent);color:#000}
 
-  /* modal produto */
-  .modal{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;padding:20px;z-index:60}
-  .modal .dialog{width:100%;max-width:920px;background:#0f0f10;border-radius:12px;padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
-  .modal .dialog img{width:100%;height:320px;object-fit:cover;border-radius:8px}
-  .modal .close{position:absolute;top:18px;right:18px;background:transparent;border:none;color:var(--white);font-size:22px;cursor:pointer}
+/* modal produto */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;padding:20px;z-index:60}
+.modal .dialog{width:100%;max-width:920px;background:#0f0f10;border-radius:12px;padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.modal .dialog img{width:100%;height:320px;object-fit:cover;border-radius:8px}
+.modal .close{position:absolute;top:18px;right:18px;background:transparent;border:none;color:var(--white);font-size:22px;cursor:pointer}
 
-  /* carrinho lateral */
-  .cart{position:fixed;right:0;top:0;height:100vh;width:360px;background:#0b0b0b;padding:18px;transform:translateX(100%);transition:transform .28s ease;box-shadow:-8px 0 30px rgba(0,0,0,0.6);z-index:80}
-  .cart.open{transform:translateX(0)}
-  .cart h3{margin:0 0 12px}
-  .cart .item{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
-  .cart .item img{width:56px;height:56px;object-fit:cover;border-radius:8px}
-  .cart .total{display:flex;justify-content:space-between;margin-top:14px;font-weight:700;color:var(--accent)}
+/* carrinho lateral */
+.cart{position:fixed;right:0;top:0;height:100vh;width:360px;background:#0b0b0b;padding:18px;transform:translateX(100%);transition:transform .28s ease;box-shadow:-8px 0 30px rgba(0,0,0,0.6);z-index:80}
+.cart.open{transform:translateX(0)}
+.cart h3{margin:0 0 12px}
+.cart .item{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+.cart .item img{width:56px;height:56px;object-fit:cover;border-radius:8px}
+.cart .total{display:flex;justify-content:space-between;margin-top:14px;font-weight:700;color:var(--accent)}
 
-  footer{padding:28px 18px;color:var(--muted);text-align:center}
-
+footer{padding:28px 18px;color:var(--muted);text-align:center}
 </style>
 </head>
 <body>
@@ -90,9 +89,7 @@
     <button id="clearFilters">Limpar filtros</button>
   </div>
 
-  <section class="grid" id="productsGrid">
-    <!-- cards via JS -->
-  </section>
+  <section class="grid" id="productsGrid"></section>
 </main>
 
 <!-- Modal produto -->
@@ -133,18 +130,21 @@
 
 <script>
 /* ========== CONFIG ========= */
-const API_BASE = location.origin.replace(location.pathname,'') + '/api'; // se subir frontend junto com API use mesma origem
-// se backend estiver em outro domínio, substitua: const API_BASE = 'https://seu-backend.vercel.app/api';
+/*
+  Substitua abaixo pela URL do seu backend na Vercel (SEM / no final),
+  ex: const BACKEND = 'https://meu-backend.vercel.app';
+*/
+const BACKEND = "https://SEU_BACKEND_AQUI.vercel.app";
+const API_BASE = BACKEND + '/api';
 
 let produtos = [];
 let promocoes = [];
 let categorias = [];
 let cart = JSON.parse(localStorage.getItem('mp_cart') || '[]');
 
-/* ========== HELPERS ========= */
 const money = v => Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 
-/* ========== UI REFS ========= */
+/* UI Refs */
 const grid = document.getElementById('productsGrid');
 const prodCount = document.getElementById('prodCount');
 const q = document.getElementById('q');
@@ -163,7 +163,7 @@ const modalPrice = document.getElementById('modalPrice');
 const qtyInput = document.getElementById('qty');
 const addToCartModal = document.getElementById('addToCartModal');
 
-/* ========== FETCH DATA ========= */
+/* FETCH DATA */
 async function fetchProdutos(){
   try{
     const r = await fetch(API_BASE + '/produtos');
@@ -176,54 +176,30 @@ async function fetchProdutos(){
     grid.innerHTML = '<div style="color:#f33">Erro ao carregar produtos</div>';
   }
 }
-
 async function fetchPromocoes(){
-  try{
-    const r = await fetch(API_BASE + '/promocoes');
-    promocoes = await r.json();
-  }catch(e){ promocoes = []; }
+  try{ const r = await fetch(API_BASE + '/promocoes'); promocoes = await r.json(); }catch(e){ promocoes = []; }
 }
-
 function aplicarPromocao(prod){
   const promo = promocoes.find(p => p.produto_id == prod.id && p.ativo);
   if(!promo) return { preco: Number(prod.preco), label: null };
-  // se expirada
-  if(promo.data_fim && new Date(promo.data_fim) < new Date()){ return { preco: Number(prod.preco), label: null }; }
-  if(promo.tipo === 'percentual'){
-    const preco = Number(prod.preco) * (1 - Number(promo.valor)/100);
-    return { preco, label: `${promo.valor}% OFF` };
-  } else {
-    const preco = Number(prod.preco) - Number(promo.valor);
-    return { preco: Math.max(0, preco), label: `R$ ${Number(promo.valor).toFixed(2)} OFF` };
-  }
+  if(promo.data_fim && new Date(promo.data_fim) < new Date()) return { preco: Number(prod.preco), label: null };
+  if(promo.tipo === 'percentual'){ const preco = Number(prod.preco) * (1 - Number(promo.valor)/100); return { preco, label: `${promo.valor}% OFF` }; }
+  const preco = Number(prod.preco) - Number(promo.valor); return { preco: Math.max(0, preco), label: `R$ ${Number(promo.valor).toFixed(2)} OFF` };
 }
 
-/* ========== RENDER ========= */
+/* RENDER */
 function renderCategorias(){
   const set = new Set(produtos.map(p=>p.categoria_nome || p.categoria || 'Outros'));
   categorias = Array.from(set);
   filterCategoria.innerHTML = '<option value="">Todas categorias</option>' + categorias.map(c=>`<option value="${c}">${c}</option>`).join('');
 }
-
 function renderProdutos(){
   const term = q.value.trim().toLowerCase();
   let list = produtos.slice();
-
-  // busca
   if(term) list = list.filter(p => (p.nome + ' ' + (p.categoria_nome||p.categoria||'')).toLowerCase().includes(term));
-
-  // filtro categoria
-  const cat = filterCategoria.value;
-  if(cat) list = list.filter(p => (p.categoria_nome||p.categoria) === cat);
-
-  // sort
-  const s = sortSel.value;
-  if(s === 'price_asc') list.sort((a,b)=>a.preco-b.preco);
-  if(s === 'price_desc') list.sort((a,b)=>b.preco-a.preco);
-  if(s === 'recent') list.sort((a,b)=>b.id-a.id);
-
+  const cat = filterCategoria.value; if(cat) list = list.filter(p => (p.categoria_nome||p.categoria) === cat);
+  const s = sortSel.value; if(s === 'price_asc') list.sort((a,b)=>a.preco-b.preco); if(s === 'price_desc') list.sort((a,b)=>b.preco-a.preco); if(s === 'recent') list.sort((a,b)=>b.id-a.id);
   prodCount.textContent = list.length;
-
   grid.innerHTML = list.map(p => {
     const promo = aplicarPromocao(p);
     const precoHtml = promo.label ? `<div class="price"><small style="text-decoration:line-through;color:var(--muted)"> ${money(p.preco)} </small> <div style="color:var(--accent)">${money(promo.preco)}</div></div>` : `<div class="price">${money(p.preco)}</div>`;
@@ -244,62 +220,23 @@ function renderProdutos(){
   updateCartUI();
 }
 
-/* ========== CART ========= */
+/* CART */
 function saveCart(){ localStorage.setItem('mp_cart', JSON.stringify(cart)); updateCartUI(); }
-function updateCartUI(){
-  cartCount.textContent = cart.reduce((s,i)=>s+i.qt,0);
-  cartItems.innerHTML = cart.length === 0 ? '<div style="color:var(--muted);padding:12px">Carrinho vazio</div>' :
-    cart.map(it => {
-      const prod = produtos.find(p=>p.id==it.id) || {};
-      return `<div class="item">
-        <img src="${prod.imagem_url || 'https://via.placeholder.com/120'}" alt="">
-        <div style="flex:1">
-          <div style="font-weight:600">${escapeHtml(prod.nome||'Produto')}</div>
-          <div style="color:var(--muted)">${money(it.price)} x ${it.qt}</div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <button style="background:transparent;border:none;color:var(--accent);cursor:pointer" onclick="increase(${it.id})">+</button>
-          <button style="background:transparent;border:none;color:#f55;cursor:pointer" onclick="decrease(${it.id})">−</button>
-        </div>
-      </div>`}).join('');
-  const total = cart.reduce((s,i)=>s + (i.price * i.qt),0);
-  cartTotalEl.textContent = money(total);
+function updateCartUI(){ cartCount.textContent = cart.reduce((s,i)=>s+i.qt,0); cartItems.innerHTML = cart.length === 0 ? '<div style="color:var(--muted);padding:12px">Carrinho vazio</div>' : cart.map(it => { const prod = produtos.find(p=>p.id==it.id) || {}; return `<div class="item"><img src="${prod.imagem_url || 'https://via.placeholder.com/120'}" alt=""><div style="flex:1"><div style="font-weight:600">${escapeHtml(prod.nome||'Produto')}</div><div style="color:var(--muted)">${money(it.price)} x ${it.qt}</div></div><div style="display:flex;flex-direction:column;gap:6px"><button style="background:transparent;border:none;color:var(--accent);cursor:pointer" onclick="increase(${it.id})">+</button><button style="background:transparent;border:none;color:#f55;cursor:pointer" onclick="decrease(${it.id})">−</button></div></div>`}).join('');
+  const total = cart.reduce((s,i)=>s + (i.price * i.qt),0); cartTotalEl.textContent = money(total);
 }
-
-function addToCart(id, qtd=1){
-  const prod = produtos.find(p=>p.id==id);
-  if(!prod){ alert('Produto não encontrado'); return; }
-  const promo = aplicarPromocao(prod);
-  const existing = cart.find(i=>i.id==id);
-  if(existing) existing.qt += qtd;
-  else cart.push({ id: prod.id, qt: qtd, price: Number(promo.preco || prod.preco) });
-  saveCart();
-  openCart();
-}
-
+function addToCart(id, qtd=1){ const prod = produtos.find(p=>p.id==id); if(!prod){ alert('Produto não encontrado'); return; } const promo = aplicarPromocao(prod); const existing = cart.find(i=>i.id==id); if(existing) existing.qt += qtd; else cart.push({ id: prod.id, qt: qtd, price: Number(promo.preco || prod.preco) }); saveCart(); openCart(); }
 function increase(id){ const it = cart.find(i=>i.id==id); if(it){ it.qt++; saveCart(); } }
 function decrease(id){ const it = cart.find(i=>i.id==id); if(it){ it.qt--; if(it.qt<=0) cart = cart.filter(x=>x.id!=id); saveCart(); } }
 function clearCart(){ if(confirm('Limpar carrinho?')){ cart=[]; saveCart(); } }
 
-/* ========== MODAL ========= */
-function openProduct(id){
-  const p = produtos.find(x=>x.id==id);
-  if(!p) return;
-  modalImg.src = p.imagem_url || p.imagens?.[0] || 'https://via.placeholder.com/600x400';
-  modalTitle.textContent = p.nome;
-  modalDesc.textContent = p.descricao || '';
-  const promo = aplicarPromocao(p);
-  modalPrice.textContent = promo.label ? `${money(promo.preco)} (${promo.label})` : money(p.preco);
-  qtyInput.value = 1;
-  addToCartModal.onclick = ()=>{ addToCart(p.id, Number(qtyInput.value||1)); closeModal(); };
-  modal.style.display = 'flex';
-}
+/* MODAL */
+function openProduct(id){ const p = produtos.find(x=>x.id==id); if(!p) return; modalImg.src = p.imagem_url || p.imagens?.[0] || 'https://via.placeholder.com/600x400'; modalTitle.textContent = p.nome; modalDesc.textContent = p.descricao || ''; const promo = aplicarPromocao(p); modalPrice.textContent = promo.label ? `${money(promo.preco)} (${promo.label})` : money(p.preco); qtyInput.value = 1; addToCartModal.onclick = ()=>{ addToCart(p.id, Number(qtyInput.value||1)); closeModal(); }; modal.style.display = 'flex'; }
 function closeModal(){ modal.style.display = 'none'; }
 
-/* ========== CHECKOUT ========= */
+/* CHECKOUT */
 async function checkout(){
   if(cart.length===0){ alert('Carrinho vazio'); return; }
-  // Exemplo: coletar dados simples (no futuro abrir modal para dados do cliente)
   const confirmCheckout = confirm('Criar pedido com ' + cart.reduce((s,i)=>s+i.qt,0) + ' itens?');
   if(!confirmCheckout) return;
   const itens = cart.map(i=>({ produto_id:i.id, quantidade:i.qt, preco_unitario:i.price }));
@@ -312,40 +249,31 @@ async function checkout(){
     if(!res.ok) throw new Error('Erro no servidor');
     const data = await res.json();
     alert('Pedido criado com sucesso!');
-    // limpar carrinho
-    cart=[];
-    saveCart();
-    closeCart();
-    // redirecionar para pagina de sucesso se quiser
+    cart=[]; saveCart(); closeCart();
   }catch(e){
-    console.error(e);
-    alert('Erro ao criar pedido');
+    console.error(e); alert('Erro ao criar pedido');
   }
 }
 
-/* ========== UI helpers ========= */
-function openCart(){ cartEl.classList.add('open'); }
-function closeCart(){ cartEl.classList.remove('open'); }
+/* UI helpers */
+function openCart(){ cartEl.classList.add('open'); } function closeCart(){ cartEl.classList.remove('open'); }
 document.getElementById('btnCheckout').onclick = checkout;
 document.getElementById('btnClear').onclick = clearCart;
 cartBtn.addEventListener('click', ()=> openCart());
 document.getElementById('closeModal').addEventListener('click', closeModal);
 modal.addEventListener('click', (e)=>{ if(e.target===modal) closeModal(); });
 
-/* ========== SEARCH & FILTER ========= */
+/* SEARCH & FILTER */
 q.addEventListener('input', ()=> renderProdutos());
 filterCategoria.addEventListener('change', ()=> renderProdutos());
 sortSel.addEventListener('change', ()=> renderProdutos());
-document.getElementById('clearFilters').addEventListener('click', ()=>{
-  q.value=''; filterCategoria.value=''; sortSel.value='recent'; renderProdutos();
-});
+document.getElementById('clearFilters').addEventListener('click', ()=>{ q.value=''; filterCategoria.value=''; sortSel.value='recent'; renderProdutos(); });
 
-/* ========== INIT ========= */
+/* INIT */
 function escapeHtml(text){ return String(text||'').replace(/[&<>"']/g, s=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]); }
 fetchProdutos();
 updateCartUI();
 
-/* expose some for inline buttons */
 window.addToCart = addToCart;
 window.openProduct = openProduct;
 window.increase = increase;
