@@ -210,7 +210,10 @@ function renderProdutos(){
        </div>
      </div>`
   : `<div class="price">${money(p.preco)}</div>`;
-    const img = p.imagem ? p.imagem : '/placeholder.png';
+    const img = p.imagem_base64
+  ? `data:image/jpeg;base64,${p.imagem_base64}`
+  : '/placeholder.png';
+
     return `
       <article class="card" data-id="${p.id}">
         <div class="thumb"><img src="${img}" alt="${escapeHtml(p.nome)}"></div>
@@ -238,7 +241,10 @@ function decrease(id){ const it = cart.find(i=>i.id==id); if(it){ it.qt--; if(it
 function clearCart(){ if(confirm('Limpar carrinho?')){ cart=[]; saveCart(); } }
 
 /* MODAL */
-function openProduct(id){ const p = produtos.find(x=>x.id==id); if(!p) return; modalImg.src = p.imagem ? p.imagem : '/placeholder.png'; modalTitle.textContent = p.nome; modalDesc.textContent = p.descricao || ''; const promo = aplicarPromocao(p); modalPrice.textContent = promo.label ? `${money(promo.preco)} (${promo.label})` : money(p.preco); qtyInput.value = 1; addToCartModal.onclick = ()=>{ addToCart(p.id, Number(qtyInput.value||1)); closeModal(); }; modal.style.display = 'flex'; }
+function openProduct(id){ const p = produtos.find(x=>x.id==id); if(!p) return; modalImg.src = p.imagem_base64
+  ? `data:image/jpeg;base64,${p.imagem_base64}`
+  : '/placeholder.png';
+ modalTitle.textContent = p.nome; modalDesc.textContent = p.descricao || ''; const promo = aplicarPromocao(p); modalPrice.textContent = promo.label ? `${money(promo.preco)} (${promo.label})` : money(p.preco); qtyInput.value = 1; addToCartModal.onclick = ()=>{ addToCart(p.id, Number(qtyInput.value||1)); closeModal(); }; modal.style.display = 'flex'; }
 function closeModal(){ modal.style.display = 'none'; }
 
 /* CHECKOUT */
