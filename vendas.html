@@ -24,27 +24,33 @@
       max-width: 800px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       transition: 0.3s;
+      position: relative;
     }
     .venda-card:hover {
       transform: scale(1.01);
     }
-    .itens {
-      margin-top: 10px;
-      border-top: 1px solid #eee;
-      padding-top: 10px;
-    }
-    .item {
+    .acoes {
       display: flex;
-      align-items: center;
+      justify-content: flex-end;
       gap: 10px;
-      margin: 10px 0;
+      margin-top: 15px;
     }
-    .item img {
-      width: 60px;
-      height: 60px;
+    button {
+      border: none;
+      padding: 8px 14px;
       border-radius: 8px;
-      object-fit: cover;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.2s;
     }
+    .btn-detalhes { background: #007bff; color: white; }
+    .btn-detalhes:hover { background: #0069d9; }
+    .btn-editar { background: #ffc107; color: black; }
+    .btn-editar:hover { background: #e0a800; }
+    .btn-cancelar { background: #dc3545; color: white; }
+    .btn-cancelar:hover { background: #c82333; }
+    .btn-pdf { background: #28a745; color: white; }
+    .btn-pdf:hover { background: #218838; }
     .status {
       font-weight: bold;
       text-transform: capitalize;
@@ -78,6 +84,7 @@
             <p><b>Pagamento:</b> ${v.metodo_pagamento ?? "—"}</p>
             <p><b>Total:</b> R$ ${Number(v.valor_total).toFixed(2)}</p>
             ${v.observacoes ? `<p><b>Obs:</b> ${v.observacoes}</p>` : ""}
+
             <div class="itens">
               <h3>Itens da Venda:</h3>
               ${v.itens.map(i => `
@@ -90,12 +97,37 @@
                 </div>
               `).join("")}
             </div>
+
+            <div class="acoes">
+              <button class="btn-detalhes" onclick="verDetalhes(${v.id})">🔍 Detalhes</button>
+              <button class="btn-editar" onclick="editarStatus(${v.id})">✏️ Editar</button>
+              <button class="btn-cancelar" onclick="cancelarVenda(${v.id})">❌ Cancelar</button>
+              <button class="btn-pdf" onclick="gerarPDF(${v.id})">📄 PDF</button>
+            </div>
           `;
           container.appendChild(div);
         });
       } catch (err) {
         console.error("Erro ao carregar vendas:", err);
       }
+    }
+
+    // Funções de ação (aqui você conecta com sua API depois)
+    function verDetalhes(id) {
+      alert(`📋 Detalhes da venda #${id}`);
+    }
+    function editarStatus(id) {
+      const novoStatus = prompt("Digite o novo status (pago, pendente, cancelado):");
+      if (!novoStatus) return;
+      alert(`Status da venda #${id} alterado para: ${novoStatus}`);
+    }
+    function cancelarVenda(id) {
+      if (confirm("Deseja realmente cancelar esta venda?")) {
+        alert(`Venda #${id} foi cancelada.`);
+      }
+    }
+    function gerarPDF(id) {
+      alert(`📄 Gerando PDF da venda #${id}...`);
     }
 
     carregarVendas();
