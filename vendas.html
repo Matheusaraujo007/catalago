@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>📦 Relatório de Vendas</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -12,10 +13,7 @@
       padding: 20px;
       color: #333;
     }
-    h1 {
-      text-align: center;
-      color: #222;
-    }
+    h1 { text-align: center; color: #222; }
     .venda-card {
       background: white;
       padding: 20px;
@@ -24,40 +22,19 @@
       max-width: 800px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       transition: 0.3s;
-      position: relative;
     }
-    .venda-card:hover {
-      transform: scale(1.01);
-    }
-    .acoes {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 15px;
-    }
+    .venda-card:hover { transform: scale(1.01); }
+    .acoes { margin-top: 15px; display: flex; gap: 10px; }
     button {
-      border: none;
-      padding: 8px 14px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: 0.2s;
+      border: none; padding: 8px 12px;
+      border-radius: 8px; cursor: pointer;
+      color: #fff; font-weight: bold;
+      transition: background 0.2s;
     }
-    .btn-detalhes { background: #007bff; color: white; }
-    .btn-detalhes:hover { background: #0069d9; }
-    .btn-editar { background: #ffc107; color: black; }
-    .btn-editar:hover { background: #e0a800; }
-    .btn-cancelar { background: #dc3545; color: white; }
-    .btn-cancelar:hover { background: #c82333; }
-    .btn-pdf { background: #28a745; color: white; }
-    .btn-pdf:hover { background: #218838; }
-    .status {
-      font-weight: bold;
-      text-transform: capitalize;
-    }
-    .pago { color: green; }
-    .pendente { color: orange; }
-    .cancelado { color: red; }
+    .pago { background: #28a745; }
+    .pendente { background: #ffc107; color: #333; }
+    .cancelar { background: #dc3545; }
+    .pdf { background: #007bff; }
   </style>
 </head>
 <body>
@@ -66,68 +43,49 @@
 
   <script>
     async function carregarVendas() {
-      try {
-        const res = await fetch("/api/vendas");
-        const vendas = await res.json();
+      const res = await fetch("/api/vendas");
+      const vendas = await res.json();
+      const container = document.getElementById("listaVendas");
+      container.innerHTML = "";
 
-        const container = document.getElementById("listaVendas");
-        container.innerHTML = "";
-
-        vendas.forEach(v => {
-          const div = document.createElement("div");
-          div.className = "venda-card";
-          div.innerHTML = `
-            <h2>Venda #${v.id}</h2>
-            <p><b>Cliente ID:</b> ${v.cliente_id ?? "Não informado"}</p>
-            <p><b>Data:</b> ${new Date(v.data_venda).toLocaleString()}</p>
-            <p><b>Status:</b> <span class="status ${v.status}">${v.status}</span></p>
-            <p><b>Pagamento:</b> ${v.metodo_pagamento ?? "—"}</p>
-            <p><b>Total:</b> R$ ${Number(v.valor_total).toFixed(2)}</p>
-            ${v.observacoes ? `<p><b>Obs:</b> ${v.observacoes}</p>` : ""}
-
-            <div class="itens">
-              <h3>Itens da Venda:</h3>
-              ${v.itens.map(i => `
-                <div class="item">
-                  <img src="${i.imagem ? i.imagem : 'https://via.placeholder.com/60'}" alt="">
-                  <div>
-                    <p>${i.produto_nome}</p>
-                    <p>${i.quantidade}x R$ ${Number(i.preco_unitario).toFixed(2)} = <b>R$ ${Number(i.subtotal).toFixed(2)}</b></p>
-                  </div>
-                </div>
-              `).join("")}
-            </div>
-
-            <div class="acoes">
-              <button class="btn-detalhes" onclick="verDetalhes(${v.id})">🔍 Detalhes</button>
-              <button class="btn-editar" onclick="editarStatus(${v.id})">✏️ Editar</button>
-              <button class="btn-cancelar" onclick="cancelarVenda(${v.id})">❌ Cancelar</button>
-              <button class="btn-pdf" onclick="gerarPDF(${v.id})">📄 PDF</button>
-            </div>
-          `;
-          container.appendChild(div);
-        });
-      } catch (err) {
-        console.error("Erro ao carregar vendas:", err);
-      }
+      vendas.forEach(v => {
+        const div = document.createElement("div");
+        div.className = "venda-card";
+        div.innerHTML = `
+          <h2>Venda #${v.id}</h2>
+          <p><b>Cliente ID:</b> ${v.cliente_id ?? "Não informado"}</p>
+          <p><b>Data:</b> ${new Date(v.data_venda).toLocaleString()}</p>
+          <p><b>Status:</b> ${v.status}</p>
+          <p><b>Pagamento:</b> ${v.metodo_pagamento ?? "—"}</p>
+          <p><b>Total:</b> R$ ${Number(v.valor_total).toFixed(2)}</p>
+          <div class="acoes">
+            <button class="pago" onclick="atualizarStatus(${v.id}, 'pago')">Pago</button>
+            <button class="pendente" onclick="atualizarStatus(${v.id}, 'pendente')">Pendente</button>
+            <button class="cancelar" onclick="atualizarStatus(${v.id}, 'cancelado')">Cancelar</button>
+            <button class="pdf" onclick="gerarPDF(${v.id}, '${v.cliente_id}', '${v.valor_total}', '${v.status}')">Gerar PDF</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
     }
 
-    // Funções de ação (aqui você conecta com sua API depois)
-    function verDetalhes(id) {
-      alert(`📋 Detalhes da venda #${id}`);
+    async function atualizarStatus(id, status) {
+      await fetch("/api/vendas", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status })
+      });
+      carregarVendas();
     }
-    function editarStatus(id) {
-      const novoStatus = prompt("Digite o novo status (pago, pendente, cancelado):");
-      if (!novoStatus) return;
-      alert(`Status da venda #${id} alterado para: ${novoStatus}`);
-    }
-    function cancelarVenda(id) {
-      if (confirm("Deseja realmente cancelar esta venda?")) {
-        alert(`Venda #${id} foi cancelada.`);
-      }
-    }
-    function gerarPDF(id) {
-      alert(`📄 Gerando PDF da venda #${id}...`);
+
+    async function gerarPDF(id, cliente, total, status) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.text(`Relatório da Venda #${id}`, 20, 20);
+      doc.text(`Cliente: ${cliente}`, 20, 30);
+      doc.text(`Status: ${status}`, 20, 40);
+      doc.text(`Valor Total: R$ ${Number(total).toFixed(2)}`, 20, 50);
+      doc.save(`Venda_${id}.pdf`);
     }
 
     carregarVendas();
