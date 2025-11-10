@@ -12,10 +12,12 @@
       padding: 20px;
       color: #333;
     }
+
     h1 {
       text-align: center;
       color: #222;
     }
+
     .venda-card {
       background: white;
       padding: 20px;
@@ -26,15 +28,19 @@
       transition: 0.3s;
       position: relative;
     }
+
     .venda-card:hover {
       transform: scale(1.01);
     }
+
     .acoes {
       display: flex;
       justify-content: flex-end;
       gap: 10px;
       margin-top: 15px;
+      flex-wrap: wrap;
     }
+
     button {
       border: none;
       padding: 8px 14px;
@@ -43,6 +49,7 @@
       font-weight: 600;
       transition: 0.2s;
     }
+
     .btn-detalhes { background: #007bff; color: white; }
     .btn-detalhes:hover { background: #0069d9; }
     .btn-editar { background: #ffc107; color: black; }
@@ -51,13 +58,45 @@
     .btn-cancelar:hover { background: #c82333; }
     .btn-pdf { background: #28a745; color: white; }
     .btn-pdf:hover { background: #218838; }
+
     .status {
       font-weight: bold;
       text-transform: capitalize;
     }
+
     .pago { color: green; }
     .pendente { color: orange; }
     .cancelado { color: red; }
+
+    /* 💡 Ajuste do tamanho da imagem dos produtos */
+    .itens {
+      margin-top: 10px;
+      border-top: 1px solid #eee;
+      padding-top: 10px;
+    }
+
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 10px 0;
+    }
+
+    .item img {
+      width: 60px;          /* ✅ tamanho fixo */
+      height: 60px;
+      border-radius: 8px;
+      object-fit: cover;    /* garante que a imagem não distorça */
+      border: 1px solid #ddd;
+    }
+
+    .item div {
+      flex: 1;
+    }
+
+    .item p {
+      margin: 2px 0;
+    }
   </style>
 </head>
 <body>
@@ -87,15 +126,15 @@
 
             <div class="itens">
               <h3>Itens da Venda:</h3>
-              ${v.itens.map(i => `
+              ${v.itens?.length ? v.itens.map(i => `
                 <div class="item">
-                  <img src="${i.imagem ? i.imagem : 'https://via.placeholder.com/60'}" alt="">
+                  <img src="${i.imagem || 'https://via.placeholder.com/60'}" alt="">
                   <div>
                     <p>${i.produto_nome}</p>
                     <p>${i.quantidade}x R$ ${Number(i.preco_unitario).toFixed(2)} = <b>R$ ${Number(i.subtotal).toFixed(2)}</b></p>
                   </div>
                 </div>
-              `).join("")}
+              `).join("") : "<p>Nenhum item encontrado.</p>"}
             </div>
 
             <div class="acoes">
@@ -112,7 +151,7 @@
       }
     }
 
-    // Funções de ação (aqui você conecta com sua API depois)
+    // Funções de ação (futuro: conectar à API)
     function verDetalhes(id) {
       alert(`📋 Detalhes da venda #${id}`);
     }
