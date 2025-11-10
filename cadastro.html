@@ -230,22 +230,35 @@ form.addEventListener('submit', async (e) => {
   }
 });
 
-// Excluir Produto
+// Frontend: substitua window.excluirProduto
 window.excluirProduto = async function(index){
   if(!confirm('Tem certeza que deseja excluir este produto?')) return;
   const nome = produtos[index].nome;
+
   try {
-    const res = await fetch('/api/produtos',{
-      method:'DELETE',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({nome})
+    // usa query string para DELETE (mais confiável em alguns ambientes)
+    const res = await fetch(`/api/produtos?nome=${encodeURIComponent(nome)}`, {
+      method: 'DELETE'
     });
-    if(!res.ok) throw new Error('Erro ao excluir produto');
+
+    // tenta extrair json para mostrar erro se existir
+    const text = await res.text();
+    let data;
+    try { data = JSON.parse(text); } catch(e){ data = { message: text }; }
+
+    if (!res.ok) {
+      console.error('Erro ao excluir produto:', data);
+      alert('Erro ao excluir produto: ' + (data.message || res.statusText));
+      return;
+    }
+
+    // remover do array local e atualizar tabela
     produtos.splice(index,1);
     atualizarTabela();
+    alert('Produto excluído com sucesso!');
   } catch(err){
-    console.error(err);
-    alert('Erro ao excluir produto');
+    console.error('Erro de rede ao excluir:', err);
+    alert('Erro de rede ao excluir produto');
   }
 }
 
