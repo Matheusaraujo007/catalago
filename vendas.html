@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📦 Relatório de Vendas</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f8f9fa;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #222;
+    }
+    .venda-card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin: 15px auto;
+      max-width: 800px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: 0.3s;
+    }
+    .venda-card:hover {
+      transform: scale(1.01);
+    }
+    .itens {
+      margin-top: 10px;
+      border-top: 1px solid #eee;
+      padding-top: 10px;
+    }
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 0;
+    }
+    .item img {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+    .status {
+      font-weight: bold;
+      text-transform: capitalize;
+    }
+    .pago { color: green; }
+    .pendente { color: orange; }
+    .cancelado { color: red; }
+  </style>
+</head>
+<body>
+  <h1>📊 Relatório de Vendas</h1>
+  <div id="listaVendas"></div>
+
+  <script>
+    async function carregarVendas() {
+      try {
+        const res = await fetch("/api/vendas");
+        const vendas = await res.json();
+
+        const container = document.getElementById("listaVendas");
+        container.innerHTML = "";
+
+        vendas.forEach(v => {
+          const div = document.createElement("div");
+          div.className = "venda-card";
+          div.innerHTML = `
+            <h2>Venda #${v.id}</h2>
+            <p><b>Cliente ID:</b> ${v.cliente_id ?? "Não informado"}</p>
+            <p><b>Data:</b> ${new Date(v.data_venda).toLocaleString()}</p>
+            <p><b>Status:</b> <span class="status ${v.status}">${v.status}</span></p>
+            <p><b>Pagamento:</b> ${v.metodo_pagamento ?? "—"}</p>
+            <p><b>Total:</b> R$ ${Number(v.valor_total).toFixed(2)}</p>
+            ${v.observacoes ? `<p><b>Obs:</b> ${v.observacoes}</p>` : ""}
+            <div class="itens">
+              <h3>Itens da Venda:</h3>
+              ${v.itens.map(i => `
+                <div class="item">
+                  <img src="${i.imagem ? i.imagem : 'https://via.placeholder.com/60'}" alt="">
+                  <div>
+                    <p>${i.produto_nome}</p>
+                    <p>${i.quantidade}x R$ ${Number(i.preco_unitario).toFixed(2)} = <b>R$ ${Number(i.subtotal).toFixed(2)}</b></p>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          `;
+          container.appendChild(div);
+        });
+      } catch (err) {
+        console.error("Erro ao carregar vendas:", err);
+      }
+    }
+
+    carregarVendas();
+  </script>
+</body>
+</html>
