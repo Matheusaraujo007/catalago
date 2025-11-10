@@ -36,6 +36,7 @@ export default async function handler(req, res) {
         let preco_final = Number(p.preco);
         let desconto_label = null;
 
+        // 🧮 Calcula o preço com promoção, se houver
         if (p.tipo_promocao) {
           if (p.tipo_promocao === "percentual") {
             preco_final -= preco_final * (Number(p.valor_promocao) / 100);
@@ -44,6 +45,16 @@ export default async function handler(req, res) {
             preco_final -= Number(p.valor_promocao);
             desconto_label = `R$ ${Number(p.valor_promocao).toFixed(2)} OFF`;
           }
+        }
+
+        // 🖼️ Converte o campo imagens para array real
+        let imagens = [];
+        try {
+          if (p.imagens) {
+            imagens = typeof p.imagens === "string" ? JSON.parse(p.imagens) : p.imagens;
+          }
+        } catch {
+          imagens = [];
         }
 
         return {
@@ -55,7 +66,7 @@ export default async function handler(req, res) {
           categoria: p.categoria,
           codigo: p.codigo,
           descricao: p.descricao,
-          imagens: p.imagens || [],
+          imagens,
           desconto_label,
         };
       });
@@ -71,7 +82,7 @@ export default async function handler(req, res) {
         `INSERT INTO produtos (nome, categoria, preco, estoque, codigo, descricao, imagens)
          VALUES ($1, $2, $3, $4, $5, $6, $7)
          RETURNING *`,
-        [nome, categoria, venda, estoque, codigo, descricao, imagens]
+        [nome, categoria, venda, estoque, codigo, descricao, JSON.stringify(imagens)]
       );
 
       res.status(201).json(result.rows[0]);
@@ -86,7 +97,7 @@ export default async function handler(req, res) {
          SET nome=$1, categoria=$2, preco=$3, estoque=$4, codigo=$5, descricao=$6, imagens=$7
          WHERE nome=$8
          RETURNING *`,
-        [nome, categoria, venda, estoque, codigo, descricao, imagens, nomeAntigo]
+        [nome, categoria, venda, estoque, codigo, descricao, JSON.stringify(imagens), nomeAntigo]
       );
 
       if (result.rowCount === 0) {
@@ -113,7 +124,7 @@ export default async function handler(req, res) {
       res.status(405).json({ message: "Método não permitido" });
     }
   } catch (error) {
-    console.error(error);
+    console.error("Erro no servidor:", error);
     res.status(500).json({ message: "Erro no servidor", error: error.message });
   } finally {
     await client.end();
