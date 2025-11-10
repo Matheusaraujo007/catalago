@@ -1,242 +1,102 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>💰 Gerenciamento de Vendas</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📦 Relatório de Vendas</title>
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background: #f9fafb;
+      background: #f8f9fa;
       margin: 0;
-      padding: 0;
-    }
-    header {
-      background: #111827;
-      color: #fff;
       padding: 20px;
+      color: #333;
+    }
+    h1 {
       text-align: center;
-      font-size: 22px;
-      font-weight: 600;
+      color: #222;
     }
-    main {
-      padding: 30px;
-      max-width: 1200px;
-      margin: auto;
-    }
-    .actions-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .actions-bar select, .actions-bar button {
-      padding: 10px 14px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      font-size: 14px;
-    }
-    .actions-bar button {
-      background: #2563eb;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .actions-bar button:hover {
-      background: #1e40af;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    th, td {
-      padding: 14px;
-      text-align: left;
-      border-bottom: 1px solid #eee;
-    }
-    th {
-      background: #f3f4f6;
-      font-weight: 600;
-      color: #374151;
-    }
-    td {
-      color: #4b5563;
-    }
-    .status {
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-weight: 600;
-      text-transform: capitalize;
-    }
-    .status.pendente { background: #fde68a; color: #92400e; }
-    .status.concluida { background: #a7f3d0; color: #065f46; }
-    .status.cancelada { background: #fecaca; color: #991b1b; }
-
-    .btn-acao {
-      background: #e5e7eb;
-      border: none;
-      padding: 6px 10px;
-      margin: 0 2px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .btn-acao:hover { background: #d1d5db; }
-
-    /* Modal */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.4);
-      justify-content: center;
-      align-items: center;
-    }
-    .modal-content {
+    .venda-card {
       background: white;
       padding: 20px;
       border-radius: 12px;
-      width: 400px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      margin: 15px auto;
+      max-width: 800px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: 0.3s;
     }
-    .modal-content h3 {
-      margin-top: 0;
-      color: #111827;
+    .venda-card:hover {
+      transform: scale(1.01);
     }
-    .modal-content input, .modal-content select {
-      width: 100%;
+    .itens {
       margin-top: 10px;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
+      border-top: 1px solid #eee;
+      padding-top: 10px;
     }
-    .modal-content button {
-      margin-top: 15px;
-      width: 100%;
-      padding: 10px;
-      background: #2563eb;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 0;
     }
-    .modal-content button:hover { background: #1d4ed8; }
+    .item img {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+    .status {
+      font-weight: bold;
+      text-transform: capitalize;
+    }
+    .pago { color: green; }
+    .pendente { color: orange; }
+    .cancelado { color: red; }
   </style>
 </head>
 <body>
-  <header>💰 Painel de Vendas</header>
-  <main>
-    <div class="actions-bar">
-      <select id="filterStatus">
-        <option value="">Todas</option>
-        <option value="pendente">Pendentes</option>
-        <option value="concluida">Concluídas</option>
-        <option value="cancelada">Canceladas</option>
-      </select>
-      <button id="btnNovaVenda">➕ Nova Venda</button>
-    </div>
-
-    <table id="tabelaVendas">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Cliente</th>
-          <th>Data</th>
-          <th>Valor Total</th>
-          <th>Status</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </main>
-
-  <!-- Modal Nova Venda -->
-  <div id="modalNovaVenda" class="modal">
-    <div class="modal-content">
-      <h3>Adicionar Nova Venda</h3>
-      <input type="number" id="cliente_id" placeholder="ID do Cliente">
-      <input type="number" id="valor_total" placeholder="Valor Total (R$)">
-      <select id="status">
-        <option value="pendente">Pendente</option>
-        <option value="concluida">Concluída</option>
-        <option value="cancelada">Cancelada</option>
-      </select>
-      <button id="btnSalvarVenda">Salvar</button>
-    </div>
-  </div>
+  <h1>📊 Relatório de Vendas</h1>
+  <div id="listaVendas"></div>
 
   <script>
-    const supabaseUrl = "https://SEU_PROJETO.supabase.co";
-    const supabaseKey = "SEU_ANON_KEY";
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    async function carregarVendas() {
+      try {
+        const res = await fetch("/api/vendas");
+        const vendas = await res.json();
 
-    const tabela = document.querySelector("#tabelaVendas tbody");
-    const modal = document.getElementById("modalNovaVenda");
-    const btnNovaVenda = document.getElementById("btnNovaVenda");
-    const btnSalvarVenda = document.getElementById("btnSalvarVenda");
-    const filterStatus = document.getElementById("filterStatus");
+        const container = document.getElementById("listaVendas");
+        container.innerHTML = "";
 
-    async function carregarVendas(statusFiltro = "") {
-      let query = supabase.from("vendas").select("*").order("id", { ascending: false });
-      if (statusFiltro) query = query.eq("status", statusFiltro);
-
-      const { data, error } = await query;
-      if (error) return console.error(error);
-
-      tabela.innerHTML = "";
-      data.forEach(venda => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${venda.id}</td>
-          <td>${venda.cliente_id}</td>
-          <td>${new Date(venda.data_venda).toLocaleString()}</td>
-          <td>R$ ${venda.valor_total.toFixed(2)}</td>
-          <td><span class="status ${venda.status}">${venda.status}</span></td>
-          <td>
-            <button class="btn-acao" onclick="verDetalhes(${venda.id})">👁️</button>
-            <button class="btn-acao" onclick="editarVenda(${venda.id})">✏️</button>
-            <button class="btn-acao" onclick="excluirVenda(${venda.id})">🗑️</button>
-          </td>
-        `;
-        tabela.appendChild(tr);
-      });
-    }
-
-    async function excluirVenda(id) {
-      if (!confirm("Tem certeza que deseja excluir esta venda?")) return;
-      const { error } = await supabase.from("vendas").delete().eq("id", id);
-      if (!error) carregarVendas(filterStatus.value);
-    }
-
-    async function adicionarVenda() {
-      const cliente_id = document.getElementById("cliente_id").value;
-      const valor_total = parseFloat(document.getElementById("valor_total").value);
-      const status = document.getElementById("status").value;
-
-      const { error } = await supabase.from("vendas").insert([{ cliente_id, valor_total, status }]);
-      if (error) alert("Erro ao salvar: " + error.message);
-      else {
-        modal.style.display = "none";
-        carregarVendas();
+        vendas.forEach(v => {
+          const div = document.createElement("div");
+          div.className = "venda-card";
+          div.innerHTML = `
+            <h2>Venda #${v.id}</h2>
+            <p><b>Cliente ID:</b> ${v.cliente_id ?? "Não informado"}</p>
+            <p><b>Data:</b> ${new Date(v.data_venda).toLocaleString()}</p>
+            <p><b>Status:</b> <span class="status ${v.status}">${v.status}</span></p>
+            <p><b>Pagamento:</b> ${v.metodo_pagamento ?? "—"}</p>
+            <p><b>Total:</b> R$ ${Number(v.valor_total).toFixed(2)}</p>
+            ${v.observacoes ? `<p><b>Obs:</b> ${v.observacoes}</p>` : ""}
+            <div class="itens">
+              <h3>Itens da Venda:</h3>
+              ${v.itens.map(i => `
+                <div class="item">
+                  <img src="${i.imagem ? i.imagem : 'https://via.placeholder.com/60'}" alt="">
+                  <div>
+                    <p>${i.produto_nome}</p>
+                    <p>${i.quantidade}x R$ ${Number(i.preco_unitario).toFixed(2)} = <b>R$ ${Number(i.subtotal).toFixed(2)}</b></p>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          `;
+          container.appendChild(div);
+        });
+      } catch (err) {
+        console.error("Erro ao carregar vendas:", err);
       }
     }
-
-    btnNovaVenda.onclick = () => (modal.style.display = "flex");
-    btnSalvarVenda.onclick = adicionarVenda;
-    filterStatus.onchange = () => carregarVendas(filterStatus.value);
-    window.onclick = e => { if (e.target === modal) modal.style.display = "none"; };
 
     carregarVendas();
   </script>
