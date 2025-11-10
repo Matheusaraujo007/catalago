@@ -186,7 +186,20 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 
 <!-- Carrinho -->
 <aside class="cart" id="cart">
+  <button id="btnVoltarCarrinho" style="
+    background-color: #333;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    width: 100%;
+    margin-bottom: 10px;
+  ">← Voltar</button>
+
   <h3>Carrinho</h3>
+
   <div id="cartItems" style="overflow:auto;max-height:65vh;padding-right:6px"></div>
   <div class="total"><div>Total</div><div id="cartTotal">R$ 0,00</div></div>
   <div style="margin-top:12px;display:flex;gap:8px">
@@ -414,6 +427,12 @@ async function checkout(){
     console.error(e); alert('Erro ao criar pedido');
   }
 }
+
+// Botão de Voltar do Carrinho
+document.getElementById('btnVoltarCarrinho').addEventListener('click', () => {
+  closeCart(); // usa a função já existente para fechar o carrinho
+});
+
 
 /* UI helpers */
 function openCart(){ cartEl.classList.add('open'); } function closeCart(){ cartEl.classList.remove('open'); }
