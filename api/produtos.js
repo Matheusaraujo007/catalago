@@ -1,4 +1,3 @@
-// api/produtos.js
 import { Client } from "pg";
 
 export default async function handler(req, res) {
@@ -55,7 +54,7 @@ export default async function handler(req, res) {
           categoria: p.categoria,
           codigo: p.codigo,
           descricao: p.descricao,
-          imagem_base64: p.imagem_base64,
+          imagem_base64: p.imagem_base64, // ✅ puxando direto do banco
           desconto_label,
         };
       });
@@ -115,7 +114,7 @@ export default async function handler(req, res) {
     }
   } catch (error) {
     console.error("Erro no servidor:", error);
-    res.status(500).json({ message: "Erro no servidor", error: error.message });
+    return res.status(500).json({ message: "Erro no servidor", error: error.message });
   } finally {
     await client.end();
   }
