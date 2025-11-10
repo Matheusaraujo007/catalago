@@ -165,33 +165,57 @@ const addToCartModal = document.getElementById('addToCartModal');
 
 /* FETCH DATA */
 async function carregarProdutos() {
-  try {
-    const response = await fetch(`${API_BASE}/produtos`);
-    const produtos = await response.json();
-    const container = document.getElementById("produtos-container");
-    container.innerHTML = "";
+      try {
+        const response = await fetch(`${API_BASE}/produtos`);
+        if (!response.ok) {
+          throw new Error("Erro ao buscar produtos: " + response.status);
+        }
 
-    produtos.forEach(produto => {
-      // garante que a imagem tem o prefixo base64 correto
-      let imagem = produto.imagem_base64;
-      if (!imagem.startsWith("data:image")) {
-        imagem = `data:image/jpeg;base64,${imagem}`;
+        const produtos = await response.json();
+        const container = document.getElementById("produtos-container");
+        container.innerHTML = "";
+
+        if (!produtos.length) {
+          container.innerHTML = "<p>Nenhum produto encontrado.</p>";
+          return;
+        }
+
+        produtos.forEach(produto => {
+          let imagem = produto.imagem_base64;
+
+          // ✅ Se não tiver prefixo base64, adiciona
+          if (imagem && !imagem.startsWith("data:image")) {
+            imagem = `data:image/jpeg;base64,${imagem}`;
+          }
+
+          // ✅ Caso não tenha imagem, usa uma padrão
+          if (!imagem) {
+            imagem = "https://via.placeholder.com/300x200?text=Sem+Imagem";
+          }
+
+          const card = document.createElement("div");
+          card.classList.add("produto-card");
+
+          card.innerHTML = `
+            <img src="${imagem}" alt="${produto.nome}" class="produto-imagem" />
+            <h3>${produto.nome}</h3>
+            <p class="preco">R$ ${parseFloat(produto.preco).toFixed(2)}</p>
+            <p>${produto.categoria || ""}</p>
+            <button class="btn-comprar">Adicionar ao Carrinho</button>
+          `;
+
+          container.appendChild(card);
+        });
+
+      } catch (error) {
+        console.error("Erro ao carregar produtos:", error);
+        document.getElementById("produtos-container").innerHTML =
+          "<p>Erro ao carregar produtos.</p>";
       }
+    }
 
-      const card = document.createElement("div");
-      card.classList.add("produto-card");
-      card.innerHTML = `
-        <img src="${imagem}" alt="${produto.nome}" class="produto-imagem" />
-        <h3>${produto.nome}</h3>
-        <p class="preco">R$ ${parseFloat(produto.preco).toFixed(2)}</p>
-        <button class="btn-comprar">Adicionar ao Carrinho</button>
-      `;
-      container.appendChild(card);
-    });
-  } catch (error) {
-    console.error("Erro ao carregar produtos:", error);
-  }
-}
+    // ✅ Chama a função ao abrir a página
+    carregarProdutos();
 
 /* RENDER */
 function renderCategorias(){
