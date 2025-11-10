@@ -210,6 +210,28 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 
 <footer>© ManchinhaPx Arts</footer>
 
+<!-- Modal de Checkout -->
+<div class="modal" id="checkoutModal">
+  <div class="dialog" style="max-width:600px;display:flex;flex-direction:column;gap:14px">
+    <button class="close" id="closeCheckout">✕</button>
+    <h3>Finalizar Pedido</h3>
+    <p style="color:var(--muted);margin-top:-10px">Preencha os dados abaixo para concluir seu pedido:</p>
+
+    <input id="nomeCliente" placeholder="Nome completo" style="padding:10px;border-radius:8px;border:none;background:#0b0b0b;color:#fff">
+    <input id="telefoneCliente" placeholder="Telefone (ex: 88994907177)" style="padding:10px;border-radius:8px;border:none;background:#0b0b0b;color:#fff">
+    <input id="emailCliente" placeholder="E-mail" style="padding:10px;border-radius:8px;border:none;background:#0b0b0b;color:#fff">
+    <textarea id="enderecoCliente" placeholder="Endereço completo" style="padding:10px;border-radius:8px;border:none;background:#0b0b0b;color:#fff;height:80px"></textarea>
+
+    <div style="display:flex;gap:10px;align-items:center">
+      <label><input type="radio" name="tipoEntrega" value="retirada" checked> Retirada</label>
+      <label><input type="radio" name="tipoEntrega" value="entrega"> Entrega</label>
+    </div>
+
+    <button id="confirmarCheckout" style="padding:12px;border:none;background:var(--accent);color:#000;border-radius:8px;font-weight:700;cursor:pointer">Confirmar Pedido</button>
+  </div>
+</div>
+
+
 <script>
 /* ========== CONFIG ========= */
 /*
@@ -409,24 +431,90 @@ document.getElementById("btnVoltar").addEventListener("click", () => {
 
 /* CHECKOUT */
 async function checkout(){
-  if(cart.length===0){ alert('Carrinho vazio'); return; }
-  const confirmCheckout = confirm('Criar pedido com ' + cart.reduce((s,i)=>s+i.qt,0) + ' itens?');
-  if(!confirmCheckout) return;
-  const itens = cart.map(i=>({ produto_id:i.id, quantidade:i.qt, preco_unitario:i.price }));
-  const valor_total = cart.reduce((s,i)=>s + (i.price * i.qt),0);
-  try{
-    const res = await fetch(API_BASE + '/vendas', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ cliente_id: null, valor_total, status:'pendente', itens })
-    });
-    if(!res.ok) throw new Error('Erro no servidor');
-    const data = await res.json();
-    alert('Pedido criado com sucesso!');
-    cart=[]; saveCart(); closeCart();
-  }catch(e){
-    console.error(e); alert('Erro ao criar pedido');
+  if(cart.length === 0){ 
+    alert('Carrinho vazio'); 
+    return; 
   }
+  document.getElementById('checkoutModal').style.display = 'flex';
 }
+// Fechar modal de checkout
+document.getElementById('closeCheckout').addEventListener('click', ()=>{
+  document.getElementById('checkoutModal').style.display = 'none';
+});
+
+// Confirmar pedido
+document.getElementById('confirmarCheckout').addEventListener('click', async ()=>{
+  const nome = document.getElementById('nomeCliente').value.trim();
+  const email = document.getElementById('emailCliente').value.trim();
+  const telefone = document.getElementById('telefoneCliente').value.trim();
+  const endereco = document.getElementById('enderecoCliente').value.trim();
+  const tipoEntrega = document.querySelector('input[name="tipoEntrega"]:checked').value;
+
+  if(!nome || !telefone){
+    alert('Por favor, preencha pelo menos o nome e o telefone.');
+    return;
+  }
+
+  const valor_total = cart.reduce((s,i)=>s + (i.price * i.qt),0);
+  const itens = cart.map(i=>({ produto_id:i.id, quantidade:i.qt, preco_unitario:i.price }));
+
+  try {
+    // Cadastrar cliente
+    const clienteRes = await fetch(API_BASE + '/clientes', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ nome, email, telefone, endereco })
+    });
+    const cliente = await clienteRes.json();
+
+    // Cadastrar venda
+    const vendaRes = await fetch(API_BASE + '/vendas', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ cliente_id: cliente.id, valor_total, status: 'pendente', itens })
+    });
+    const venda = await vendaRes.json();
+
+    // Montar mensagem de resumo
+    const resumoItens = cart.map(it=>{
+      const prod = produtos.find(p=>p.id==it.id);
+      return `*${it.qt}* x *${prod?.nome || 'Produto'}*: R$ ${(it.price).toFixed(2)}`;
+    }).join('\n--------\n');
+
+    const mensagem = 
+`Olá, meu nome é *${nome}*, esse é o meu pedido realizado através da loja *Manchinha Px Arts*
+--------
+${resumoItens}
+--------
+Quantidade de itens: *${cart.length}*
+Total dos itens: *${money(valor_total)}*
+--------
+Valor da entrega: *A DEFINIR*
+Valor Total: *${money(valor_total)}*
+Veja o resumo do seu pedido aqui:
+${BACKEND}/pedido/${venda.id}
+--------
+${tipoEntrega === 'retirada' ? 'Retirada em loja' : 'Entrega'}: *Manchinha Px Arts*
+Contato: *(88) 99490-7177*
+Número do pedido: *${venda.id}*
+--------
+Pedido feito com *Manchinha Px Arts*`;
+
+    // Enviar pelo WhatsApp (abrir janela com texto pronto)
+    const linkWhats = `https://wa.me/5588994907177?text=${encodeURIComponent(mensagem)}`;
+    window.open(linkWhats, '_blank');
+
+    // Limpar carrinho
+    cart = [];
+    saveCart();
+    document.getElementById('checkoutModal').style.display = 'none';
+    closeCart();
+    alert('Pedido enviado com sucesso!');
+
+  } catch (e) {
+    console.error(e);
+    alert('Erro ao criar pedido.');
+  }
+});
+
 
 // Botão de Voltar do Carrinho
 document.getElementById('btnVoltarCarrinho').addEventListener('click', () => {
