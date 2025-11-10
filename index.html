@@ -134,7 +134,7 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   Substitua abaixo pela URL do seu backend na Vercel (SEM / no final),
   ex: const BACKEND = 'https://meu-backend.vercel.app';
 */
-const BACKEND = "https://catalago-ashen.vercel.app/";
+const BACKEND = "https://catalago-ashen.vercel.app";
 const API_BASE = BACKEND + '/api';
 
 let produtos = [];
@@ -210,9 +210,13 @@ function renderProdutos(){
        </div>
      </div>`
   : `<div class="price">${money(p.preco)}</div>`;
-    const img = p.imagem_base64
-  ? `data:image/jpeg;base64,${p.imagem_base64}`
-  : '/placeholder.png';
+    let img = '/placeholder.png';
+if (p.imagem_base64) {
+  img = p.imagem_base64.startsWith('data:image')
+    ? p.imagem_base64
+    : `data:image/jpeg;base64,${p.imagem_base64}`;
+}
+
 
     return `
       <article class="card" data-id="${p.id}">
@@ -232,19 +236,53 @@ function renderProdutos(){
 
 /* CART */
 function saveCart(){ localStorage.setItem('mp_cart', JSON.stringify(cart)); updateCartUI(); }
-function updateCartUI(){ cartCount.textContent = cart.reduce((s,i)=>s+i.qt,0); cartItems.innerHTML = cart.length === 0 ? '<div style="color:var(--muted);padding:12px">Carrinho vazio</div>' : cart.map(it => { const prod = produtos.find(p=>p.id==it.id) || {}; return `<div class="item"><img src="${imgCart}" alt="">
-<div style="flex:1"><div style="font-weight:600">${escapeHtml(prod.nome||'Produto')}</div><div style="color:var(--muted)">${money(it.price)} x ${it.qt}</div></div><div style="display:flex;flex-direction:column;gap:6px"><button style="background:transparent;border:none;color:var(--accent);cursor:pointer" onclick="increase(${it.id})">+</button><button style="background:transparent;border:none;color:#f55;cursor:pointer" onclick="decrease(${it.id})">−</button></div></div>`}).join('');
-  const total = cart.reduce((s,i)=>s + (i.price * i.qt),0); cartTotalEl.textContent = money(total);
+function updateCartUI() {
+  cartCount.textContent = cart.reduce((s,i)=>s+i.qt,0);
+  cartItems.innerHTML = cart.length === 0
+    ? '<div style="color:var(--muted);padding:12px">Carrinho vazio</div>'
+    : cart.map(it => {
+        const prod = produtos.find(p=>p.id==it.id) || {};
+        let imgCart = '/placeholder.png';
+        if (prod.imagem_base64) {
+          imgCart = prod.imagem_base64.startsWith('data:image')
+            ? prod.imagem_base64
+            : `data:image/jpeg;base64,${prod.imagem_base64}`;
+        }
+        return `
+          <div class="item">
+            <img src="${imgCart}" alt="">
+            <div style="flex:1">
+              <div style="font-weight:600">${escapeHtml(prod.nome||'Produto')}</div>
+              <div style="color:var(--muted)">${money(it.price)} x ${it.qt}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <button style="background:transparent;border:none;color:var(--accent);cursor:pointer" onclick="increase(${it.id})">+</button>
+              <button style="background:transparent;border:none;color:#f55;cursor:pointer" onclick="decrease(${it.id})">−</button>
+            </div>
+          </div>`;
+      }).join('');
+  const total = cart.reduce((s,i)=>s + (i.price * i.qt),0);
+  cartTotalEl.textContent = money(total);
 }
+
+
+
+  const total = cart.reduce((s,i)=>s + (i.price * i.qt),0); cartTotalEl.textContent = money(total);
+
 function addToCart(id, qtd=1){ const prod = produtos.find(p=>p.id==id); if(!prod){ alert('Produto não encontrado'); return; } const promo = aplicarPromocao(prod); const existing = cart.find(i=>i.id==id); if(existing) existing.qt += qtd; else cart.push({ id: prod.id, qt: qtd, price: Number(promo.preco || prod.preco) }); saveCart(); openCart(); }
 function increase(id){ const it = cart.find(i=>i.id==id); if(it){ it.qt++; saveCart(); } }
 function decrease(id){ const it = cart.find(i=>i.id==id); if(it){ it.qt--; if(it.qt<=0) cart = cart.filter(x=>x.id!=id); saveCart(); } }
 function clearCart(){ if(confirm('Limpar carrinho?')){ cart=[]; saveCart(); } }
 
 /* MODAL */
-function openProduct(id){ const p = produtos.find(x=>x.id==id); if(!p) return; modalImg.src = p.imagem_base64
-  ? `data:image/jpeg;base64,${p.imagem_base64}`
-  : '/placeholder.png';
+function openProduct(id){ const p = produtos.find(x=>x.id==id); if(!p) return; if (p.imagem_base64) {
+  modalImg.src = p.imagem_base64.startsWith('data:image')
+    ? p.imagem_base64
+    : `data:image/jpeg;base64,${p.imagem_base64}`;
+} else {
+  modalImg.src = '/placeholder.png';
+}
+
  modalTitle.textContent = p.nome; modalDesc.textContent = p.descricao || ''; const promo = aplicarPromocao(p); modalPrice.textContent = promo.label ? `${money(promo.preco)} (${promo.label})` : money(p.preco); qtyInput.value = 1; addToCartModal.onclick = ()=>{ addToCart(p.id, Number(qtyInput.value||1)); closeModal(); }; modal.style.display = 'flex'; }
 function closeModal(){ modal.style.display = 'none'; }
 
