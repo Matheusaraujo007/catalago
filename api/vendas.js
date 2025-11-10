@@ -1,4 +1,3 @@
-// api/vendas.js
 import { Client } from "pg";
 
 export default async function handler(req, res) {
@@ -10,69 +9,42 @@ export default async function handler(req, res) {
   await client.connect();
 
   try {
-    // === [GET] Buscar todas as vendas ===
     if (req.method === "GET") {
-      const result = await client.query(`
-        SELECT 
-          v.id,
-          v.cliente_id,
-          v.data_venda,
-          v.valor_total,
-          v.status,
-          v.metodo_pagamento,
-          v.observacoes,
-          json_agg(
-            json_build_object(
-              'produto_id', i.produto_id,
-              'quantidade', i.quantidade,
-              'preco_unitario', i.preco_unitario,
-              'subtotal', i.subtotal,
-              'produto_nome', p.nome,
-              'imagem', p.imagem_base64
-            )
-          ) AS itens
-        FROM vendas v
-        LEFT JOIN itens_venda i ON v.id = i.venda_id
-        LEFT JOIN produtos p ON i.produto_id = p.id
-        GROUP BY v.id
-        ORDER BY v.data_venda DESC
-      `);
-
+      const result = await client.query("SELECT * FROM vendas ORDER BY id DESC");
       return res.status(200).json(result.rows);
     }
 
-    // === [POST] Registrar nova venda ===
-    else if (req.method === "POST") {
-      const { cliente_id, valor_total, metodo_pagamento, status, observacoes, itens } = req.body;
-
-      const vendaQuery = `
-        INSERT INTO vendas (cliente_id, valor_total, metodo_pagamento, status, observacoes)
-        VALUES ($1, $2, $3, $4, $5)
-        RETURNING id
-      `;
-      const vendaValues = [cliente_id || null, valor_total, metodo_pagamento, status || "pendente", observacoes || ""];
-      const vendaResult = await client.query(vendaQuery, vendaValues);
-      const vendaId = vendaResult.rows[0].id;
-
-      // Salvar itens da venda
-      for (const item of itens) {
-        await client.query(
-          `INSERT INTO itens_venda (venda_id, produto_id, quantidade, preco_unitario)
-           VALUES ($1, $2, $3, $4)`,
-          [vendaId, item.produto_id, item.quantidade, item.preco_unitario]
-        );
+    if (req.method === "PUT") {
+      const { id, status } = req.body;
+      if (!id || !status) {
+        return res.status(400).json({ message: "ID e status são obrigatórios." });
       }
 
-      return res.status(201).json({ message: "Venda registrada com sucesso!", venda_id: vendaId });
+      const result = await client.query(
+        "UPDATE vendas SET status=$1 WHERE id=$2 RETURNING *",
+        [status, id]
+      );
+
+      if (result.rowCount === 0)
+        return res.status(404).json({ message: "Venda não encontrada." });
+
+      return res.status(200).json(result.rows[0]);
     }
 
-    else {
-      res.setHeader("Allow", ["GET", "POST"]);
-      return res.status(405).end(`Método ${req.method} não permitido`);
+    if (req.method === "POST") {
+      const { cliente_id, valor_total, status, metodo_pagamento, observacoes } = req.body;
+      const result = await client.query(
+        "INSERT INTO vendas (cliente_id, valor_total, status, metodo_pagamento, observacoes) VALUES ($1,$2,$3,$4,$5) RETURNING *",
+        [cliente_id || null, valor_total || 0, status || "pendente", metodo_pagamento || null, observacoes || ""]
+      );
+      return res.status(201).json(result.rows[0]);
     }
-  } catch (error) {
-    console.error("Erro em /api/vendas:", error);
-    return res.status(500).json({ message: "Erro interno no servidor", error: error.message });
+
+    res.setHeader("Allow", ["GET", "POST", "PUT"]);
+    return res.status(405).end(`Método ${req.method} não permitido.`);
+  } catch (err) {
+    console.error("Erro API vendas:", err);
+    return res.status(500).json({ error: err.message });
   } finally {
     await client.end();
   }
