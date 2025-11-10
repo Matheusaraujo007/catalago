@@ -9,116 +9,75 @@ export default async function handler(req, res) {
   await client.connect();
 
   try {
-    // === LISTAR PRODUTOS ===
+    // === [GET] Buscar produtos ===
     if (req.method === "GET") {
-      const result = await client.query(`
-        SELECT 
-          p.id,
-          p.nome,
-          p.preco,
-          p.estoque,
-          p.categoria,
-          p.codigo,
-          p.descricao,
-          p.imagem_base64,
-          pr.tipo AS tipo_promocao,
-          pr.valor AS valor_promocao,
-          pr.data_fim
-        FROM produtos p
-        LEFT JOIN promocoes pr 
-          ON pr.produto_id = p.id 
-          AND pr.data_fim >= CURRENT_DATE
-        ORDER BY p.id DESC
-      `);
-
-      const produtos = result.rows.map((p) => {
-        let preco_final = Number(p.preco);
-        let desconto_label = null;
-
-        if (p.tipo_promocao) {
-          if (p.tipo_promocao === "percentual") {
-            preco_final -= preco_final * (Number(p.valor_promocao) / 100);
-            desconto_label = `${p.valor_promocao}% OFF`;
-          } else if (p.tipo_promocao === "fixo") {
-            preco_final -= Number(p.valor_promocao);
-            desconto_label = `R$ ${Number(p.valor_promocao).toFixed(2)} OFF`;
-          }
-        }
-
-        return {
-          id: p.id,
-          nome: p.nome,
-          preco: Number(p.preco).toFixed(2),
-          preco_final: preco_final.toFixed(2),
-          estoque: p.estoque,
-          categoria: p.categoria,
-          codigo: p.codigo,
-          descricao: p.descricao,
-          imagem_base64: p.imagem_base64, // ✅ puxando direto do banco
-          desconto_label,
-        };
-      });
-
-      return res.status(200).json(produtos);
+      const result = await client.query("SELECT * FROM produtos ORDER BY id DESC");
+      return res.status(200).json(result.rows);
     }
 
-    // === CADASTRAR PRODUTO ===
+    // === [POST] Adicionar produto ===
     else if (req.method === "POST") {
-      const { nome, categoria, preco, estoque, codigo, descricao, imagem_base64 } = req.body;
+      const { nome, categoria, venda, estoque, codigo, descricao, imagens } = req.body;
 
-      const result = await client.query(
-        `INSERT INTO produtos (nome, categoria, preco, estoque, codigo, descricao, imagem_base64)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)
-         RETURNING *`,
-        [nome, categoria, preco, estoque, codigo, descricao, imagem_base64]
-      );
+      if (!nome || !categoria || !venda || !estoque || !codigo) {
+        return res.status(400).json({ message: "Campos obrigatórios não preenchidos." });
+      }
 
+      // Salva todas as imagens no campo imagens (TEXT[]) e a primeira no imagem_base64
+      const query = `
+        INSERT INTO produtos (nome, categoria, preco, estoque, codigo, descricao, imagens, imagem_base64)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING *
+      `;
+      const values = [nome, categoria, venda, estoque, codigo, descricao || "", imagens || [], imagens?.[0] || null];
+
+      const result = await client.query(query, values);
       return res.status(201).json(result.rows[0]);
     }
 
-    // === EDITAR PRODUTO ===
+    // === [PUT] Editar produto ===
     else if (req.method === "PUT") {
-      const { id, nome, categoria, preco, estoque, codigo, descricao, imagem_base64 } = req.body;
+      const { nomeAntigo, nome, categoria, venda, estoque, codigo, descricao, imagens } = req.body;
 
-      const result = await client.query(
-        `UPDATE produtos
-         SET nome=$1, categoria=$2, preco=$3, estoque=$4, codigo=$5, descricao=$6, imagem_base64=$7
-         WHERE id=$8
-         RETURNING *`,
-        [nome, categoria, preco, estoque, codigo, descricao, imagem_base64, id]
-      );
+      if (!nomeAntigo) {
+        return res.status(400).json({ message: "Nome antigo não informado." });
+      }
+
+      const query = `
+        UPDATE produtos
+        SET nome=$1, categoria=$2, preco=$3, estoque=$4, codigo=$5, descricao=$6, imagens=$7, imagem_base64=$8
+        WHERE nome=$9
+        RETURNING *
+      `;
+      const values = [nome, categoria, venda, estoque, codigo, descricao, imagens || [], imagens?.[0] || null, nomeAntigo];
+      const result = await client.query(query, values);
 
       if (result.rowCount === 0) {
-        return res.status(404).json({ message: "Produto não encontrado" });
+        return res.status(404).json({ message: "Produto não encontrado." });
       }
 
       return res.status(200).json(result.rows[0]);
     }
 
-    // === EXCLUIR PRODUTO ===
+    // === [DELETE] Excluir produto ===
     else if (req.method === "DELETE") {
-  // pega nome via query string ou body (compatibilidade)
-  const nome = (req.query && req.query.nome) || (req.body && req.body.nome);
+      const nome = req.query.nome;
+      if (!nome) return res.status(400).json({ message: "Nome não informado." });
 
-  if (!nome) {
-    return res.status(400).json({ message: "Informe o nome do produto para excluir (via query ?nome= ou body)" });
-  }
+      const result = await client.query("DELETE FROM produtos WHERE nome=$1", [nome]);
+      if (result.rowCount === 0) return res.status(404).json({ message: "Produto não encontrado." });
 
-  const result = await client.query(`DELETE FROM produtos WHERE nome=$1`, [nome]);
+      return res.status(200).json({ message: "Produto excluído com sucesso!" });
+    }
 
-  if (result.rowCount === 0) {
-    return res.status(404).json({ message: "Produto não encontrado" });
-  }
-
-  return res.status(200).json({ message: "Produto excluído com sucesso!", nome });
-}
-    // === MÉTODO INVÁLIDO ===
+    // === [Método não permitido] ===
     else {
-      return res.status(405).json({ message: "Método não permitido" });
+      res.setHeader("Allow", ["GET", "POST", "PUT", "DELETE"]);
+      return res.status(405).end(`Método ${req.method} não permitido`);
     }
   } catch (error) {
     console.error("Erro no servidor:", error);
-    return res.status(500).json({ message: "Erro no servidor", error: error.message });
+    return res.status(500).json({ message: "Erro interno do servidor", error: error.message });
   } finally {
     await client.end();
   }
