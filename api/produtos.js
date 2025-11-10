@@ -97,17 +97,21 @@ export default async function handler(req, res) {
 
     // === EXCLUIR PRODUTO ===
     else if (req.method === "DELETE") {
-      const { id } = req.body;
+  // pega nome via query string ou body (compatibilidade)
+  const nome = (req.query && req.query.nome) || (req.body && req.body.nome);
 
-      const result = await client.query(`DELETE FROM produtos WHERE id=$1`, [id]);
+  if (!nome) {
+    return res.status(400).json({ message: "Informe o nome do produto para excluir (via query ?nome= ou body)" });
+  }
 
-      if (result.rowCount === 0) {
-        return res.status(404).json({ message: "Produto não encontrado" });
-      }
+  const result = await client.query(`DELETE FROM produtos WHERE nome=$1`, [nome]);
 
-      return res.status(200).json({ message: "Produto excluído com sucesso!" });
-    }
+  if (result.rowCount === 0) {
+    return res.status(404).json({ message: "Produto não encontrado" });
+  }
 
+  return res.status(200).json({ message: "Produto excluído com sucesso!", nome });
+}
     // === MÉTODO INVÁLIDO ===
     else {
       return res.status(405).json({ message: "Método não permitido" });
