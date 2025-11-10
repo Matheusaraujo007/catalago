@@ -49,6 +49,55 @@ header{
 .modal .dialog img{width:100%;height:320px;object-fit:cover;border-radius:8px}
 .modal .close{position:absolute;top:18px;right:18px;background:transparent;border:none;color:var(--white);font-size:22px;cursor:pointer}
 
+.carousel {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #0a0a0a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-track {
+  display: flex;
+  transition: transform 0.4s ease-in-out;
+  width: 100%;
+  height: 100%;
+}
+
+.carousel-track img {
+  min-width: 100%;
+  height: 320px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.carousel button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(15,15,15,0.6);
+  color: #fff;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 2;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  transition: background 0.3s;
+}
+
+.carousel button:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.carousel .prev { left: 8px; }
+.carousel .next { right: 8px; }
+
 /* carrinho lateral */
 .cart{position:fixed;right:0;top:0;height:100vh;width:360px;background:#0b0b0b;padding:18px;transform:translateX(100%);transition:transform .28s ease;box-shadow:-8px 0 30px rgba(0,0,0,0.6);z-index:80}
 .cart.open{transform:translateX(0)}
@@ -96,11 +145,14 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 <div class="modal" id="modal">
   <div class="dialog" role="dialog" aria-modal="true">
     <div style="display:flex;flex-direction:column;gap:12px">
-      <img id="modalImg" src="" alt="">
-      <div style="display:flex;gap:8px">
-        <img id="thumb1" style="width:56px;height:56px;border-radius:6px;object-fit:cover;cursor:pointer" src="">
-        <img id="thumb2" style="width:56px;height:56px;border-radius:6px;object-fit:cover;cursor:pointer" src="">
+      
+      <!-- Carrossel -->
+      <div class="carousel">
+        <button class="prev" id="prevImg">❮</button>
+        <div class="carousel-track" id="carouselTrack"></div>
+        <button class="next" id="nextImg">❯</button>
       </div>
+      
     </div>
     <div>
       <button class="close" id="closeModal">✕</button>
@@ -275,16 +327,50 @@ function decrease(id){ const it = cart.find(i=>i.id==id); if(it){ it.qt--; if(it
 function clearCart(){ if(confirm('Limpar carrinho?')){ cart=[]; saveCart(); } }
 
 /* MODAL */
-function openProduct(id){ const p = produtos.find(x=>x.id==id); if(!p) return; if (p.imagem_base64) {
-  modalImg.src = p.imagem_base64.startsWith('data:image')
-    ? p.imagem_base64
-    : `data:image/jpeg;base64,${p.imagem_base64}`;
-} else {
-  modalImg.src = '/placeholder.png';
+let currentIndex = 0;
+
+function openProduct(id) {
+  const p = produtos.find(x => x.id == id);
+  if (!p) return;
+
+  const imagens = Array.isArray(p.imagens) && p.imagens.length > 0
+    ? p.imagens
+    : (p.imagem_base64 ? [p.imagem_base64] : []);
+
+  const track = document.getElementById('carouselTrack');
+  track.innerHTML = imagens.map(img => {
+    const src = img.startsWith('data:image') ? img : `data:image/jpeg;base64,${img}`;
+    return `<img src="${src}" alt="">`;
+  }).join('');
+
+  currentIndex = 0;
+  track.style.transform = `translateX(0%)`;
+
+  // Eventos das setas
+  document.getElementById('prevImg').onclick = () => {
+    currentIndex = (currentIndex - 1 + imagens.length) % imagens.length;
+    track.style.transform = `translateX(-${currentIndex * 100}%)`;
+  };
+  document.getElementById('nextImg').onclick = () => {
+    currentIndex = (currentIndex + 1) % imagens.length;
+    track.style.transform = `translateX(-${currentIndex * 100}%)`;
+  };
+
+  modalTitle.textContent = p.nome;
+  modalDesc.textContent = p.descricao || '';
+  const promo = aplicarPromocao(p);
+  modalPrice.textContent = promo.label
+    ? `${money(promo.preco)} (${promo.label})`
+    : money(p.preco);
+  qtyInput.value = 1;
+  addToCartModal.onclick = () => {
+    addToCart(p.id, Number(qtyInput.value || 1));
+    closeModal();
+  };
+
+  modal.style.display = 'flex';
 }
 
- modalTitle.textContent = p.nome; modalDesc.textContent = p.descricao || ''; const promo = aplicarPromocao(p); modalPrice.textContent = promo.label ? `${money(promo.preco)} (${promo.label})` : money(p.preco); qtyInput.value = 1; addToCartModal.onclick = ()=>{ addToCart(p.id, Number(qtyInput.value||1)); closeModal(); }; modal.style.display = 'flex'; }
-function closeModal(){ modal.style.display = 'none'; }
 
 /* CHECKOUT */
 async function checkout(){
