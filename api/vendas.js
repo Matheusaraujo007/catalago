@@ -11,36 +11,42 @@ export default async function handler(req, res) {
 
   try {
     // === [GET] Buscar todas as vendas ===
-    if (req.method === "GET") {
-      const result = await client.query(`
-        SELECT 
-          v.id,
-          v.cliente_id,
-          v.data_venda,
-          v.valor_total,
-          v.status,
-          v.metodo_pagamento,
-          v.observacoes,
-          json_agg(
-            json_build_object(
-              'produto_id', i.produto_id,
-              'quantidade', i.quantidade,
-              'preco_unitario', i.preco_unitario,
-              'subtotal', i.subtotal,
-              'produto_nome', p.nome,
-              'imagem', p.imagem_base64
-            )
-          ) AS itens
-        FROM vendas v
-        LEFT JOIN itens_venda i ON v.id = i.venda_id
-        LEFT JOIN produtos p ON i.produto_id = p.id
-        GROUP BY v.id
-        ORDER BY v.data_venda DESC
-      `);
+if (req.method === "GET") {
+  const result = await client.query(`
+    SELECT 
+      v.id,
+      v.cliente_id,
+      c.nome AS cliente_nome,
+      c.telefone AS cliente_telefone,
+      c.email AS cliente_email,
+      v.data_venda,
+      v.valor_total,
+      v.status,
+      v.metodo_pagamento,
+      v.observacoes,
+      COALESCE(
+        json_agg(
+          json_build_object(
+            'produto_id', i.produto_id,
+            'quantidade', i.quantidade,
+            'preco_unitario', i.preco_unitario,
+            'subtotal', i.subtotal,
+            'produto_nome', p.nome,
+            'imagem', p.imagem_base64
+          )
+        ) FILTER (WHERE i.produto_id IS NOT NULL),
+        '[]'
+      ) AS itens
+    FROM vendas v
+    LEFT JOIN clientes c ON v.cliente_id = c.id
+    LEFT JOIN itens_venda i ON v.id = i.venda_id
+    LEFT JOIN produtos p ON i.produto_id = p.id
+    GROUP BY v.id, c.nome, c.telefone, c.email
+    ORDER BY v.data_venda DESC
+  `);
 
-      return res.status(200).json(result.rows);
-    }
-
+  return res.status(200).json(result.rows);
+}
     // === [POST] Registrar nova venda ===
     else if (req.method === "POST") {
       const { cliente_id, valor_total, metodo_pagamento, status, observacoes, itens } = req.body;
