@@ -164,58 +164,28 @@ const qtyInput = document.getElementById('qty');
 const addToCartModal = document.getElementById('addToCartModal');
 
 /* FETCH DATA */
-async function carregarProdutos() {
-      try {
-        const response = await fetch(`${API_BASE}/produtos`);
-        if (!response.ok) {
-          throw new Error("Erro ao buscar produtos: " + response.status);
-        }
-
-        const produtos = await response.json();
-        const container = document.getElementById("produtos-container");
-        container.innerHTML = "";
-
-        if (!produtos.length) {
-          container.innerHTML = "<p>Nenhum produto encontrado.</p>";
-          return;
-        }
-
-        produtos.forEach(produto => {
-          let imagem = produto.imagem_base64;
-
-          // ✅ Se não tiver prefixo base64, adiciona
-          if (imagem && !imagem.startsWith("data:image")) {
-            imagem = `data:image/jpeg;base64,${imagem}`;
-          }
-
-          // ✅ Caso não tenha imagem, usa uma padrão
-          if (!imagem) {
-            imagem = "https://via.placeholder.com/300x200?text=Sem+Imagem";
-          }
-
-          const card = document.createElement("div");
-          card.classList.add("produto-card");
-
-          card.innerHTML = `
-            <img src="${imagem}" alt="${produto.nome}" class="produto-imagem" />
-            <h3>${produto.nome}</h3>
-            <p class="preco">R$ ${parseFloat(produto.preco).toFixed(2)}</p>
-            <p>${produto.categoria || ""}</p>
-            <button class="btn-comprar">Adicionar ao Carrinho</button>
-          `;
-
-          container.appendChild(card);
-        });
-
-      } catch (error) {
-        console.error("Erro ao carregar produtos:", error);
-        document.getElementById("produtos-container").innerHTML =
-          "<p>Erro ao carregar produtos.</p>";
-      }
-    }
-
-    // ✅ Chama a função ao abrir a página
-    carregarProdutos();
+async function fetchProdutos(){
+  try{
+    const r = await fetch(API_BASE + '/produtos');
+    produtos = await r.json();
+    renderCategorias();
+    await fetchPromocoes();
+    renderProdutos();
+  }catch(e){
+    console.error('Erro produtos',e);
+    grid.innerHTML = '<div style="color:#f33">Erro ao carregar produtos</div>';
+  }
+}
+async function fetchPromocoes(){
+  try{ const r = await fetch(API_BASE + '/promocoes'); promocoes = await r.json(); }catch(e){ promocoes = []; }
+}
+function aplicarPromocao(prod){
+  const promo = promocoes.find(p => p.produto_id == prod.id && p.ativo);
+  if(!promo) return { preco: Number(prod.preco), label: null };
+  if(promo.data_fim && new Date(promo.data_fim) < new Date()) return { preco: Number(prod.preco), label: null };
+  if(promo.tipo === 'percentual'){ const preco = Number(prod.preco) * (1 - Number(promo.valor)/100); return { preco, label: `${promo.valor}% OFF` }; }
+  const preco = Number(prod.preco) - Number(promo.valor); return { preco: Math.max(0, preco), label: `R$ ${Number(promo.valor).toFixed(2)} OFF` };
+}
 
 /* RENDER */
 function renderCategorias(){
