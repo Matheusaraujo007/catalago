@@ -117,7 +117,10 @@
           div.className = "venda-card";
           div.innerHTML = `
             <h2>Venda #${v.id}</h2>
-            <p><b>Cliente ID:</b> ${v.cliente_id ?? "Não informado"}</p>
+            <p><b>Cliente:</b> ${v.cliente_nome ?? "Não informado"}<br>
+${v.cliente_telefone ? `<small>📞 ${v.cliente_telefone}</small>` : ""}
+${v.cliente_email ? `<br><small>✉️ ${v.cliente_email}</small>` : ""}
+</p>
             <p><b>Data:</b> ${new Date(v.data_venda).toLocaleString()}</p>
             <p><b>Status:</b> <span class="status ${v.status}">${v.status}</span></p>
             <p><b>Pagamento:</b> ${v.metodo_pagamento ?? "—"}</p>
