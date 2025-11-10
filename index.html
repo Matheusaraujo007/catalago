@@ -167,6 +167,21 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   </div>
 </div>
 
+<!-- Botão Voltar -->
+<button id="btnVoltar" style="
+  background-color: #333;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 15px;
+">
+  ← Voltar
+</button>
+
+
 <!-- Carrinho -->
 <aside class="cart" id="cart">
   <h3>Carrinho</h3>
@@ -371,6 +386,13 @@ function openProduct(id) {
   modal.style.display = 'flex';
 }
 
+// === Botão de Voltar (fecha o modal) ===
+document.getElementById("btnVoltar")?.addEventListener("click", () => {
+  const modal = document.getElementById("modalProduto");
+  modal.style.display = "none";
+  document.body.style.overflow = "auto"; // reativa rolagem da página
+});
+
 
 /* CHECKOUT */
 async function checkout(){
@@ -411,6 +433,8 @@ document.getElementById('clearFilters').addEventListener('click', ()=>{ q.value=
 function escapeHtml(text){ return String(text||'').replace(/[&<>"']/g, s=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]); }
 fetchProdutos();
 updateCartUI();
+
+
 
 window.addToCart = addToCart;
 window.openProduct = openProduct;
