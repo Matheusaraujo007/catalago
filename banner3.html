@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadastro Banner 3</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+  h1 { text-align: center; margin-bottom: 20px; }
+  input, button { padding: 10px; margin: 5px 0; width: 100%; max-width: 400px; display: block; }
+  button { cursor: pointer; background: #007bff; color: white; border: none; border-radius: 6px; }
+  button:hover { background: #0056b3; }
+  .lista-banners { margin-top: 30px; }
+  .banner-item { background: white; padding: 10px; border-radius: 6px; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<h1>Cadastro Banner 3</h1>
+
+<input type="text" id="banner3-url" placeholder="URL do Banner 3">
+<button onclick="salvarBanner3()">Salvar Banner 3</button>
+
+<div class="lista-banners" id="lista-banners">
+  <h2>Banners Cadastrados</h2>
+</div>
+
+<script>
+  async function carregarBanners3() {
+    const res = await fetch('/api/banner3');
+    const banners = await res.json();
+    const container = document.getElementById('lista-banners');
+    container.innerHTML = '<h2>Banners Cadastrados</h2>';
+
+    banners.forEach(b => {
+      const div = document.createElement('div');
+      div.className = 'banner-item';
+      div.innerHTML = `
+        <p>ID: ${b.id}</p>
+        <p>Banner 3: ${b.banner3 ? `<img src="${b.banner3}" style="max-width:100%; height:auto;">` : "—"}</p>
+        <p>Criado em: ${new Date(b.criado_em).toLocaleString()}</p>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  async function salvarBanner3() {
+    const url = document.getElementById('banner3-url').value.trim();
+    if (!url) return alert("Informe a URL do Banner 3!");
+
+    const res = await fetch('/api/banner3', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ banner3: url })
+    });
+
+    if (res.ok) {
+      alert("Banner 3 cadastrado com sucesso!");
+      document.getElementById('banner3-url').value = '';
+      carregarBanners3();
+    } else {
+      const data = await res.json();
+      alert("Erro: " + data.message);
+    }
+  }
+
+  carregarBanners3();
+</script>
+
+</body>
+</html>

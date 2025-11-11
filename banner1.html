@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadastro Banner 1</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+  h1 { text-align: center; margin-bottom: 20px; }
+  .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+  input, button, select { padding: 10px; margin: 10px 0; width: 100%; border-radius: 6px; border: 1px solid #ccc; }
+  button { cursor: pointer; background: #007bff; color: white; border: none; }
+  button:hover { background: #0056b3; }
+  #preview img { max-width: 100%; margin-top: 10px; border-radius: 6px; }
+  .lista-banners { margin-top: 30px; }
+  .banner-item { background: #f9f9f9; padding: 10px; border-radius: 6px; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Cadastro Banner 1</h1>
+
+  <!-- Opção 1: Upload -->
+  <label>Upload de imagem do computador:</label>
+  <input type="file" id="banner-file" accept="image/*">
+
+  <!-- Opção 2: Selecionar da galeria -->
+  <label>Ou escolher uma imagem existente:</label>
+  <select id="banner-select">
+    <option value="">-- Selecione um banner --</option>
+    <option value="/banners/banner1.jpg">banner1.jpg</option>
+    <option value="/banners/banner2.jpg">banner2.jpg</option>
+    <option value="/banners/banner3.jpg">banner3.jpg</option>
+  </select>
+
+  <div id="preview"></div>
+
+  <button onclick="salvarBanner()">Salvar Banner 1</button>
+
+  <div class="lista-banners" id="lista-banners">
+    <h2>Banners Cadastrados</h2>
+  </div>
+</div>
+
+<script>
+const fileInput = document.getElementById('banner-file');
+const selectInput = document.getElementById('banner-select');
+const preview = document.getElementById('preview');
+
+fileInput.addEventListener('change', () => {
+  const file = fileInput.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = e => preview.innerHTML = `<img src="${e.target.result}">`;
+    reader.readAsDataURL(file);
+  }
+});
+
+selectInput.addEventListener('change', () => {
+  const value = selectInput.value;
+  if (value) {
+    preview.innerHTML = `<img src="${value}">`;
+    fileInput.value = ''; // limpar upload se selecionar galeria
+  }
+});
+
+async function carregarBanners() {
+  const res = await fetch('/api/banner1');
+  const banners = await res.json();
+  const container = document.getElementById('lista-banners');
+  container.innerHTML = '<h2>Banners Cadastrados</h2>';
+
+  banners.forEach(b => {
+    const div = document.createElement('div');
+    div.className = 'banner-item';
+    div.innerHTML = `
+      <p>ID: ${b.id}</p>
+      <p><img src="${b.banner1}" alt="Banner 1"></p>
+      <p>Criado em: ${new Date(b.criado_em).toLocaleString()}</p>
+    `;
+    container.appendChild(div);
+  });
+}
+
+async function salvarBanner() {
+  let caminho = selectInput.value;
+
+  if (fileInput.files[0]) {
+    // Upload do arquivo
+    const formData = new FormData();
+    formData.append('banner1', fileInput.files[0]);
+
+    const resUpload = await fetch('/api/banner1/upload', { method: 'POST', body: formData });
+    if (!resUpload.ok) return alert('Erro ao enviar a imagem!');
+    const data = await resUpload.json();
+    caminho = data.caminho;
+  }
+
+  if (!caminho) return alert('Selecione ou faça upload de um banner!');
+
+  // Salvar no banco
+  const res = await fetch('/api/banner1', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ banner1: caminho })
+  });
+
+  if (res.ok) {
+    alert('Banner cadastrado com sucesso!');
+    fileInput.value = '';
+    selectInput.value = '';
+    preview.innerHTML = '';
+    carregarBanners();
+  } else {
+    const data = await res.json();
+    alert('Erro: ' + data.message);
+  }
+}
+
+// Carregar banners ao iniciar
+carregarBanners();
+</script>
+
+</body>
+</html>

@@ -148,7 +148,12 @@
           <button class="menu-btn" onclick="loadPage('promocao.html')">Promoções</button>
         </div>
 
-        <button class="menu-btn" onclick="loadPage('marketing.html')">📢 Marketing</button>
+        <button class="menu-btn" id="btn-marketing">📢 Marketing</button>
+        <div class="submenu" id="submenu-marketing">
+          <button class="menu-btn" onclick="loadPage('banner1.html')">Banner 1</button>
+          <button class="menu-btn" onclick="loadPage('banner2.html')">Banner 2</button>
+          s<button class="menu-btn" onclick="loadPage('banner3.html')">Banner 3</button>
+      </div>
       </div>
 
       <div class="menu-section">
@@ -197,10 +202,17 @@
       this.classList.toggle("active");
     });
 
+    document.getElementById("btn-marketing").addEventListener("click", function() {
+  this.classList.toggle("active");
+    });
+
     // Função para carregar páginas no iframe
     function loadPage(page) {
       document.getElementById("iframe-content").src = page;
     }
+
+    
+
   </script>
 
 </body>
