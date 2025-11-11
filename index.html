@@ -330,7 +330,7 @@ let banners = [];
 
 async function fetchBanners() {
   try {
-    const r = await fetch(API_BASE + '/banners');
+    const r = await fetch(API_BASE + '/banner1');
     const bannersData = await r.json();
 
     const track = document.getElementById('bannerTrack');
