@@ -326,28 +326,33 @@ const modalPrice = document.getElementById('modalPrice');
 const qtyInput = document.getElementById('qty');
 const addToCartModal = document.getElementById('addToCartModal');
 
-let banners = [];
-
-async function fetchBanners() {
+async function carregarBanners() {
   try {
-    const r = await fetch(API_BASE + '/banner1');
-    const bannersData = await r.json();
+    const res = await fetch('/api/banner1');
+    const banners = await res.json();
 
-    const track = document.getElementById('bannerTrack');
-    if (!track) return;
+    const container = document.getElementById('lista-banners');
+    container.innerHTML = '<h2>Banners Cadastrados</h2>';
 
-    // Renderiza banners vindos do banco
-    track.innerHTML = bannersData.map(b => {
-      const imgSrc = b.banner1
-        ? (b.banner1.startsWith('data:image') ? b.banner1 : `data:image/jpeg;base64,${b.banner1}`)
-        : '/placeholder-banner.png';
-      return `<img src="${imgSrc}" alt="Banner ${b.id}">`;
-    }).join('');
-
-    banners = bannersData;
-    startBannerCarousel();
-  } catch (e) {
-    console.error('Erro ao carregar banners:', e);
+    banners.forEach(b => {
+      const div = document.createElement('div');
+      div.className = 'banner-item';
+      div.innerHTML = `
+        <p><strong>ID:</strong> ${b.id}</p>
+        <p><strong>Título:</strong> ${b.titulo || '—'}</p>
+        <p><strong>Descrição:</strong> ${b.descricao || '—'}</p>
+        <p><strong>Link:</strong> ${b.link || '—'}</p>
+        <div style="margin-top:10px;">
+          ${b.imagem_base64
+            ? `<img src="${b.imagem_base64}" alt="Banner ${b.id}" style="max-width:100%; border-radius:6px;">`
+            : '<em>Sem imagem</em>'
+          }
+        </div>
+      `;
+      container.appendChild(div);
+    });
+  } catch (err) {
+    console.error('Erro ao carregar banners:', err);
   }
 }
 
