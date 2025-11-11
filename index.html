@@ -108,17 +108,6 @@ header{
 
 footer{padding:28px 18px;color:var(--muted);text-align:center}
 
-.banners { max-width:1200px; margin: 24px auto; padding: 0 18px; display:flex; flex-direction:column; gap:18px; }
-.banner-principal { width:100%; height:360px; border-radius:12px; overflow:hidden; position:relative; background:#0a0a0a; }
-.banners-intermediarios { display:flex; gap:12px; flex-wrap:wrap; }
-.banner-item { flex:1; min-height:160px; border-radius:12px; overflow:hidden; background:#111; display:flex; align-items:center; justify-content:center; }
-.banner-item img { width:100%; height:100%; object-fit:cover; }
-
-/* Botões do carrossel principal */
-#bannerCarousel button { position:absolute; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.5); color:#fff; border:none; font-size:24px; cursor:pointer; border-radius:50%; width:40px; height:40px; }
-#prevBanner { left:8px; }
-#nextBanner { right:8px; }
-
 </style>
 </head>
 <body>
@@ -137,27 +126,6 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
     <button class="cart-btn" id="openCart">Carrinho (<span id="cartCount">0</span>)</button>
   </div>
 
-  <!-- ====== BANNERS ====== -->
-<section class="banners">
-
-  <!-- Banner principal (rotativo/carrossel) -->
-  <div class="banner-principal">
-    <div class="carousel" id="bannerCarousel">
-      <button class="prev" id="prevBanner">❮</button>
-      <div class="carousel-track" id="bannerTrack"></div>
-      <button class="next" id="nextBanner">❯</button>
-    </div>
-  </div>
-
-  <!-- Banners intermediários (3 ou 4) -->
-  <div class="banners-intermediarios">
-    <div class="banner-item" id="banner2"></div>
-    <div class="banner-item" id="banner3"></div>
-    <div class="banner-item" id="banner4"></div>
-    <!-- Pode adicionar mais se quiser -->
-  </div>
-
-</section>
 
 </header>
 
@@ -325,52 +293,6 @@ function aplicarPromocao(prod){
   if(promo.tipo === 'percentual'){ const preco = Number(prod.preco) * (1 - Number(promo.valor)/100); return { preco, label: `${promo.valor}% OFF` }; }
   const preco = Number(prod.preco) - Number(promo.valor); return { preco: Math.max(0, preco), label: `R$ ${Number(promo.valor).toFixed(2)} OFF` };
 }
-
-/* BANNERS */
-let bannerIndex = 0;
-let banners = []; // array de URLs do banner principal
-
-async function carregarBanners() {
-  try {
-    const res = await fetch(API_BASE + '/banner1'); // API que você criou
-    const data = await res.json();
-    banners = data.map(b => b.banner1); // pegando o caminho da imagem
-    renderBannerCarousel();
-    renderBannersIntermediarios();
-  } catch(e) {
-    console.error('Erro ao carregar banners', e);
-  }
-}
-
-function renderBannerCarousel() {
-  const track = document.getElementById('bannerTrack');
-  track.innerHTML = banners.map(url => `<img src="${url}" alt="Banner">`).join('');
-  track.style.display = 'flex';
-  track.style.transition = 'transform 0.5s ease-in-out';
-}
-
-document.getElementById('prevBanner').onclick = () => {
-  bannerIndex = (bannerIndex - 1 + banners.length) % banners.length;
-  document.getElementById('bannerTrack').style.transform = `translateX(-${bannerIndex * 100}%)`;
-}
-
-document.getElementById('nextBanner').onclick = () => {
-  bannerIndex = (bannerIndex + 1) % banners.length;
-  document.getElementById('bannerTrack').style.transform = `translateX(-${bannerIndex * 100}%)`;
-}
-
-// Banners intermediários (ex: pegar do banner2,3,4 da API)
-function renderBannersIntermediarios() {
-  ['banner2','banner3','banner4'].forEach((id,i) => {
-    const el = document.getElementById(id);
-    const imgUrl = banners[i+1] || '/placeholder.png'; // ex: pega próximo banner ou placeholder
-    el.innerHTML = `<img src="${imgUrl}" alt="Banner">`;
-  });
-}
-
-// Iniciar
-carregarBanners();
-
 
 /* RENDER */
 function renderCategorias(){
