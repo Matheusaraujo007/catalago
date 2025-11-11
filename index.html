@@ -184,8 +184,7 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   <button class="prev" id="prevBanner">❮</button>
   <div class="banner-track" id="bannerTrack"></div>
   <button class="next" id="nextBanner">❯</button>
-  <div id="banner-container"></div>
-
+  
 </section>
 
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
@@ -330,54 +329,33 @@ const addToCartModal = document.getElementById('addToCartModal');
 
 async function carregarBanners() {
   try {
-    const resposta = await fetch('/api/banner1'); // altere para /api/banners se sua rota for essa
-    if (!resposta.ok) throw new Error('Erro ao buscar banners no servidor.');
+    const res = await fetch('/api/banner1');
+    const banners = await res.json();
 
-    const banners = await resposta.json();
-    console.log('Banners carregados:', banners);
+    const container = document.getElementById('lista-banners');
+    container.innerHTML = '<h2>Banners Cadastrados</h2>';
 
-    const track = document.getElementById('bannerTrack');
-    if (!track) {
-      console.error("Elemento #bannerTrack não encontrado no HTML.");
-      return;
-    }
-
-    track.innerHTML = ''; // limpa o carrossel antes de adicionar novos
-
-    if (banners.length === 0) {
-      track.innerHTML = `
-        <div class="banner-item" style="background:#eee;display:flex;align-items:center;justify-content:center;">
-          <p>Nenhum banner cadastrado ainda</p>
-        </div>`;
-      return;
-    }
-
-    // cria dinamicamente cada banner
-    banners.forEach(banner => {
+    banners.forEach(b => {
       const div = document.createElement('div');
-      div.classList.add('banner-item');
-
-      const imagem = banner.imagem_base64
-        ? `data:image/jpeg;base64,${banner.imagem_base64}`
-        : '/placeholder-banner.png'; // imagem padrão se não houver
-
+      div.className = 'banner-item';
       div.innerHTML = `
-        <img src="${imagem}" alt="${banner.titulo || 'Banner'}">
-        <div class="banner-content">
-          <h2>${banner.titulo || ''}</h2>
-          <p>${banner.descricao || ''}</p>
-          ${banner.link ? `<a href="${banner.link}" target="_blank" class="btn-banner">Saiba mais</a>` : ''}
+        <p><strong>ID:</strong> ${b.id}</p>
+        <p><strong>Título:</strong> ${b.titulo || '—'}</p>
+        <p><strong>Descrição:</strong> ${b.descricao || '—'}</p>
+        <p><strong>Link:</strong> ${b.link || '—'}</p>
+        <div style="margin-top:10px;">
+          ${b.imagem_base64
+            ? `<img src="${b.imagem_base64}" alt="Banner ${b.id}" style="max-width:100%; border-radius:6px;">`
+            : '<em>Sem imagem</em>'
+          }
         </div>
       `;
-      track.appendChild(div);
+      container.appendChild(div);
     });
-  } catch (erro) {
-    console.error('Erro ao carregar banners:', erro);
+  } catch (err) {
+    console.error('Erro ao carregar banners:', err);
   }
 }
-
-// chama a função ao abrir a página
-carregarBanners();
 
 let currentBanner = 0;
 
