@@ -175,6 +175,7 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   <div style="display:flex;gap:12px;align-items:center">
     <button class="cart-btn" id="openCart">Carrinho (<span id="cartCount">0</span>)</button>
   </div>
+
 </header>
 
 <main class="container">
@@ -325,28 +326,28 @@ const modalPrice = document.getElementById('modalPrice');
 const qtyInput = document.getElementById('qty');
 const addToCartModal = document.getElementById('addToCartModal');
 
-let banner = [];
+let banners = [];
 
 async function fetchBanners() {
   try {
     const r = await fetch('/api/banner1');
-    const bannerData = await r.json();
+    const bannersData = await r.json();
 
     const track = document.getElementById('bannerTrack');
     if (!track) return;
 
     // Renderiza banners vindos do banco
-    track.innerHTML = bannerData.map(b => {
+    track.innerHTML = bannersData.map(b => {
       const imgSrc = b.banner1
         ? (b.banner1.startsWith('data:image') ? b.banner1 : `data:image/jpeg;base64,${b.banner1}`)
         : '/placeholder-banner.png';
       return `<img src="${imgSrc}" alt="Banner ${b.id}">`;
     }).join('');
 
-    banner = bannerData;
+    banners = bannersData;
     startBannerCarousel();
   } catch (e) {
-    console.error('Erro ao carregar banner:', e);
+    console.error('Erro ao carregar banners:', e);
   }
 }
 
@@ -354,24 +355,24 @@ let currentBanner = 0;
 
 function startBannerCarousel() {
   const track = document.getElementById('bannerTrack');
-  if (!banner.length) return;
+  if (!banners.length) return;
 
   const prevBtn = document.getElementById('prevBanner');
   const nextBtn = document.getElementById('nextBanner');
 
   prevBtn.onclick = () => {
-    currentBanner = (currentBanner - 1 + banner.length) % banner.length;
+    currentBanner = (currentBanner - 1 + banners.length) % banners.length;
     track.style.transform = `translateX(-${currentBanner * 100}%)`;
   };
 
   nextBtn.onclick = () => {
-    currentBanner = (currentBanner + 1) % banner.length;
+    currentBanner = (currentBanner + 1) % banners.length;
     track.style.transform = `translateX(-${currentBanner * 100}%)`;
   };
 
   // Rotação automática
   setInterval(() => {
-    currentBanner = (currentBanner + 1) % banner.length;
+    currentBanner = (currentBanner + 1) % banners.length;
     track.style.transform = `translateX(-${currentBanner * 100}%)`;
   }, 6000);
 }
