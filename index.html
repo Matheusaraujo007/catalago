@@ -108,6 +108,56 @@ header{
 
 footer{padding:28px 18px;color:var(--muted);text-align:center}
 
+/* ====== BANNERS ====== */
+.banner-carousel {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  overflow: hidden;
+  margin-top: 10px;
+  border-radius: 12px;
+  background: #0a0a0a;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+}
+
+.banner-track {
+  display: flex;
+  transition: transform 0.6s ease-in-out;
+  width: 100%;
+  height: 100%;
+}
+
+.banner-track img {
+  min-width: 100%;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.banner-carousel button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(15,15,15,0.6);
+  color: #fff;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  z-index: 2;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  transition: background 0.3s;
+}
+
+.banner-carousel button:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.banner-carousel .prev { left: 8px; }
+.banner-carousel .next { right: 8px; }
+
+
 </style>
 </head>
 <body>
@@ -125,6 +175,13 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   <div style="display:flex;gap:12px;align-items:center">
     <button class="cart-btn" id="openCart">Carrinho (<span id="cartCount">0</span>)</button>
   </div>
+
+  <!-- Carrossel de Banners -->
+<section class="banner-carousel" id="bannerCarousel">
+  <button class="prev" id="prevBanner">❮</button>
+  <div class="banner-track" id="bannerTrack"></div>
+  <button class="next" id="nextBanner">❯</button>
+</section>
 
 
 </header>
@@ -269,6 +326,57 @@ const modalDesc = document.getElementById('modalDesc');
 const modalPrice = document.getElementById('modalPrice');
 const qtyInput = document.getElementById('qty');
 const addToCartModal = document.getElementById('addToCartModal');
+
+let banners = [];
+
+async function fetchBanners() {
+  try {
+    const r = await fetch(API_BASE + '/banner1');
+    banners = await r.json();
+
+    const track = document.getElementById('bannerTrack');
+    if (!track) return;
+
+    // Renderizar banners
+    track.innerHTML = banners.map(b => {
+      const imgSrc = b.imagem_base64
+        ? (b.imagem_base64.startsWith('data:image') ? b.imagem_base64 : `data:image/jpeg;base64,${b.imagem_base64}`)
+        : '/placeholder-banner.png';
+      return `<img src="${imgSrc}" alt="${escapeHtml(b.titulo || 'Banner')}">`;
+    }).join('');
+
+    startBannerCarousel();
+  } catch (e) {
+    console.error('Erro ao carregar banners', e);
+  }
+}
+
+let currentBanner = 0;
+
+function startBannerCarousel() {
+  const track = document.getElementById('bannerTrack');
+  if (!banners.length) return;
+  
+  const prevBtn = document.getElementById('prevBanner');
+  const nextBtn = document.getElementById('nextBanner');
+
+  prevBtn.onclick = () => {
+    currentBanner = (currentBanner - 1 + banners.length) % banners.length;
+    track.style.transform = `translateX(-${currentBanner * 100}%)`;
+  };
+
+  nextBtn.onclick = () => {
+    currentBanner = (currentBanner + 1) % banners.length;
+    track.style.transform = `translateX(-${currentBanner * 100}%)`;
+  };
+
+  // Rotação automática
+  setInterval(() => {
+    currentBanner = (currentBanner + 1) % banners.length;
+    track.style.transform = `translateX(-${currentBanner * 100}%)`;
+  }, 6000);
+}
+
 
 /* FETCH DATA */
 async function fetchProdutos(){
