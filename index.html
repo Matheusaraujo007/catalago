@@ -325,28 +325,28 @@ const modalPrice = document.getElementById('modalPrice');
 const qtyInput = document.getElementById('qty');
 const addToCartModal = document.getElementById('addToCartModal');
 
-let banners = [];
+let banner = [];
 
 async function fetchBanners() {
   try {
     const r = await fetch('/api/banner1');
-    const bannersData = await r.json();
+    const bannerData = await r.json();
 
     const track = document.getElementById('bannerTrack');
     if (!track) return;
 
     // Renderiza banners vindos do banco
-    track.innerHTML = bannersData.map(b => {
+    track.innerHTML = bannerData.map(b => {
       const imgSrc = b.banner1
         ? (b.banner1.startsWith('data:image') ? b.banner1 : `data:image/jpeg;base64,${b.banner1}`)
         : '/placeholder-banner.png';
       return `<img src="${imgSrc}" alt="Banner ${b.id}">`;
     }).join('');
 
-    banners = bannersData;
+    banner = bannerData;
     startBannerCarousel();
   } catch (e) {
-    console.error('Erro ao carregar banners:', e);
+    console.error('Erro ao carregar banner:', e);
   }
 }
 
@@ -354,24 +354,24 @@ let currentBanner = 0;
 
 function startBannerCarousel() {
   const track = document.getElementById('bannerTrack');
-  if (!banners.length) return;
+  if (!banner.length) return;
 
   const prevBtn = document.getElementById('prevBanner');
   const nextBtn = document.getElementById('nextBanner');
 
   prevBtn.onclick = () => {
-    currentBanner = (currentBanner - 1 + banners.length) % banners.length;
+    currentBanner = (currentBanner - 1 + banner.length) % banner.length;
     track.style.transform = `translateX(-${currentBanner * 100}%)`;
   };
 
   nextBtn.onclick = () => {
-    currentBanner = (currentBanner + 1) % banners.length;
+    currentBanner = (currentBanner + 1) % banner.length;
     track.style.transform = `translateX(-${currentBanner * 100}%)`;
   };
 
   // Rotação automática
   setInterval(() => {
-    currentBanner = (currentBanner + 1) % banners.length;
+    currentBanner = (currentBanner + 1) % banner.length;
     track.style.transform = `translateX(-${currentBanner * 100}%)`;
   }, 6000);
 }
