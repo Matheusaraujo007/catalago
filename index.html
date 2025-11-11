@@ -331,23 +331,24 @@ let banners = [];
 
 async function fetchBanners() {
   try {
-    const r = await fetch(API_BASE + '/banner1');
-    banners = await r.json();
+    const r = await fetch('/api/banner1');
+    const bannersData = await r.json();
 
     const track = document.getElementById('bannerTrack');
     if (!track) return;
 
-    // Renderizar banners
-    track.innerHTML = banners.map(b => {
-      const imgSrc = b.imagem_base64
-        ? (b.imagem_base64.startsWith('data:image') ? b.imagem_base64 : `data:image/jpeg;base64,${b.imagem_base64}`)
+    // Renderiza banners vindos do banco
+    track.innerHTML = bannersData.map(b => {
+      const imgSrc = b.banner1
+        ? (b.banner1.startsWith('data:image') ? b.banner1 : `data:image/jpeg;base64,${b.banner1}`)
         : '/placeholder-banner.png';
-      return `<img src="${imgSrc}" alt="${escapeHtml(b.titulo || 'Banner')}">`;
+      return `<img src="${imgSrc}" alt="Banner ${b.id}">`;
     }).join('');
 
+    banners = bannersData;
     startBannerCarousel();
   } catch (e) {
-    console.error('Erro ao carregar banners', e);
+    console.error('Erro ao carregar banners:', e);
   }
 }
 
@@ -356,7 +357,7 @@ let currentBanner = 0;
 function startBannerCarousel() {
   const track = document.getElementById('bannerTrack');
   if (!banners.length) return;
-  
+
   const prevBtn = document.getElementById('prevBanner');
   const nextBtn = document.getElementById('nextBanner');
 
@@ -376,6 +377,7 @@ function startBannerCarousel() {
     track.style.transform = `translateX(-${currentBanner * 100}%)`;
   }, 6000);
 }
+
 
 
 /* FETCH DATA */
@@ -653,7 +655,7 @@ fetchProdutos();
 updateCartUI();
 
 
-
+fetchBanners();
 window.addToCart = addToCart;
 window.openProduct = openProduct;
 window.increase = increase;
