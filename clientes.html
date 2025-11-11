@@ -127,65 +127,79 @@
   </table>
 
   <script>
-    let clientes = [];
     const tabela = document.getElementById('lista-clientes');
-    const form = document.getElementById('form-cliente');
+const form = document.getElementById('form-cliente');
 
-    function toggleForm() {
-      form.style.display = form.style.display === 'block' ? 'none' : 'block';
-    }
+async function carregarClientes() {
+  try {
+    const res = await fetch('/api/clientes');
+    const clientes = await res.json();
+    atualizarTabela(clientes);
+  } catch (err) {
+    console.error("Erro ao carregar clientes:", err);
+  }
+}
 
-    function salvarCliente() {
-      const nome = document.getElementById('nome').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const telefone = document.getElementById('telefone').value.trim();
-      const cidade = document.getElementById('cidade').value.trim();
+async function salvarCliente() {
+  const nome = document.getElementById('nome').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const telefone = document.getElementById('telefone').value.trim();
+  const cidade = document.getElementById('cidade').value.trim();
 
-      if (!nome || !email || !telefone || !cidade) {
-        alert("Preencha todos os campos!");
-        return;
-      }
+  if (!nome || !email || !telefone || !cidade) {
+    alert("Preencha todos os campos!");
+    return;
+  }
 
-      const novoCliente = {
-        id: clientes.length + 1,
-        nome,
-        email,
-        telefone,
-        cidade
-      };
+  try {
+    const res = await fetch('/api/clientes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome, email, telefone, cidade })
+    });
+    const novoCliente = await res.json();
+    carregarClientes();
+    toggleForm();
+  } catch (err) {
+    console.error("Erro ao salvar cliente:", err);
+  }
+}
 
-      clientes.push(novoCliente);
-      atualizarTabela();
+async function removerCliente(id) {
+  if (!confirm("Deseja realmente excluir este cliente?")) return;
+  try {
+    await fetch('/api/clientes', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    });
+    carregarClientes();
+  } catch (err) {
+    console.error("Erro ao remover cliente:", err);
+  }
+}
 
-      document.getElementById('nome').value = '';
-      document.getElementById('email').value = '';
-      document.getElementById('telefone').value = '';
-      document.getElementById('cidade').value = '';
-      toggleForm();
-    }
+function atualizarTabela(clientes) {
+  if (!clientes || clientes.length === 0) {
+    tabela.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#888;">Nenhum cliente cadastrado</td></tr>`;
+    return;
+  }
 
-    function removerCliente(id) {
-      clientes = clientes.filter(c => c.id !== id);
-      atualizarTabela();
-    }
+  tabela.innerHTML = clientes.map(c => `
+    <tr>
+      <td>${c.id}</td>
+      <td>${c.nome}</td>
+      <td>${c.email}</td>
+      <td>${c.telefone}</td>
+      <td>${c.cidade}</td>
+      <td><button onclick="removerCliente(${c.id})">Excluir</button></td>
+    </tr>
+  `).join('');
+}
 
-    function atualizarTabela() {
-      if (clientes.length === 0) {
-        tabela.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#888;">Nenhum cliente cadastrado</td></tr>`;
-        return;
-      }
+// Carregar clientes ao abrir a página
+carregarClientes();
 
-      tabela.innerHTML = clientes.map(c => `
-        <tr>
-          <td>${c.id}</td>
-          <td>${c.nome}</td>
-          <td>${c.email}</td>
-          <td>${c.telefone}</td>
-          <td>${c.cidade}</td>
-          <td><button onclick="removerCliente(${c.id})">Excluir</button></td>
-        </tr>
-      `).join('');
-    }
   </script>
 
 </body>
