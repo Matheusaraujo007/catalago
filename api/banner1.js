@@ -5,6 +5,7 @@ export default async function handler(req, res) {
     connectionString: process.env.NEON_DB_URL,
     ssl: { rejectUnauthorized: false }
   });
+
   await client.connect();
 
   try {
@@ -15,17 +16,20 @@ export default async function handler(req, res) {
 
     if (req.method === 'POST') {
       const { banner1 } = req.body;
-      if (!banner1) return res.status(400).json({ message: 'Banner é obrigatório' });
+
+      if (!banner1) {
+        return res.status(400).json({ message: 'O campo banner1 é obrigatório.' });
+      }
 
       await client.query('INSERT INTO banners1 (banner1) VALUES ($1)', [banner1]);
-      return res.status(201).json({ message: 'Banner cadastrado' });
+      return res.status(201).json({ message: 'Banner salvo com sucesso!' });
     }
 
     res.setHeader('Allow', ['GET', 'POST']);
-    res.status(405).end(`Método ${req.method} não permitido`);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: err.message });
+    return res.status(405).end(`Método ${req.method} não permitido`);
+  } catch (error) {
+    console.error('Erro na API banner1:', error);
+    return res.status(500).json({ message: 'Erro interno do servidor', error: error.message });
   } finally {
     await client.end();
   }
