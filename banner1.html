@@ -104,7 +104,7 @@ async function salvarBanner() {
 
   const imagem_base64 = await getBase64(file);
 
-  const res = await fetch('/api/banner', {
+  const res = await fetch('/api/banner1', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ titulo, descricao, link, imagem_base64 })
@@ -133,7 +133,7 @@ document.getElementById('imagem').addEventListener('change', async e => {
 });
 
 async function carregarBanners() {
-  const res = await fetch('/api/banner');
+  const res = await fetch('/api/banner1');
   const banners = await res.json();
 
   const container = document.getElementById('listaBanners');
