@@ -3,32 +3,83 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Cadastro Banner 1</title>
+<title>Cadastro de Banners</title>
 <style>
-  body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
-  h1 { text-align: center; margin-bottom: 20px; }
-  .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-  input, button { padding: 10px; margin: 10px 0; width: 100%; border-radius: 6px; border: 1px solid #ccc; }
-  button { cursor: pointer; background: #007bff; color: white; border: none; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f3f4f6;
+    margin: 0;
+    padding: 20px;
+  }
+  .container {
+    max-width: 600px;
+    margin: 40px auto;
+    background: white;
+    border-radius: 12px;
+    padding: 20px 30px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  label { font-weight: 600; margin-top: 10px; display: block; }
+  input, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+  button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+  }
   button:hover { background: #0056b3; }
-  #preview img { max-width: 100%; margin-top: 10px; border-radius: 6px; }
-  .lista-banners { margin-top: 30px; }
-  .banner-item { background: #f9f9f9; padding: 10px; border-radius: 6px; margin-bottom: 10px; }
+  #preview img {
+    max-width: 100%;
+    margin-top: 15px;
+    border-radius: 8px;
+  }
+  .banner-list {
+    margin-top: 40px;
+  }
+  .banner-item {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+  }
 </style>
 </head>
 <body>
-
 <div class="container">
-  <h1>Cadastro Banner 1</h1>
+  <h1>Cadastro de Banner</h1>
 
-  <label>Selecione uma imagem:</label>
-  <input type="file" id="bannerFile" accept="image/*">
+  <label>Título:</label>
+  <input type="text" id="titulo" placeholder="Digite o título do banner" />
 
+  <label>Descrição:</label>
+  <textarea id="descricao" placeholder="Digite uma descrição opcional"></textarea>
+
+  <label>Link (opcional):</label>
+  <input type="text" id="link" placeholder="https://seusite.com/promo" />
+
+  <label>Imagem:</label>
+  <input type="file" id="imagem" accept="image/*" />
   <div id="preview"></div>
 
   <button onclick="salvarBanner()">Salvar Banner</button>
 
-  <div class="lista-banners" id="lista-banners">
+  <div class="banner-list" id="listaBanners">
     <h2>Banners Cadastrados</h2>
   </div>
 </div>
@@ -44,20 +95,27 @@ function getBase64(file) {
 }
 
 async function salvarBanner() {
-  const fileInput = document.getElementById('bannerFile');
-  if (!fileInput.files.length) return alert('Selecione uma imagem!');
+  const titulo = document.getElementById('titulo').value;
+  const descricao = document.getElementById('descricao').value;
+  const link = document.getElementById('link').value;
+  const file = document.getElementById('imagem').files[0];
 
-  const base64 = await getBase64(fileInput.files[0]);
+  if (!file) return alert('Selecione uma imagem.');
 
-  const res = await fetch('/api/banner1', {
+  const imagem_base64 = await getBase64(file);
+
+  const res = await fetch('/api/banner', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ banner1: base64 })
+    body: JSON.stringify({ titulo, descricao, link, imagem_base64 })
   });
 
   if (res.ok) {
     alert('Banner salvo com sucesso!');
-    fileInput.value = '';
+    document.getElementById('titulo').value = '';
+    document.getElementById('descricao').value = '';
+    document.getElementById('link').value = '';
+    document.getElementById('imagem').value = '';
     document.getElementById('preview').innerHTML = '';
     carregarBanners();
   } else {
@@ -66,37 +124,36 @@ async function salvarBanner() {
   }
 }
 
+document.getElementById('imagem').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (file) {
+    const base64 = await getBase64(file);
+    document.getElementById('preview').innerHTML = `<img src="${base64}" alt="Preview">`;
+  }
+});
+
 async function carregarBanners() {
-  const res = await fetch('/api/banner1');
+  const res = await fetch('/api/banner');
   const banners = await res.json();
 
-  const container = document.getElementById('lista-banners');
+  const container = document.getElementById('listaBanners');
   container.innerHTML = '<h2>Banners Cadastrados</h2>';
 
   banners.forEach(b => {
     const div = document.createElement('div');
     div.className = 'banner-item';
     div.innerHTML = `
-      <p>ID: ${b.id}</p>
-      <p><img src="${b.banner1}" alt="Banner" style="max-width:100%;border-radius:6px;"></p>
-      <p>Criado em: ${new Date(b.criado_em).toLocaleString()}</p>
+      <strong>${b.titulo || '(Sem título)'}</strong><br>
+      <img src="${b.imagem_base64}" style="max-width:100%;border-radius:6px;margin-top:5px;">
+      <p>${b.descricao || ''}</p>
+      <small>Criado em: ${new Date(b.criado_em).toLocaleString()}</small>
     `;
     container.appendChild(div);
   });
 }
 
-document.getElementById('bannerFile').addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = e2 => document.getElementById('preview').innerHTML = `<img src="${e2.target.result}">`;
-    reader.readAsDataURL(file);
-  }
-});
-
-// carregar ao abrir
+// Carregar banners automaticamente
 carregarBanners();
 </script>
-
 </body>
 </html>
