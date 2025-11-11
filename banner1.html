@@ -147,13 +147,32 @@ async function carregarBanners() {
       <img src="${b.imagem_base64}" style="max-width:100%;border-radius:6px;margin-top:5px;">
       <p>${b.descricao || ''}</p>
       <small>Criado em: ${new Date(b.criado_em).toLocaleString()}</small>
+      <br>
+      <button onclick="excluirBanner(${b.id})" style="margin-top:8px;background:#dc3545;border:none;padding:8px 12px;border-radius:6px;color:white;cursor:pointer;">
+        Excluir
+      </button>
     `;
     container.appendChild(div);
   });
 }
 
-// Carregar banners automaticamente
+async function excluirBanner(id) {
+  if (!confirm('Tem certeza que deseja excluir este banner?')) return;
+
+  const res = await fetch(`/api/banner1?id=${id}`, { method: 'DELETE' });
+
+  if (res.ok) {
+    alert('Banner excluído com sucesso!');
+    carregarBanners();
+  } else {
+    const data = await res.json();
+    alert('Erro ao excluir: ' + data.message);
+  }
+}
+
+// Carrega os banners ao abrir a página
 carregarBanners();
 </script>
+
 </body>
 </html>
