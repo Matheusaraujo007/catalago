@@ -301,6 +301,7 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 const BACKEND = "https://catalago-ashen.vercel.app";
 const API_BASE = BACKEND + '/api';
 
+let banners = [];
 let produtos = [];
 let promocoes = [];
 let categorias = [];
@@ -329,33 +330,31 @@ const addToCartModal = document.getElementById('addToCartModal');
 
 async function carregarBanners() {
   try {
-    const res = await fetch('/api/banner1');
-    const banners = await res.json();
+    const res = await fetch(API_BASE + '/banner1');
+    banners = await res.json();
 
-    const container = document.getElementById('lista-banners');
-    container.innerHTML = '<h2>Banners Cadastrados</h2>';
+    const track = document.getElementById('bannerTrack');
+    if (!banners.length) {
+      track.innerHTML = '<div style="color:#aaa;text-align:center;width:100%">Nenhum banner cadastrado</div>';
+      return;
+    }
 
-    banners.forEach(b => {
-      const div = document.createElement('div');
-      div.className = 'banner-item';
-      div.innerHTML = `
-        <p><strong>ID:</strong> ${b.id}</p>
-        <p><strong>Título:</strong> ${b.titulo || '—'}</p>
-        <p><strong>Descrição:</strong> ${b.descricao || '—'}</p>
-        <p><strong>Link:</strong> ${b.link || '—'}</p>
-        <div style="margin-top:10px;">
-          ${b.imagem_base64
-            ? `<img src="${b.imagem_base64}" alt="Banner ${b.id}" style="max-width:100%; border-radius:6px;">`
-            : '<em>Sem imagem</em>'
-          }
-        </div>
-      `;
-      container.appendChild(div);
-    });
+    track.innerHTML = banners.map(b => {
+      const img = b.imagem_base64
+        ? (b.imagem_base64.startsWith('data:image')
+            ? b.imagem_base64
+            : `data:image/jpeg;base64,${b.imagem_base64}`)
+        : '/placeholder.png';
+      const link = b.link ? `<a href="${b.link}" target="_blank"><img src="${img}" alt="${b.titulo || ''}"></a>` : `<img src="${img}" alt="${b.titulo || ''}">`;
+      return link;
+    }).join('');
+
+    startBannerCarousel(); // inicia o carrossel após carregar
   } catch (err) {
     console.error('Erro ao carregar banners:', err);
   }
 }
+
 
 let currentBanner = 0;
 
