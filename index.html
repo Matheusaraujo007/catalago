@@ -197,7 +197,11 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
     <select id="sort"><option value="recent">Mais recentes</option><option value="price_asc">Preço ↑</option><option value="price_desc">Preço ↓</option></select>
     <button id="clearFilters">Limpar filtros</button>
   </div>
-
+    
+  <div style="margin:12px 0">
+  <span style="font-weight:700" id="modalPrice"></span><br>
+  <span id="modalPromo" style="color:#00ff66; font-weight:700;"></span>
+</div>
   <section class="grid" id="productsGrid"></section>
 </main>
 
@@ -205,11 +209,6 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 <div class="modal" id="modal">
   <div class="dialog" role="dialog" aria-modal="true">
     <div style="display:flex;flex-direction:column;gap:12px">
-
-      <div style="margin:12px 0">
-  <span style="font-weight:700" id="modalPrice"></span><br>
-  <span id="modalPromo" style="color:#00ff66; font-weight:700;"></span>
-</div>
 
       
       <!-- Carrossel -->
