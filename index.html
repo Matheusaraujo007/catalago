@@ -107,6 +107,57 @@ header{
 .cart .total{display:flex;justify-content:space-between;margin-top:14px;font-weight:700;color:var(--accent)}
 
 footer{padding:28px 18px;color:var(--muted);text-align:center}
+
+/* ====== BANNERS ====== */
+.banner-carousel {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  overflow: hidden;
+  margin-top: 10px;
+  border-radius: 12px;
+  background: #0a0a0a;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+}
+
+.banner-track {
+  display: flex;
+  transition: transform 0.6s ease-in-out;
+  width: 100%;
+  height: 100%;
+}
+
+.banner-track img {
+  min-width: 100%;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.banner-carousel button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(15,15,15,0.6);
+  color: #fff;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  z-index: 2;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  transition: background 0.3s;
+}
+
+.banner-carousel button:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.banner-carousel .prev { left: 8px; }
+.banner-carousel .next { right: 8px; }
+
+
 </style>
 </head>
 <body>
@@ -124,9 +175,18 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   <div style="display:flex;gap:12px;align-items:center">
     <button class="cart-btn" id="openCart">Carrinho (<span id="cartCount">0</span>)</button>
   </div>
+
 </header>
 
 <main class="container">
+  <!-- Carrossel de Banners -->
+<section class="banner-carousel" id="bannerCarousel">
+  <button class="prev" id="prevBanner">❮</button>
+  <div class="banner-track" id="bannerTrack"></div>
+  <button class="next" id="nextBanner">❯</button>
+  
+</section>
+
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
     <h2 style="margin:0">Produtos</h2>
     <div style="color:var(--muted)">Mostrando <span id="prodCount">0</span> produtos</div>
@@ -210,6 +270,28 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 
 <footer>© ManchinhaPx Arts</footer>
 
+<!-- Modal de Checkout -->
+<div class="modal" id="checkoutModal">
+  <div class="dialog" style="max-width:600px;display:flex;flex-direction:column;gap:14px">
+    <button class="close" id="closeCheckout">✕</button>
+    <h3>Finalizar Pedido</h3>
+    <p style="color:var(--muted);margin-top:-10px">Preencha os dados abaixo para concluir seu pedido:</p>
+
+    <input id="nomeCliente" placeholder="Nome completo" style="padding:10px;border-radius:8px;border:none;background:#0b0b0b;color:#fff">
+    <input id="telefoneCliente" placeholder="Telefone (ex: 88994907177)" style="padding:10px;border-radius:8px;border:none;background:#0b0b0b;color:#fff">
+    <input id="emailCliente" placeholder="E-mail" style="padding:10px;border-radius:8px;border:none;background:#0b0b0b;color:#fff">
+    <textarea id="enderecoCliente" placeholder="Endereço completo" style="padding:10px;border-radius:8px;border:none;background:#0b0b0b;color:#fff;height:80px"></textarea>
+
+    <div style="display:flex;gap:10px;align-items:center">
+      <label><input type="radio" name="tipoEntrega" value="retirada" checked> Retirada</label>
+      <label><input type="radio" name="tipoEntrega" value="entrega"> Entrega</label>
+    </div>
+
+    <button id="confirmarCheckout" style="padding:12px;border:none;background:var(--accent);color:#000;border-radius:8px;font-weight:700;cursor:pointer">Confirmar Pedido</button>
+  </div>
+</div>
+
+
 <script>
 /* ========== CONFIG ========= */
 /*
@@ -219,6 +301,7 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 const BACKEND = "https://catalago-ashen.vercel.app";
 const API_BASE = BACKEND + '/api';
 
+let banners = [];
 let produtos = [];
 let promocoes = [];
 let categorias = [];
@@ -245,30 +328,127 @@ const modalPrice = document.getElementById('modalPrice');
 const qtyInput = document.getElementById('qty');
 const addToCartModal = document.getElementById('addToCartModal');
 
+async function carregarBanners() {
+  try {
+    const res = await fetch(API_BASE + '/banner1');
+    banners = await res.json();
+
+    const track = document.getElementById('bannerTrack');
+    if (!banners.length) {
+      track.innerHTML = '<div style="color:#aaa;text-align:center;width:100%">Nenhum banner cadastrado</div>';
+      return;
+    }
+
+    track.innerHTML = banners.map(b => {
+      const img = b.imagem_base64
+        ? (b.imagem_base64.startsWith('data:image')
+            ? b.imagem_base64
+            : `data:image/jpeg;base64,${b.imagem_base64}`)
+        : '/placeholder.png';
+      const link = b.link ? `<a href="${b.link}" target="_blank"><img src="${img}" alt="${b.titulo || ''}"></a>` : `<img src="${img}" alt="${b.titulo || ''}">`;
+      return link;
+    }).join('');
+
+    startBannerCarousel(); // inicia o carrossel após carregar
+  } catch (err) {
+    console.error('Erro ao carregar banners:', err);
+  }
+}
+
+
+let currentBanner = 0;
+
+function startBannerCarousel() {
+  const track = document.getElementById('bannerTrack');
+  if (!banners.length) return;
+
+  const prevBtn = document.getElementById('prevBanner');
+  const nextBtn = document.getElementById('nextBanner');
+
+  prevBtn.onclick = () => {
+    currentBanner = (currentBanner - 1 + banners.length) % banners.length;
+    track.style.transform = `translateX(-${currentBanner * 100}%)`;
+  };
+
+  nextBtn.onclick = () => {
+    currentBanner = (currentBanner + 1) % banners.length;
+    track.style.transform = `translateX(-${currentBanner * 100}%)`;
+  };
+
+  // Rotação automática
+  setInterval(() => {
+    currentBanner = (currentBanner + 1) % banners.length;
+    track.style.transform = `translateX(-${currentBanner * 100}%)`;
+  }, 6000);
+}
+
+
+
 /* FETCH DATA */
 async function fetchProdutos(){
-  try{
-    const r = await fetch(API_BASE + '/produtos');
-    produtos = await r.json();
+  try {
+    const [prodRes, promoRes] = await Promise.all([
+      fetch(API_BASE + '/produtos'),
+      fetch(API_BASE + '/promocoes')
+    ]);
+    produtos = await prodRes.json();
+    promocoes = await promoRes.json();
     renderCategorias();
-    await fetchPromocoes();
     renderProdutos();
-  }catch(e){
-    console.error('Erro produtos',e);
+  } catch(e){
+    console.error('Erro produtos', e);
     grid.innerHTML = '<div style="color:#f33">Erro ao carregar produtos</div>';
   }
 }
+
 async function fetchPromocoes(){
   try{ const r = await fetch(API_BASE + '/promocoes'); promocoes = await r.json(); }catch(e){ promocoes = []; }
 }
 function aplicarPromocao(prod){
-  const promo = promocoes.find(p => p.produto_id == prod.id && p.ativo);
+  if (!promocoes || !Array.isArray(promocoes)) return { preco: Number(prod.preco), label: null };
+
+  const promo = promocoes.find(p => Number(p.produto_id) === Number(prod.id) && p.ativo);
   if(!promo) return { preco: Number(prod.preco), label: null };
-  if(promo.data_fim && new Date(promo.data_fim) < new Date()) return { preco: Number(prod.preco), label: null };
-  if(promo.tipo === 'percentual'){ const preco = Number(prod.preco) * (1 - Number(promo.valor)/100); return { preco, label: `${promo.valor}% OFF` }; }
-  const preco = Number(prod.preco) - Number(promo.valor); return { preco: Math.max(0, preco), label: `R$ ${Number(promo.valor).toFixed(2)} OFF` };
+
+  const hoje = new Date();
+  if(promo.data_fim && new Date(promo.data_fim) < hoje) return { preco: Number(prod.preco), label: null };
+
+  const precoOriginal = Number(prod.preco);
+  let precoFinal = precoOriginal;
+  let label = null;
+
+  if(promo.tipo === 'percentual'){
+    precoFinal = precoOriginal * (1 - Number(promo.valor)/100);
+    label = `${promo.valor}% OFF`;
+  } else if(promo.tipo === 'valor'){
+    precoFinal = precoOriginal - Number(promo.valor);
+    label = `R$ ${Number(promo.valor).toFixed(2)} OFF`;
+  }
+
+  return { preco: Math.max(0, precoFinal), label };
 }
 
+function addToCart(id, qtd=1){
+  const prod = produtos.find(p => Number(p.id) === Number(id));
+  if(!prod){
+    alert('Produto não encontrado');
+    return;
+  }
+
+  const promo = aplicarPromocao(prod);
+  const precoFinal = Number(promo.preco) || Number(prod.preco);
+  const existing = cart.find(i => i.id == id);
+
+  if(existing) {
+    existing.qt += qtd;
+    existing.price = precoFinal; // força atualizar o preço com promoção ativa
+  } else {
+    cart.push({ id: prod.id, qt: qtd, price: precoFinal });
+  }
+
+  saveCart();
+  openCart();
+}
 /* RENDER */
 function renderCategorias(){
   const set = new Set(produtos.map(p=>p.categoria_nome || p.categoria || 'Outros'));
@@ -284,14 +464,14 @@ function renderProdutos(){
   prodCount.textContent = list.length;
   grid.innerHTML = list.map(p => {
     const promo = aplicarPromocao(p);
-    const precoHtml = p.desconto_label
+    const precoHtml = promo.label
   ? `<div class="price">
        <small style="text-decoration:line-through;color:var(--muted)">${money(p.preco)}</small>
        <div style="color:var(--accent)">
-         ${money(p.preco_final)} <span style="color:#0f0;font-size:12px">${p.desconto_label}</span>
+         ${money(promo.preco)} <span style="color:#0f0;font-size:12px">${promo.label}</span>
        </div>
      </div>`
-  : `<div class="price">${money(p.preco)}</div>`;
+  : `<div class="price">${money(p.preco)}</div>`
     let img = '/placeholder.png';
 if (p.imagem_base64) {
   img = p.imagem_base64.startsWith('data:image')
@@ -409,24 +589,90 @@ document.getElementById("btnVoltar").addEventListener("click", () => {
 
 /* CHECKOUT */
 async function checkout(){
-  if(cart.length===0){ alert('Carrinho vazio'); return; }
-  const confirmCheckout = confirm('Criar pedido com ' + cart.reduce((s,i)=>s+i.qt,0) + ' itens?');
-  if(!confirmCheckout) return;
-  const itens = cart.map(i=>({ produto_id:i.id, quantidade:i.qt, preco_unitario:i.price }));
-  const valor_total = cart.reduce((s,i)=>s + (i.price * i.qt),0);
-  try{
-    const res = await fetch(API_BASE + '/vendas', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ cliente_id: null, valor_total, status:'pendente', itens })
-    });
-    if(!res.ok) throw new Error('Erro no servidor');
-    const data = await res.json();
-    alert('Pedido criado com sucesso!');
-    cart=[]; saveCart(); closeCart();
-  }catch(e){
-    console.error(e); alert('Erro ao criar pedido');
+  if(cart.length === 0){ 
+    alert('Carrinho vazio'); 
+    return; 
   }
+  document.getElementById('checkoutModal').style.display = 'flex';
 }
+// Fechar modal de checkout
+document.getElementById('closeCheckout').addEventListener('click', ()=>{
+  document.getElementById('checkoutModal').style.display = 'none';
+});
+
+// Confirmar pedido
+document.getElementById('confirmarCheckout').addEventListener('click', async ()=>{
+  const nome = document.getElementById('nomeCliente').value.trim();
+  const email = document.getElementById('emailCliente').value.trim();
+  const telefone = document.getElementById('telefoneCliente').value.trim();
+  const endereco = document.getElementById('enderecoCliente').value.trim();
+  const tipoEntrega = document.querySelector('input[name="tipoEntrega"]:checked').value;
+
+  if(!nome || !telefone){
+    alert('Por favor, preencha pelo menos o nome e o telefone.');
+    return;
+  }
+
+  const valor_total = cart.reduce((s,i)=>s + (i.price * i.qt),0);
+  const itens = cart.map(i=>({ produto_id:i.id, quantidade:i.qt, preco_unitario:i.price }));
+
+  try {
+    // Cadastrar cliente
+    const clienteRes = await fetch(API_BASE + '/clientes', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ nome, email, telefone, endereco })
+    });
+    const cliente = await clienteRes.json();
+
+    // Cadastrar venda
+    const vendaRes = await fetch(API_BASE + '/vendas', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ cliente_id: cliente.id, valor_total, status: 'pendente', itens })
+    });
+    const venda = await vendaRes.json();
+
+    // Montar mensagem de resumo
+    const resumoItens = cart.map(it=>{
+      const prod = produtos.find(p=>p.id==it.id);
+      return `*${it.qt}* x *${prod?.nome || 'Produto'}*: R$ ${(it.price).toFixed(2)}`;
+    }).join('\n--------\n');
+
+    const mensagem = 
+`Olá, meu nome é *${nome}*, esse é o meu pedido realizado através da loja *Manchinha Px Arts*
+--------
+${resumoItens}
+--------
+Quantidade de itens: *${cart.length}*
+Total dos itens: *${money(valor_total)}*
+--------
+Valor da entrega: *A DEFINIR*
+Valor Total: *${money(valor_total)}*
+Veja o resumo do seu pedido aqui:
+${BACKEND}/pedido/${venda.id}
+--------
+${tipoEntrega === 'retirada' ? 'Retirada em loja' : 'Entrega'}: *Manchinha Px Arts*
+Contato: *(88) 99490-7177*
+Número do pedido: *${venda.id}*
+--------
+Pedido feito com *Manchinha Px Arts*`;
+
+    // Enviar pelo WhatsApp (abrir janela com texto pronto)
+    const linkWhats = `https://wa.me/5588994907177?text=${encodeURIComponent(mensagem)}`;
+    window.open(linkWhats, '_blank');
+
+    // Limpar carrinho
+    cart = [];
+    saveCart();
+    document.getElementById('checkoutModal').style.display = 'none';
+    closeCart();
+    alert('Pedido enviado com sucesso!');
+
+  } catch (e) {
+    console.error(e);
+    alert('Erro ao criar pedido.');
+  }
+});
+
 
 // Botão de Voltar do Carrinho
 document.getElementById('btnVoltarCarrinho').addEventListener('click', () => {
@@ -454,7 +700,7 @@ fetchProdutos();
 updateCartUI();
 
 
-
+carregarBanners();
 window.addToCart = addToCart;
 window.openProduct = openProduct;
 window.increase = increase;
