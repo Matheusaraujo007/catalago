@@ -404,51 +404,32 @@ async function fetchProdutos(){
 async function fetchPromocoes(){
   try{ const r = await fetch(API_BASE + '/promocoes'); promocoes = await r.json(); }catch(e){ promocoes = []; }
 }
-function aplicarPromocao(prod){
-  if (!promocoes || !Array.isArray(promocoes)) return { preco: Number(prod.preco), label: null };
+function aplicarPromocao(prod) {
+  if (!promocoes || !Array.isArray(promocoes)) 
+    return { preco: parseFloat(prod.preco) || 0, label: null };
 
   const promo = promocoes.find(p => Number(p.produto_id) === Number(prod.id) && p.ativo);
-  if(!promo) return { preco: Number(prod.preco), label: null };
+  if (!promo) return { preco: parseFloat(prod.preco) || 0, label: null };
 
   const hoje = new Date();
-  if(promo.data_fim && new Date(promo.data_fim) < hoje) return { preco: Number(prod.preco), label: null };
+  if (promo.data_fim && new Date(promo.data_fim) < hoje)
+    return { preco: parseFloat(prod.preco) || 0, label: null };
 
-  const precoOriginal = Number(prod.preco);
+  const precoOriginal = parseFloat(prod.preco) || 0;
   let precoFinal = precoOriginal;
   let label = null;
 
-  if(promo.tipo === 'percentual'){
-    precoFinal = precoOriginal * (1 - Number(promo.valor)/100);
+  if (promo.tipo === 'percentual') {
+    precoFinal = precoOriginal * (1 - parseFloat(promo.valor) / 100);
     label = `${promo.valor}% OFF`;
-  } else if(promo.tipo === 'valor'){
-    precoFinal = precoOriginal - Number(promo.valor);
-    label = `R$ ${Number(promo.valor).toFixed(2)} OFF`;
+  } else if (promo.tipo === 'valor') {
+    precoFinal = precoOriginal - parseFloat(promo.valor);
+    label = `R$ ${parseFloat(promo.valor).toFixed(2)} OFF`;
   }
 
   return { preco: Math.max(0, precoFinal), label };
 }
 
-function addToCart(id, qtd=1){
-  const prod = produtos.find(p => Number(p.id) === Number(id));
-  if(!prod){
-    alert('Produto não encontrado');
-    return;
-  }
-
-  const promo = aplicarPromocao(prod);
-  const precoFinal = Number(promo.preco) || Number(prod.preco);
-  const existing = cart.find(i => i.id == id);
-
-  if(existing) {
-    existing.qt += qtd;
-    existing.price = precoFinal; // força atualizar o preço com promoção ativa
-  } else {
-    cart.push({ id: prod.id, qt: qtd, price: precoFinal });
-  }
-
-  saveCart();
-  openCart();
-}
 /* RENDER */
 function renderCategorias(){
   const set = new Set(produtos.map(p=>p.categoria_nome || p.categoria || 'Outros'));
@@ -471,7 +452,7 @@ function renderProdutos(){
          ${money(promo.preco)} <span style="color:#0f0;font-size:12px">${promo.label}</span>
        </div>
      </div>`
-  : `<div class="price">${money(p.preco)}</div>`
+  : `<div class="price">${money(p.preco)}</div>`;
     let img = '/placeholder.png';
 if (p.imagem_base64) {
   img = p.imagem_base64.startsWith('data:image')
