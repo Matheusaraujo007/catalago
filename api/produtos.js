@@ -11,7 +11,37 @@ export default async function handler(req, res) {
   try {
     // === [GET] Buscar produtos ===
     if (req.method === "GET") {
-      const result = await client.query("SELECT * FROM produtos ORDER BY id DESC");
+      const result = await client.query(`
+        SELECT 
+          p.id,
+          p.nome,
+          p.categoria,
+          p.preco AS preco_original,
+          p.estoque,
+          p.codigo,
+          p.descricao,
+          p.imagens,
+          p.imagem_base64,
+          pr.tipo AS tipo_promocao,
+          pr.valor AS valor_promocao,
+          pr.data_fim,
+          pr.ativo,
+          CASE 
+            WHEN pr.ativo = true 
+              AND (pr.data_fim IS NULL OR pr.data_fim > NOW())
+              THEN 
+                CASE 
+                  WHEN pr.tipo = 'percentual' THEN ROUND(p.preco * (1 - pr.valor / 100), 2)
+                  WHEN pr.tipo = 'valor' THEN ROUND(p.preco - pr.valor, 2)
+                  ELSE p.preco
+                END
+            ELSE p.preco
+          END AS preco_final
+        FROM produtos p
+        LEFT JOIN promocoes pr ON pr.produto_id = p.id
+        ORDER BY p.id DESC
+      `);
+
       return res.status(200).json(result.rows);
     }
 
@@ -23,13 +53,21 @@ export default async function handler(req, res) {
         return res.status(400).json({ message: "Campos obrigatórios não preenchidos." });
       }
 
-      // Salva todas as imagens no campo imagens (TEXT[]) e a primeira no imagem_base64
       const query = `
         INSERT INTO produtos (nome, categoria, preco, estoque, codigo, descricao, imagens, imagem_base64)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING *
       `;
-      const values = [nome, categoria, venda, estoque, codigo, descricao || "", imagens || [], imagens?.[0] || null];
+      const values = [
+        nome,
+        categoria,
+        venda,
+        estoque,
+        codigo,
+        descricao || "",
+        imagens || [],
+        imagens?.[0] || null,
+      ];
 
       const result = await client.query(query, values);
       return res.status(201).json(result.rows[0]);
@@ -49,9 +87,19 @@ export default async function handler(req, res) {
         WHERE nome=$9
         RETURNING *
       `;
-      const values = [nome, categoria, venda, estoque, codigo, descricao, imagens || [], imagens?.[0] || null, nomeAntigo];
-      const result = await client.query(query, values);
+      const values = [
+        nome,
+        categoria,
+        venda,
+        estoque,
+        codigo,
+        descricao,
+        imagens || [],
+        imagens?.[0] || null,
+        nomeAntigo,
+      ];
 
+      const result = await client.query(query, values);
       if (result.rowCount === 0) {
         return res.status(404).json({ message: "Produto não encontrado." });
       }
@@ -65,7 +113,8 @@ export default async function handler(req, res) {
       if (!nome) return res.status(400).json({ message: "Nome não informado." });
 
       const result = await client.query("DELETE FROM produtos WHERE nome=$1", [nome]);
-      if (result.rowCount === 0) return res.status(404).json({ message: "Produto não encontrado." });
+      if (result.rowCount === 0)
+        return res.status(404).json({ message: "Produto não encontrado." });
 
       return res.status(200).json({ message: "Produto excluído com sucesso!" });
     }
@@ -77,7 +126,9 @@ export default async function handler(req, res) {
     }
   } catch (error) {
     console.error("Erro no servidor:", error);
-    return res.status(500).json({ message: "Erro interno do servidor", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Erro interno do servidor", error: error.message });
   } finally {
     await client.end();
   }
