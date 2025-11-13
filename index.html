@@ -205,6 +205,12 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 <div class="modal" id="modal">
   <div class="dialog" role="dialog" aria-modal="true">
     <div style="display:flex;flex-direction:column;gap:12px">
+
+      <div style="margin:12px 0">
+  <span style="font-weight:700" id="modalPrice"></span><br>
+  <span id="modalPromo" style="color:#00ff66; font-weight:700;"></span>
+</div>
+
       
       <!-- Carrossel -->
       <div class="carousel">
@@ -546,6 +552,12 @@ function openProduct(id) {
   modalPrice.textContent = promo.label
     ? `${money(promo.preco)} (${promo.label})`
     : money(p.preco);
+    if (promo && promo.preco) {
+  modalPromo.textContent = `💥 Em promoção: ${money(promo.preco)}`;
+} else {
+  modalPromo.textContent = "";
+}
+
   qtyInput.value = 1;
   addToCartModal.onclick = () => {
     addToCart(p.id, Number(qtyInput.value || 1));
