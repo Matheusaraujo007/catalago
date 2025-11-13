@@ -405,13 +405,50 @@ async function fetchPromocoes(){
   try{ const r = await fetch(API_BASE + '/promocoes'); promocoes = await r.json(); }catch(e){ promocoes = []; }
 }
 function aplicarPromocao(prod){
-  const promo = promocoes.find(p => p.produto_id == prod.id && p.ativo);
+  if (!promocoes || !Array.isArray(promocoes)) return { preco: Number(prod.preco), label: null };
+
+  const promo = promocoes.find(p => Number(p.produto_id) === Number(prod.id) && p.ativo);
   if(!promo) return { preco: Number(prod.preco), label: null };
-  if(promo.data_fim && new Date(promo.data_fim) < new Date()) return { preco: Number(prod.preco), label: null };
-  if(promo.tipo === 'percentual'){ const preco = Number(prod.preco) * (1 - Number(promo.valor)/100); return { preco, label: `${promo.valor}% OFF` }; }
-  const preco = Number(prod.preco) - Number(promo.valor); return { preco: Math.max(0, preco), label: `R$ ${Number(promo.valor).toFixed(2)} OFF` };
+
+  const hoje = new Date();
+  if(promo.data_fim && new Date(promo.data_fim) < hoje) return { preco: Number(prod.preco), label: null };
+
+  const precoOriginal = Number(prod.preco);
+  let precoFinal = precoOriginal;
+  let label = null;
+
+  if(promo.tipo === 'percentual'){
+    precoFinal = precoOriginal * (1 - Number(promo.valor)/100);
+    label = `${promo.valor}% OFF`;
+  } else if(promo.tipo === 'valor'){
+    precoFinal = precoOriginal - Number(promo.valor);
+    label = `R$ ${Number(promo.valor).toFixed(2)} OFF`;
+  }
+
+  return { preco: Math.max(0, precoFinal), label };
 }
 
+function addToCart(id, qtd=1){
+  const prod = produtos.find(p => Number(p.id) === Number(id));
+  if(!prod){
+    alert('Produto não encontrado');
+    return;
+  }
+
+  const promo = aplicarPromocao(prod);
+  const precoFinal = Number(promo.preco) || Number(prod.preco);
+  const existing = cart.find(i => i.id == id);
+
+  if(existing) {
+    existing.qt += qtd;
+    existing.price = precoFinal; // força atualizar o preço com promoção ativa
+  } else {
+    cart.push({ id: prod.id, qt: qtd, price: precoFinal });
+  }
+
+  saveCart();
+  openCart();
+}
 /* RENDER */
 function renderCategorias(){
   const set = new Set(produtos.map(p=>p.categoria_nome || p.categoria || 'Outros'));
