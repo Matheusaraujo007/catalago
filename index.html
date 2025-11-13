@@ -386,17 +386,21 @@ function startBannerCarousel() {
 
 /* FETCH DATA */
 async function fetchProdutos(){
-  try{
-    const r = await fetch(API_BASE + '/produtos');
-    produtos = await r.json();
+  try {
+    const [prodRes, promoRes] = await Promise.all([
+      fetch(API_BASE + '/produtos'),
+      fetch(API_BASE + '/promocoes')
+    ]);
+    produtos = await prodRes.json();
+    promocoes = await promoRes.json();
     renderCategorias();
-    await fetchPromocoes();
     renderProdutos();
-  }catch(e){
-    console.error('Erro produtos',e);
+  } catch(e){
+    console.error('Erro produtos', e);
     grid.innerHTML = '<div style="color:#f33">Erro ao carregar produtos</div>';
   }
 }
+
 async function fetchPromocoes(){
   try{ const r = await fetch(API_BASE + '/promocoes'); promocoes = await r.json(); }catch(e){ promocoes = []; }
 }
