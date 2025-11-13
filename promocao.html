@@ -178,7 +178,7 @@
           <td>${p.nome_produto}</td>
           <td>${p.tipo}</td>
           <td>${p.valor}</td>
-          <td>${new Date(p.data_fim).toLocaleDateString('pt-BR')}</td>
+          <td>${p.data_fim.split('T')[0].split('-').reverse().join('/')}</td>
           <td><button class="delete-btn" onclick="removerPromocao(${p.id})">Remover</button></td>
         `;
         tbody.appendChild(tr);
