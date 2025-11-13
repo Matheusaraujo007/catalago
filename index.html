@@ -197,11 +197,7 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
     <select id="sort"><option value="recent">Mais recentes</option><option value="price_asc">Preço ↑</option><option value="price_desc">Preço ↓</option></select>
     <button id="clearFilters">Limpar filtros</button>
   </div>
-    
-  <div style="margin:12px 0">
-  <span style="font-weight:700" id="modalPrice"></span><br>
-  <span id="modalPromo" style="color:#00ff66; font-weight:700;"></span>
-</div>
+
   <section class="grid" id="productsGrid"></section>
 </main>
 
@@ -209,7 +205,6 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 <div class="modal" id="modal">
   <div class="dialog" role="dialog" aria-modal="true">
     <div style="display:flex;flex-direction:column;gap:12px">
-
       
       <!-- Carrossel -->
       <div class="carousel">
@@ -391,48 +386,26 @@ function startBannerCarousel() {
 
 /* FETCH DATA */
 async function fetchProdutos(){
-  try {
-    const [prodRes, promoRes] = await Promise.all([
-      fetch(API_BASE + '/produtos'),
-      fetch(API_BASE + '/promocoes')
-    ]);
-    produtos = await prodRes.json();
-    promocoes = await promoRes.json();
+  try{
+    const r = await fetch(API_BASE + '/produtos');
+    produtos = await r.json();
     renderCategorias();
+    await fetchPromocoes();
     renderProdutos();
-  } catch(e){
-    console.error('Erro produtos', e);
+  }catch(e){
+    console.error('Erro produtos',e);
     grid.innerHTML = '<div style="color:#f33">Erro ao carregar produtos</div>';
   }
 }
-
 async function fetchPromocoes(){
   try{ const r = await fetch(API_BASE + '/promocoes'); promocoes = await r.json(); }catch(e){ promocoes = []; }
 }
-function aplicarPromocao(prod) {
-  if (!promocoes || !Array.isArray(promocoes)) 
-    return { preco: parseFloat(prod.preco) || 0, label: null };
-
-  const promo = promocoes.find(p => Number(p.produto_id) === Number(prod.id) && p.ativo);
-  if (!promo) return { preco: parseFloat(prod.preco) || 0, label: null };
-
-  const hoje = new Date();
-  if (promo.data_fim && new Date(promo.data_fim) < hoje)
-    return { preco: parseFloat(prod.preco) || 0, label: null };
-
-  const precoOriginal = parseFloat(prod.preco) || 0;
-  let precoFinal = precoOriginal;
-  let label = null;
-
-  if (promo.tipo === 'percentual') {
-    precoFinal = precoOriginal * (1 - parseFloat(promo.valor) / 100);
-    label = `${promo.valor}% OFF`;
-  } else if (promo.tipo === 'valor') {
-    precoFinal = precoOriginal - parseFloat(promo.valor);
-    label = `R$ ${parseFloat(promo.valor).toFixed(2)} OFF`;
-  }
-
-  return { preco: Math.max(0, precoFinal), label };
+function aplicarPromocao(prod){
+  const promo = promocoes.find(p => p.produto_id == prod.id && p.ativo);
+  if(!promo) return { preco: Number(prod.preco), label: null };
+  if(promo.data_fim && new Date(promo.data_fim) < new Date()) return { preco: Number(prod.preco), label: null };
+  if(promo.tipo === 'percentual'){ const preco = Number(prod.preco) * (1 - Number(promo.valor)/100); return { preco, label: `${promo.valor}% OFF` }; }
+  const preco = Number(prod.preco) - Number(promo.valor); return { preco: Math.max(0, preco), label: `R$ ${Number(promo.valor).toFixed(2)} OFF` };
 }
 
 /* RENDER */
@@ -441,51 +414,44 @@ function renderCategorias(){
   categorias = Array.from(set);
   filterCategoria.innerHTML = '<option value="">Todas categorias</option>' + categorias.map(c=>`<option value="${c}">${c}</option>`).join('');
 }
-function renderProdutos() {
+function renderProdutos(){
   const term = q.value.trim().toLowerCase();
   let list = produtos.slice();
-  if (term) list = list.filter(p => (p.nome + ' ' + (p.categoria_nome || p.categoria || '')).toLowerCase().includes(term));
-  const cat = filterCategoria.value; 
-  if (cat) list = list.filter(p => (p.categoria_nome || p.categoria) === cat);
-  const s = sortSel.value; 
-  if (s === 'price_asc') list.sort((a, b) => a.preco - b.preco);
-  if (s === 'price_desc') list.sort((a, b) => b.preco - a.preco);
-  if (s === 'recent') list.sort((a, b) => b.id - a.id);
-  
+  if(term) list = list.filter(p => (p.nome + ' ' + (p.categoria_nome||p.categoria||'')).toLowerCase().includes(term));
+  const cat = filterCategoria.value; if(cat) list = list.filter(p => (p.categoria_nome||p.categoria) === cat);
+  const s = sortSel.value; if(s === 'price_asc') list.sort((a,b)=>a.preco-b.preco); if(s === 'price_desc') list.sort((a,b)=>b.preco-a.preco); if(s === 'recent') list.sort((a,b)=>b.id-a.id);
   prodCount.textContent = list.length;
-
   grid.innerHTML = list.map(p => {
     const promo = aplicarPromocao(p);
-    const temPromo = promo.label !== null;
-    const precoHtml = temPromo 
-      ? `
-        <div style="color:#00ff66;font-weight:700;">💥 Em promoção!</div>
-        <div class="price">${money(promo.preco)}</div>
-        <div style="color:#888;text-decoration:line-through;font-size:13px;">${money(p.preco)}</div>
-      `
-      : `<div class="price">${money(p.preco)}</div>`;
-
+    const precoHtml = p.desconto_label
+  ? `<div class="price">
+       <small style="text-decoration:line-through;color:var(--muted)">${money(p.preco)}</small>
+       <div style="color:var(--accent)">
+         ${money(p.preco_final)} <span style="color:#0f0;font-size:12px">${p.desconto_label}</span>
+       </div>
+     </div>`
+  : `<div class="price">${money(p.preco)}</div>`;
     let img = '/placeholder.png';
-    if (p.imagem_base64) {
-      img = p.imagem_base64.startsWith('data:image')
-        ? p.imagem_base64
-        : `data:image/jpeg;base64,${p.imagem_base64}`;
-    }
+if (p.imagem_base64) {
+  img = p.imagem_base64.startsWith('data:image')
+    ? p.imagem_base64
+    : `data:image/jpeg;base64,${p.imagem_base64}`;
+}
+
 
     return `
       <article class="card" data-id="${p.id}">
         <div class="thumb"><img src="${img}" alt="${escapeHtml(p.nome)}"></div>
         <div class="title">${escapeHtml(p.nome)}</div>
-        <div style="color:var(--muted);font-size:13px">${escapeHtml(p.categoria_nome || p.categoria || '')}</div>
+        <div style="color:var(--muted);font-size:13px">${escapeHtml(p.categoria_nome||p.categoria||'')}</div>
         ${precoHtml}
         <div class="actions">
-          <button class="btn info" onclick="openProduct(${p.id})">Ver detalhes</button>
-          <button class="btn buy" onclick="addToCart(${p.id},1)">Adicionar</button>
+          <button class="btn info" data-id="${p.id}" onclick="openProduct(${p.id})">Ver detalhes</button>
+          <button class="btn buy" data-id="${p.id}" onclick="addToCart(${p.id},1)">Adicionar</button>
         </div>
       </article>
     `;
   }).join('');
-  
   updateCartUI();
 }
 
@@ -565,12 +531,6 @@ function openProduct(id) {
   modalPrice.textContent = promo.label
     ? `${money(promo.preco)} (${promo.label})`
     : money(p.preco);
-    if (promo && promo.preco) {
-  modalPromo.textContent = `💥 Em promoção: ${money(promo.preco)}`;
-} else {
-  modalPromo.textContent = "";
-}
-
   qtyInput.value = 1;
   addToCartModal.onclick = () => {
     addToCart(p.id, Number(qtyInput.value || 1));
