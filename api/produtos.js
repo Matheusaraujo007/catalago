@@ -11,38 +11,28 @@ export default async function handler(req, res) {
   try {
     // === [GET] Buscar produtos ===
     if (req.method === "GET") {
-      const result = await client.query(`
+      const query = `
         SELECT 
-          p.id,
-          p.nome,
-          p.categoria,
-          p.preco AS preco_original,
-          p.estoque,
-          p.codigo,
-          p.descricao,
-          p.imagens,
-          p.imagem_base64,
-          pr.tipo AS tipo_promocao,
-          pr.valor AS valor_promocao,
-          pr.data_fim,
-          pr.ativo,
-          CASE 
-            WHEN pr.ativo = true 
-              AND (pr.data_fim IS NULL OR pr.data_fim > NOW())
-              THEN 
-                CASE 
-                  WHEN pr.tipo = 'percentual' THEN ROUND(p.preco * (1 - pr.valor / 100), 2)
-                  WHEN pr.tipo = 'valor' THEN ROUND(p.preco - pr.valor, 2)
-                  ELSE p.preco
-                END
+          p.*,
+          CASE
+            WHEN pr.tipo = 'percentual' THEN ROUND(p.preco - (p.preco * (pr.valor / 100)), 2)
+            WHEN pr.tipo = 'fixo' THEN GREATEST(p.preco - pr.valor, 0)
             ELSE p.preco
-          END AS preco_final
+          END AS preco_promocional,
+          pr.valor AS valor_promocao,
+          pr.tipo AS tipo_promocao,
+          pr.ativo AS promocao_ativa,
+          pr.data_fim AS promocao_data_fim
         FROM produtos p
-        LEFT JOIN promocoes pr ON pr.produto_id = p.id
+        LEFT JOIN promocoes pr 
+          ON pr.produto_id = p.id 
+          AND pr.ativo = TRUE 
+          AND (pr.data_fim IS NULL OR pr.data_fim >= NOW())
         ORDER BY p.id DESC
-      `);
+      `;
 
-      return res.status(200).json(result.rows);
+      const result = await client.query(query);
+      res.status(200).json(result.rows);
     }
 
     // === [POST] Adicionar produto ===
@@ -126,9 +116,7 @@ export default async function handler(req, res) {
     }
   } catch (error) {
     console.error("Erro no servidor:", error);
-    return res
-      .status(500)
-      .json({ message: "Erro interno do servidor", error: error.message });
+    return res.status(500).json({ message: "Erro interno do servidor", error: error.message });
   } finally {
     await client.end();
   }
