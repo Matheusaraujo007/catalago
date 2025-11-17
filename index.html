@@ -158,6 +158,34 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 .banner-carousel .next { right: 8px; }
 
 
+.whatsapp-float {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  width: 70px;
+  height: 70px;
+  background: #25d366;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+  z-index: 9999;
+  animation: pulse 1.8s infinite ease-in-out;
+  transition: .3s;
+}
+
+.whatsapp-float:hover {
+  transform: scale(1.12);
+  box-shadow: 0 0 22px rgba(0, 255, 0, 0.65);
+}
+
+/* Animação pulsante */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
 </style>
 </head>
 <body>
@@ -267,6 +295,19 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
     <button id="btnClear" style="padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--white)">Limpar</button>
   </div>
 </aside>
+
+<!-- BOTÃO WHATSAPP DEFINITIVO -->
+<a href="https://wa.me/5588994907177?text=Olá!%20Quero%20fazer%20um%20pedido%20🙂" 
+   target="_blank" 
+   class="whatsapp-float">
+    
+    <!-- ÍCONE OFICIAL SVG (FUNCIONA EM 100% DOS SITES) -->
+    <svg xmlns="http://www.w3.org/2000/svg" 
+         width="38" height="38" viewBox="0 0 24 24" fill="#fff">
+      <path d="M20.52 3.48A11.77 11.77 0 0 0 12 0a11.77 11.77 0 0 0-8.52 3.48A11.77 11.77 0 0 0 0 12a11.58 11.58 0 0 0 1.56 5.82L0 24l6.36-1.62A11.92 11.92 0 0 0 12 23.94h.01A11.77 11.77 0 0 0 20.52 3.48ZM12 21.39a9.63 9.63 0 0 1-4.91-1.35l-.35-.21-3.77.96 1-3.67-.23-.38A9.66 9.66 0 0 1 2.61 12 9.38 9.38 0 0 1 12 2.61 9.38 9.38 0 0 1 21.39 12 9.38 9.38 0 0 1 12 21.39Zm5.14-7.24c-.28-.14-1.65-.81-1.9-.9s-.44-.14-.63.14-.72.9-.89 1.08-.33.21-.6.07a7.94 7.94 0 0 1-2.34-1.44 8.73 8.73 0 0 1-1.62-2c-.17-.28 0-.43.13-.57.13-.14.28-.33.42-.5a1.9 1.9 0 0 0 .28-.47.51.51 0 0 0-.02-.49c-.07-.14-.63-1.51-.86-2.07s-.46-.48-.63-.49h-.54a1 1 0 0 0-.71.33 3 3 0 0 0-.94 2.19A5.34 5.34 0 0 0 7 11.23a12.06 12.06 0 0 0 4.19 4.67c1.55.94 2.15 1.09 2.92.92a2.47 2.47 0 0 0 1.62-1.14 2 2 0 0 0 .14-1.14c-.06-.12-.25-.21-.53-.35Z"/>
+    </svg>
+
+</a>
 
 <footer>© ManchinhaPx Arts</footer>
 
