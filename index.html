@@ -220,6 +220,76 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 .banner-carousel .prev { left: 8px; }
 .banner-carousel .next { right: 8px; }
 
+/* --- CARROSSEL SHOPEE --- */
+@media (max-width: 768px) {
+  .products-container {
+    display: flex;
+    overflow: hidden;
+    scroll-behavior: smooth;
+    width: 100%;
+    position: relative;
+    padding: 0 10px;
+  }
+
+  .product-card {
+    min-width: 85%;
+    margin: 0 auto;
+    background: #fff;
+    padding: 12px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: transform .3s ease;
+  }
+
+  .product-card img {
+    width: 100%;
+    border-radius: 10px;
+  }
+
+  .carousel-btn {
+    position: absolute;
+    top: 40%;
+    transform: translateY(-50%);
+    background: #00000060;
+    color: #fff;
+    border: none;
+    padding: 10px 14px;
+    font-size: 20px;
+    z-index: 30;
+    border-radius: 50%;
+    backdrop-filter: blur(4px);
+  }
+
+  .carousel-btn.prev {
+    left: 5px;
+  }
+
+  .carousel-btn.next {
+    right: 5px;
+  }
+
+  /* Bolinhas indicadoras */
+  .carousel-indicators {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 12px;
+  }
+
+  .indicator {
+    width: 10px;
+    height: 10px;
+    background: #cfcfcf;
+    border-radius: 50%;
+    transition: 0.3s;
+  }
+
+  .indicator.active {
+    background: #ff6600;
+    transform: scale(1.2);
+  }
+}
+
 </style>
 </head>
 <body>
@@ -252,6 +322,11 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
     <h2 style="margin:0">Produtos</h2>
     <div style="color:var(--muted)">Mostrando <span id="prodCount">0</span> produtos</div>
   </div>
+  <button class="carousel-btn prev" id="prevBtn">❮</button>
+<button class="carousel-btn next" id="nextBtn">❯</button>
+
+<div class="carousel-indicators" id="indicators"></div>
+
 
   <div class="filters">
     <select id="filterCategoria"><option value="">Todas categorias</option></select>
@@ -430,6 +505,67 @@ async function carregarBanners() {
 }
 
 
+const container = document.querySelector(".products-container");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const indicators = document.getElementById("indicators");
+
+let currentIndex = 0;
+
+// => Quando os produtos forem carregados, geramos as bolinhas
+function generateIndicators() {
+  indicators.innerHTML = "";
+
+  const items = document.querySelectorAll(".product-card");
+
+  items.forEach((_, i) => {
+    const dot = document.createElement("div");
+    dot.classList.add("indicator");
+    if (i === 0) dot.classList.add("active");
+    indicators.appendChild(dot);
+  });
+}
+
+function updateIndicators() {
+  const dots = document.querySelectorAll(".indicator");
+  dots.forEach((dot, i) => {
+    dot.classList.toggle("active", i === currentIndex);
+  });
+}
+
+function scrollToIndex() {
+  const cardWidth = container.clientWidth * 0.85;
+  container.scrollLeft = currentIndex * cardWidth;
+  updateIndicators();
+}
+
+nextBtn.addEventListener("click", () => {
+  const totalItems = document.querySelectorAll(".product-card").length;
+  if (currentIndex < totalItems - 1) currentIndex++;
+  scrollToIndex();
+});
+
+prevBtn.addEventListener("click", () => {
+  if (currentIndex > 0) currentIndex--;
+  scrollToIndex();
+});
+
+/* ----- SWIPE (deslizar com o dedo) ----- */
+let startX = 0;
+
+container.addEventListener("touchstart", (e) => {
+  startX = e.touches[0].clientX;
+});
+
+container.addEventListener("touchend", (e) => {
+  const endX = e.changedTouches[0].clientX;
+
+  if (startX - endX > 50) {  // esquerda
+    nextBtn.click();
+  } else if (endX - startX > 50) { // direita
+    prevBtn.click();
+  }
+});
 let currentBanner = 0;
 
 function startBannerCarousel() {
@@ -591,6 +727,7 @@ function openProduct(id) {
   currentIndex = 0;
   track.style.transform = `translateX(0%)`;
 
+
   // Eventos das setas
   document.getElementById('prevImg').onclick = () => {
     currentIndex = (currentIndex - 1 + imagens.length) % imagens.length;
@@ -744,6 +881,8 @@ window.addToCart = addToCart;
 window.openProduct = openProduct;
 window.increase = increase;
 window.decrease = decrease;
+generateIndicators();
+
 </script>
 </body>
 </html>
