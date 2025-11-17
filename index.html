@@ -566,7 +566,7 @@ function updateCartUI() {
 // duplicado em código original — garantimos o total também
 const total = cart.reduce((s,i)=>s + (i.price * i.qt),0); cartTotalEl.textContent = money(total);
 
-function addToCart(id, qtd=1){ const prod = produtos.find(p=>p.id==id); if(!prod){ alert('Produto não encontrado'); return; } const promo = aplicarPromocao(prod); const existing = cart.find(i=>i.id==id); if(existing) existing.qt += qtd; else cart.push({ id: prod.id, qt: qtd, price: Number(promo.preco || prod.preco) }); saveCart(); openCart(); }
+function addToCart(id, qtd=1){ const prod = produtos.find(p=>p.id==id); if(!prod){ alert('Produto não encontrado'); return; } const promo = aplicarPromocao(prod); const existing = cart.find(i=>i.id==id); if(existing) existing.qt += qtd; else cart.push({ id: prod.id, qt: qtd, price: Number(promo.preco || prod.preco) }); saveCart(); }
 function increase(id){ const it = cart.find(i=>i.id==id); if(it){ it.qt++; saveCart(); } }
 function decrease(id){ const it = cart.find(i=>i.id==id); if(it){ it.qt--; if(it.qt<=0) cart = cart.filter(x=>x.id!=id); saveCart(); } }
 function clearCart(){ if(confirm('Limpar carrinho?')){ cart=[]; saveCart(); } }
