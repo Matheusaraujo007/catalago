@@ -186,6 +186,52 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   50% { transform: scale(1.08); }
   100% { transform: scale(1); }
 }
+
+/* ===== CARRINHO FLUTUANTE ===== */
+
+.cart-float {
+  position: fixed;
+  bottom: 110px; /* fica acima do botão WhatsApp */
+  right: 22px;
+  width: 70px;
+  height: 70px;
+  background: #facc15;
+  color: #000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+  z-index: 9999;
+  animation: pulse 1.8s infinite ease-in-out;
+  transition: .3s;
+}
+
+.cart-float:hover {
+  transform: scale(1.12);
+  box-shadow: 0 0 22px rgba(253, 230, 90, 0.7);
+}
+
+.cart-float-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ff0000;
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 50%;
+  font-weight: 700;
+}
+
+/* mesma animação do botão WhatsApp */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
 </style>
 </head>
 <body>
@@ -271,6 +317,13 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 </div>
 
 
+<!-- CARRINHO FLUTUANTE -->
+<div class="cart-float" id="openCart">
+  <svg xmlns="http://www.w3.org/2000/svg" fill="#fff" viewBox="0 0 24 24" width="34">
+    <path d="M7 4H5L4 6h2l3.6 7.6-1.3 2.4A2 2 0 009 20h12v-2H9.4l.9-1.7h7.4a2 2 0 001.8-1L23 7H6.2z"/>
+  </svg>
+  <span id="cartCountFloat" class="cart-float-count">0</span>
+</div>
 
 <!-- Carrinho -->
 <aside class="cart" id="cart">
