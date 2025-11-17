@@ -264,39 +264,46 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 
 <!-- Modal produto -->
 <div class="modal" id="modal">
-  <div class="dialog" role="dialog" aria-modal="true">
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <!-- Carrossel -->
-      <div class="carousel">
-        <button class="prev" id="prevImg">❮</button>
-        <div class="carousel-track" id="carouselTrack"></div>
-        <button class="next" id="nextImg">❯</button>
-      </div>
+  <div class="dialog" role="dialog" aria-modal="true" style="display:flex;flex-direction:column;gap:18px;position:relative">
+
+    <!-- Botão fechar -->
+    <button class="close" id="closeModal" style="position:absolute;top:14px;right:14px">✕</button>
+
+    <!-- IMAGEM / CARROSSEL (AGORA EM CIMA) -->
+    <div class="carousel" style="width:100%">
+      <button class="prev" id="prevImg">❮</button>
+      <div class="carousel-track" id="carouselTrack"></div>
+      <button class="next" id="nextImg">❯</button>
     </div>
-    <div>
-      <button class="close" id="closeModal">✕</button>
+
+    <!-- DESCRIÇÃO (AGORA EMBAIXO DA IMAGEM) -->
+    <div style="display:flex;flex-direction:column;gap:12px;padding:6px">
+
       <h3 id="modalTitle"></h3>
+
       <p id="modalDesc" style="color:var(--muted)"></p>
-      <div style="margin:12px 0"><span style="font-weight:700" id="modalPrice"></span></div>
+
+      <div style="margin:8px 0">
+        <span style="font-weight:700" id="modalPrice"></span>
+      </div>
+
       <div style="display:flex;gap:8px;align-items:center">
-        <input id="qty" type="number" value="1" min="1" style="width:80px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:#0b0b0b;color:var(--white)">
+        <input id="qty" type="number" value="1" min="1"
+          style="width:80px;padding:8px;border-radius:8px;
+          border:1px solid rgba(255,255,255,0.06);
+          background:#0b0b0b;color:var(--white)">
+        
         <button class="btn buy" id="addToCartModal">Adicionar ao carrinho</button>
       </div>
-      <!-- Botão Voltar -->
-<button id="btnVoltar" style="
-  background-color: #333;
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  margin-top: 15px;
-  width: 100%;
-">
-  ← Voltar
-</button>
+
+      <button id="btnVoltar" style="
+        background-color:#333;color:#fff;border:none;
+        padding:10px 20px;border-radius:8px;
+        cursor:pointer;font-weight:bold;margin-top:10px;width:100%;
+      ">← Voltar</button>
+
     </div>
+
   </div>
 </div>
 
