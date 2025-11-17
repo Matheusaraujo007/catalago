@@ -220,6 +220,37 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 .banner-carousel .prev { left: 8px; }
 .banner-carousel .next { right: 8px; }
 
+
+
+@media (max-width: 480px) {
+  #modal .dialog {
+    width: 90%;
+    max-width: 350px; /* ← menor no mobile */
+    max-height: 80vh; /* ← não ocupa a tela toda */
+    overflow-y: auto; /* ← permite rolar quando o conteúdo for grande */
+    padding: 16px;
+  }
+
+  #modal .carousel {
+    height: 180px; /* ← menor para caber melhor */
+  }
+
+  #modal .carousel-track img {
+    object-fit: contain;
+  }
+
+  #qty {
+    width: 60px !important; /* reduz espaço */
+  }
+
+  #addToCartModal {
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+}
+
+
+
 </style>
 </head>
 <body>
