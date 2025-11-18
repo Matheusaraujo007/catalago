@@ -318,6 +318,22 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   }
 }
 
+#prevProducts, #nextProducts {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(15,15,15,0.6);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  z-index: 2;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+}
+
+#prevProducts { left: 8px; }
+#nextProducts { right: 8px; }
 
 </style>
 </head>
@@ -357,8 +373,11 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
     <select id="sort"><option value="recent">Mais recentes</option><option value="price_asc">Preço ↑</option><option value="price_desc">Preço ↓</option></select>
     <button id="clearFilters">Limpar filtros</button>
   </div>
-
-  <section class="grid" id="productsGrid"></section>
+<div style="position:relative">
+  <button id="prevProducts">❮</button>
+  <button id="nextProducts">❯</button>
+  <section class="products-grid" id="productsGrid"></section>
+</div>
 </main>
 
 <!-- Modal produto -->
@@ -631,7 +650,7 @@ if (p.imagem_base64) {
 
 
     return `
-      <article class="card" data-id="${p.id}">
+      <article class="product-card" data-id="${p.id}">
         <div class="thumb"><img src="${img}" alt="${escapeHtml(p.nome)}"></div>
         <div class="title">${escapeHtml(p.nome)}</div>
         <div style="color:var(--muted);font-size:13px">${escapeHtml(p.categoria_nome||p.categoria||'')}</div>
@@ -645,6 +664,21 @@ if (p.imagem_base64) {
   }).join('');
   updateCartUI();
 }
+
+const gridEl = document.getElementById('productsGrid');
+const nextBtn = document.getElementById('nextProducts');
+const prevBtn = document.getElementById('prevProducts');
+
+const scrollAmount = 250; // pixels a rolar
+
+nextBtn.onclick = () => {
+  gridEl.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+};
+
+prevBtn.onclick = () => {
+  gridEl.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+};
+
 
 /* CART */
 function saveCart(){ localStorage.setItem('mp_cart', JSON.stringify(cart)); updateCartUI(); }
