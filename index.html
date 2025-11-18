@@ -319,19 +319,6 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 }
 
 
-.products-row {
-  display: flex;
-  gap: 16px; /* espaço entre os produtos */
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  -ms-overflow-style: none;  /* IE e Edge */
-  scrollbar-width: none;  /* Firefox */
-}
-.products-row::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari e Opera */
-}
-
-
 </style>
 </head>
 <body>
@@ -371,19 +358,7 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
     <button id="clearFilters">Limpar filtros</button>
   </div>
 
-  <div class="products-wrapper">
-  <button class="arrow-left" onclick="scrollProducts(-300)">❮</button>
-
-  <div class="products-row" id="PoductsGrid">
-    <!-- O renderProdutos() já vai colocar todos os produtos aqui -->
-  </div>
-
-  <button class="arrow-right" onclick="scrollProducts(300)">❯</button>
-</div>
-
-
-
-  
+  <section class="grid" id="productsGrid"></section>
 </main>
 
 <!-- Modal produto -->
@@ -598,32 +573,6 @@ function startBannerCarousel() {
   }, 6000);
 }
 
-const row = document.getElementById('productsRow');
-let isDown = false;
-let startX;
-let scrollLeft;
-
-row.addEventListener('mousedown', (e) => {
-  isDown = true;
-  row.classList.add('active'); // opcional para efeito de cursor
-  startX = e.pageX - row.offsetLeft;
-  scrollLeft = row.scrollLeft;
-});
-row.addEventListener('mouseleave', () => {
-  isDown = false;
-  row.classList.remove('active');
-});
-row.addEventListener('mouseup', () => {
-  isDown = false;
-  row.classList.remove('active');
-});
-row.addEventListener('mousemove', (e) => {
-  if(!isDown) return;
-  e.preventDefault();
-  const x = e.pageX - row.offsetLeft;
-  const walk = (x - startX) * 2; // multiplica para velocidade
-  row.scrollLeft = scrollLeft - walk;
-});
 
 
 /* FETCH DATA */
@@ -696,11 +645,6 @@ if (p.imagem_base64) {
   }).join('');
   updateCartUI();
 }
-
-function scrollProducts(value) {
-  document.getElementById("productsRow").scrollLeft += value;
-}
-
 
 /* CART */
 function saveCart(){ localStorage.setItem('mp_cart', JSON.stringify(cart)); updateCartUI(); }
