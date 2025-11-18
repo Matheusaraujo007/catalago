@@ -228,11 +228,18 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
     padding-bottom: 30px;    /* espaço p/ botão e fim da descrição */
   }
 
-  .carousel img {
-    height: 220px !important;  /* mantém a imagem visível */
-    object-fit: cover;
-    width: 100%;
-  }
+  .carousel {
+  min-height: 260px;
+}
+
+  .carousel-track div {
+  width: 100%;
+  height: 260px; /* altura garantida */
+  background-size: cover;
+  background-position: center;
+  border-radius: 12px;
+}
+
 }
 
 
