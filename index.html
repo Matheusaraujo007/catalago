@@ -541,9 +541,7 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
     </div>
   </div>
 </div>
-
-
-
+  
 <script>
 /* ========== CONFIG ========= */
 /*
@@ -1046,9 +1044,11 @@ function updateCartUI() {
           </div>`;
       }).join('');
 
-  const total = cart.reduce((s,i)=>s + (i.price * i.qt),0);
   document.getElementById('cartTotal').textContent = money(total);
 }
+
+// Botão flutuante abre o carrinho
+document.getElementById('cartFloat').addEventListener('click', openCart);
 
 </script>
 </body>
