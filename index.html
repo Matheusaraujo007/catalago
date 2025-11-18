@@ -738,6 +738,8 @@ function renderProdutos() {
   updateCartUI();
 }
 
+document.getElementById('cartFloat').addEventListener('click', openCart);
+
 function openCart() {
   const cartEl = document.getElementById('cart');
   cartEl.style.display = 'flex';  // ou 'block', depende do seu CSS
@@ -749,7 +751,6 @@ function closeCart() {
   cartEl.style.display = 'none';
   document.body.style.overflow = 'auto';
 }
-document.getElementById('cartFloat').addEventListener('click', openCart);
 
 
 
