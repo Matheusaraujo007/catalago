@@ -544,10 +544,6 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   
 <script>
 /* ========== CONFIG ========= */
-/*
-  Substitua abaixo pela URL do seu backend na Vercel (SEM / no final),
-  ex: const BACKEND = 'https://meu-backend.vercel.app';
-*/
 const BACKEND = "https://catalago-ashen.vercel.app";
 const API_BASE = BACKEND + '/api';
 
@@ -559,480 +555,296 @@ let cart = JSON.parse(localStorage.getItem('mp_cart') || '[]');
 
 const money = v => Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 
-/* UI Refs */
-const grid = document.getElementById('productsGrid');
-const prodCount = document.getElementById('prodCount');
-const q = document.getElementById('q');
-const filterCategoria = document.getElementById('filterCategoria');
-const sortSel = document.getElementById('sort');
-const cartEl = document.getElementById('cart');
-const cartItems = document.getElementById('cartItems');
-const cartTotalEl = document.getElementById('cartTotal');
-const cartCountFloat = document.getElementById('cartCountFloat');
-const modal = document.getElementById('modal');
-const modalTitle = document.getElementById('modalTitle');
-const modalDesc = document.getElementById('modalDesc');
-const modalPrice = document.getElementById('modalPrice');
-const qtyInput = document.getElementById('qty');
-const addToCartModal = document.getElementById('addToCartModal');
-const cartFloat = document.getElementById('cartFloat');
+document.addEventListener('DOMContentLoaded', () => {
+  /* UI Refs (pegos depois do DOM pronto) */
+  const grid = document.getElementById('productsGrid');
+  const prodCount = document.getElementById('prodCount');
+  const q = document.getElementById('q');
+  const filterCategoria = document.getElementById('filterCategoria');
+  const sortSel = document.getElementById('sort');
+  const cartEl = document.getElementById('cart');
+  const cartItems = document.getElementById('cartItems');
+  const cartTotalEl = document.getElementById('cartTotal');
+  const cartCountFloat = document.getElementById('cartCountFloat');
+  const modal = document.getElementById('modal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalDesc = document.getElementById('modalDesc');
+  const modalPrice = document.getElementById('modalPrice');
+  const qtyInput = document.getElementById('qty');
+  const addToCartModal = document.getElementById('addToCartModal');
+  const cartFloat = document.getElementById('cartFloat');
 
-async function carregarBanners() {
-  try {
-    const res = await fetch(API_BASE + '/banner1');
-    banners = await res.json();
-
-    const track = document.getElementById('bannerTrack');
-    if (!banners.length) {
-      track.innerHTML = '<div style="color:#aaa;text-align:center;width:100%">Nenhum banner cadastrado</div>';
-      return;
-    }
-
-    track.innerHTML = banners.map(b => {
-      const img = b.imagem_base64
-        ? (b.imagem_base64.startsWith('data:image')
-            ? b.imagem_base64
-            : `data:image/jpeg;base64,${b.imagem_base64}`)
-        : '/placeholder.png';
-      const link = b.link ? `<a href="${b.link}" target="_blank"><img src="${img}" alt="${b.titulo || ''}">` : `<img src="${img}" alt="${b.titulo || ''}">`;
-      return link;
-    }).join('');
-
-    startBannerCarousel(); // inicia o carrossel após carregar
-  } catch (err) {
-    console.error('Erro ao carregar banners:', err);
-  }
-}
-
-
-let currentBanner = 0;
-
-function startBannerCarousel() {
-  const track = document.getElementById('bannerTrack');
-  if (!banners.length) return;
-
-  const prevBtn = document.getElementById('prevBanner');
-  const nextBtn = document.getElementById('nextBanner');
-
-  prevBtn.onclick = () => {
-    currentBanner = (currentBanner - 1 + banners.length) % banners.length;
-    track.style.transform = `translateX(-${currentBanner * 100}%)`;
-  };
-
-  nextBtn.onclick = () => {
-    currentBanner = (currentBanner + 1) % banners.length;
-    track.style.transform = `translateX(-${currentBanner * 100}%)`;
-  };
-
-  // Rotação automática
-  setInterval(() => {
-    currentBanner = (currentBanner + 1) % banners.length;
-    track.style.transform = `translateX(-${currentBanner * 100}%)`;
-  }, 6000);
-}
-
-
-
-/* FETCH DATA */
-async function fetchProdutos(){
-  try{
-    const r = await fetch(API_BASE + '/produtos');
-    produtos = await r.json();
-    renderCategorias();
-    await fetchPromocoes();
-    renderProdutos();
-  }catch(e){
-    console.error('Erro produtos',e);
-    grid.innerHTML = '<div style="color:#f33">Erro ao carregar produtos</div>';
-  }
-}
-async function fetchPromocoes(){
-  try{
-    const r = await fetch(API_BASE + '/promocoes');
-    promocoes = await r.json();
-    console.log('PROMOÇÕES CARREGADAS:', promocoes);
-  } catch(e) { 
-    promocoes = [];
-    console.error('Erro ao buscar promoções', e);
-  }
-}
-function aplicarPromocao(prod) {
-  const precoOriginal = Number(prod.preco); // estava errado
-  const promo = promocoes.find(p => p.nome_produto === prod.nome && p.ativo !== false);
-  if (!promo) return { preco: precoOriginal, label: null };
-
-  if (promo.data_fim && new Date(promo.data_fim) < new Date()) 
-    return { preco: precoOriginal, label: null };
-
-  if (promo.tipo === 'percentual') {
-    const preco = precoOriginal * (1 - Number(promo.valor)/100);
-    return { preco, label: `${promo.valor}% OFF` };
-  }
-
-  const preco = precoOriginal - Number(promo.valor);
-  return { preco: Math.max(0, preco), label: `R$ ${Number(promo.valor).toFixed(2)} OFF` };
-}
-
-
-/* RENDER */
-function renderCategorias(){
-  const set = new Set(produtos.map(p=>p.categoria_nome || p.categoria || 'Outros'));
-  categorias = Array.from(set);
-  filterCategoria.innerHTML = '<option value="">Todas categorias</option>' + categorias.map(c=>`<option value="${c}">${c}</option>`).join('');
-}
-function renderProdutos() {
-  const term = q.value.trim().toLowerCase();
-  let list = produtos.slice();
-
-  if(term) list = list.filter(p => (p.nome + ' ' + (p.categoria_nome||p.categoria||'')).toLowerCase().includes(term));
-  const cat = filterCategoria.value;
-  if(cat) list = list.filter(p => (p.categoria_nome||p.categoria) === cat);
-
-  const s = sortSel.value;
-  if(s === 'price_asc') list.sort((a,b)=>Number(a.preco)-Number(b.preco));
-  if(s === 'price_desc') list.sort((a,b)=>Number(b.preco)-Number(a.preco));
-  if(s === 'recent') list.sort((a,b)=>b.id-a.id);
-
-  prodCount.textContent = list.length;
-
-  grid.innerHTML = list.map(p => {
-    let precoHtml = '';
-
-    // Checa se existe preço promocional
-    if(p.preco_promocional && Number(p.preco_promocional) < Number(p.preco)) {
-      precoHtml = `
-        <div class="price">
-          <small style="text-decoration:line-through;color:var(--muted)">${money(p.preco)}</small>
-          <div style="color:var(--accent); font-weight:600">
-            ${money(p.preco_promocional)} <span style="color:#0f0;font-size:12px">PROMOÇÃO</span>
-          </div>
-        </div>
-      `;
-    } else {
-      precoHtml = `<div class="price">${money(p.preco)}</div>`;
-    }
-
-    let img = '/placeholder.png';
-    if (p.imagem_base64) {
-      img = p.imagem_base64.startsWith('data:image')
-        ? p.imagem_base64
-        : `data:image/jpeg;base64,${p.imagem_base64}`;
-    }
-
-    return `
-      <article class="product-card" data-id="${p.id}">
-        <div class="thumb"><img src="${img}" alt="${escapeHtml(p.nome)}"></div>
-        <div class="title">${escapeHtml(p.nome)}</div>
-        <div style="color:var(--muted);font-size:13px">${escapeHtml(p.categoria_nome||p.categoria||'')}</div>
-        ${precoHtml}
-        <div class="actions">
-          <button class="btn info" data-id="${p.id}" onclick="openProduct(${p.id})">Ver detalhes</button>
-          <button class="btn buy" data-id="${p.id}" onclick="addToCart(${p.id},1)">Adicionar</button>
-        </div>
-      </article>
-    `;
-  }).join('');
-
-  updateCartUI();
-}
-
-
-
-function openCart() {
-  document.getElementById('cart').classList.add('open');
-}
-
-function closeCart() {
-  document.getElementById('cart').classList.remove('open');
-}
-
-document.getElementById('cartFloat').addEventListener('click', openCart);
-document.getElementById('btnVoltarCarrinho').addEventListener('click', closeCart);
-
-
-
-const gridEl = document.getElementById('productsGrid');
-const nextBtn = document.getElementById('nextProducts');
-const prevBtn = document.getElementById('prevProducts');
-
-const scrollAmount = 250; // pixels a rolar
-
-nextBtn.onclick = () => {
-  gridEl.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-};
-
-prevBtn.onclick = () => {
-  gridEl.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-};
-
-
-/* CART */
-function saveCart(){ localStorage.setItem('mp_cart', JSON.stringify(cart)); updateCartUI(); }
-function updateCartUI() {
-  const count = cart.reduce((s,i)=>s+i.qt,0);
-  // atualizar badge flutuante
-  cartCountFloat.textContent = count;
-  // atualizar cart items list
-  cartItems.innerHTML = cart.length === 0
-    ? '<div style="color:var(--muted);padding:12px">Carrinho vazio</div>'
-    : cart.map(it => {
-        const prod = produtos.find(p=>p.id==it.id) || {};
-        let imgCart = '/placeholder.png';
-        if (prod.imagem_base64) {
-          imgCart = prod.imagem_base64.startsWith('data:image')
-            ? prod.imagem_base64
-            : `data:image/jpeg;base64,${prod.imagem_base64}`;
-        }
-        return `
-          <div class="item">
-            <img src="${imgCart}" alt="">
-            <div style="flex:1">
-              <div style="font-weight:600">${escapeHtml(prod.nome||'Produto')}</div>
-              <div style="color:var(--muted)">${money(it.price)} x ${it.qt}</div>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:6px">
-              <button style="background:transparent;border:none;color:var(--accent);cursor:pointer" onclick="increase(${it.id})">+</button>
-              <button style="background:transparent;border:none;color:#f55;cursor:pointer" onclick="decrease(${it.id})">−</button>
-            </div>
-          </div>`;
+  /* --------- BANNERS --------- */
+  async function carregarBanners(){
+    try{
+      const res = await fetch(API_BASE + '/banner1');
+      banners = await res.json();
+      const track = document.getElementById('bannerTrack');
+      if(!banners.length){
+        track.innerHTML = '<div style="color:#aaa;text-align:center;width:100%">Nenhum banner cadastrado</div>';
+        return;
+      }
+      track.innerHTML = banners.map(b=>{
+        const img = b.imagem_base64
+          ? (b.imagem_base64.startsWith('data:image') ? b.imagem_base64 : `data:image/jpeg;base64,${b.imagem_base64}`)
+          : '/placeholder.png';
+        return b.link ? `<a href="${b.link}" target="_blank"><img src="${img}" alt="${b.titulo||''}">` : `<img src="${img}" alt="${b.titulo||''}">`;
       }).join('');
-  const total = cart.reduce((s,i)=>s + (i.price * i.qt),0);
-  cartTotalEl.textContent = money(total);
-}
-
-// duplicado em código original — garantimos o total também
-const total = cart.reduce((s,i)=>s + (i.price * i.qt),0); cartTotalEl.textContent = money(total);
-
-function addToCart(id, qtd=1){ const prod = produtos.find(p=>p.id==id); if(!prod){ alert('Produto não encontrado'); return; } const promo = aplicarPromocao(prod); const existing = cart.find(i=>i.id==id); if(existing) existing.qt += qtd; else cart.push({ id: prod.id, qt: qtd, price: Number(promo.preco || prod.preco) }); saveCart(); }
-function increase(id){ const it = cart.find(i=>i.id==id); if(it){ it.qt++; saveCart(); } }
-function decrease(id){ const it = cart.find(i=>i.id==id); if(it){ it.qt--; if(it.qt<=0) cart = cart.filter(x=>x.id!=id); saveCart(); } }
-function clearCart(){ if(confirm('Limpar carrinho?')){ cart=[]; saveCart(); } }
-
-/* MODAL */
-let currentIndex = 0;
-
-function openProduct(id) {
-  const p = produtos.find(x => x.id == id);
-  if (!p) return;
-
-  const imagens = Array.isArray(p.imagens) && p.imagens.length > 0
-    ? p.imagens
-    : (p.imagem_base64 ? [p.imagem_base64] : []);
-
-  const track = document.getElementById('carouselTrack');
-  track.innerHTML = imagens.map(img => {
-    const src = img.startsWith('data:image') ? img : `data:image/jpeg;base64,${img}`;
-    return `<img src="${src}" alt="">`;
-  }).join('');
-
-  currentIndex = 0; // usar variável global
-  track.style.transform = `translateX(0%)`;
-
-  document.getElementById('prevImg').onclick = () => {
-    currentIndex = (currentIndex - 1 + imagens.length) % imagens.length;
-    track.style.transform = `translateX(-${currentIndex * 100}%)`;
-  };
-  document.getElementById('nextImg').onclick = () => {
-    currentIndex = (currentIndex + 1) % imagens.length;
-    track.style.transform = `translateX(-${currentIndex * 100}%)`;
-  };
-
-  modalTitle.textContent = p.nome;
-  modalDesc.textContent = p.descricao || '';
-  const promo = aplicarPromocao(p);
-
-  if(promo.preco < p.preco){
-    modalPrice.innerHTML = `
-      <small style="text-decoration:line-through;color:var(--muted)">${money(p.preco)}</small>
-      <div style="color:#0f0;font-weight:700">${money(promo.preco)} <span style="font-size:12px;color:#0f0">${promo.label}</span></div>
-    `;
-  } else {
-    modalPrice.textContent = money(p.preco);
+      startBannerCarousel();
+    }catch(err){
+      console.error('Erro ao carregar banners:', err);
+    }
   }
 
-  qtyInput.value = 1;
-  addToCartModal.onclick = () => {
-    addToCart(p.id, Number(qtyInput.value || 1));
-    closeModal();
-  };
-
-  modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-}
-
-function closeModal(){ modal.style.display = 'none'; document.body.style.overflow = 'auto'; }
-// Botão de Voltar (fecha o modal)
-document.getElementById("btnVoltar").addEventListener("click", () => {
-  modal.style.display = "none";
-  document.body.style.overflow = "auto";
-});
-
-
-/* CHECKOUT */
-// FUNÇÃO DE CHECKOUT COM FORMULÁRIO ESPECIAL PARA PLACAS
-function checkout() {
-  if(cart.length === 0){ 
-    alert('Carrinho vazio'); 
-    return; 
+  let currentBanner = 0;
+  function startBannerCarousel(){
+    const track = document.getElementById('bannerTrack'); if(!banners.length) return;
+    const prevBtn = document.getElementById('prevBanner'); const nextBtn = document.getElementById('nextBanner');
+    prevBtn.onclick = () => { currentBanner = (currentBanner - 1 + banners.length) % banners.length; track.style.transform = `translateX(-${currentBanner * 100}%)`; };
+    nextBtn.onclick = () => { currentBanner = (currentBanner + 1) % banners.length; track.style.transform = `translateX(-${currentBanner * 100}%)`; };
+    setInterval(()=>{ currentBanner = (currentBanner + 1) % banners.length; track.style.transform = `translateX(-${currentBanner * 100}%)`; }, 6000);
   }
 
-  // Verifica se há algum produto da categoria "Placas Personalizadas"
-  const temPlaca = cart.some(item => {
-    const prod = produtos.find(p => p.id === item.id);
-    return prod && (prod.categoria_nome || prod.categoria) === 'Placas Personalizadas';
+  /* --------- FETCH PRODUTOS / PROMOÇÕES --------- */
+  async function fetchProdutos(){
+    try{
+      const r = await fetch(API_BASE + '/produtos');
+      produtos = await r.json();
+      renderCategorias();
+      await fetchPromocoes();
+      renderProdutos();
+    }catch(e){
+      console.error('Erro produtos', e);
+      grid.innerHTML = '<div style="color:#f33">Erro ao carregar produtos</div>';
+    }
+  }
+  async function fetchPromocoes(){
+    try{
+      const r = await fetch(API_BASE + '/promocoes');
+      promocoes = await r.json();
+      console.log('PROMOÇÕES CARREGADAS:', promocoes);
+    }catch(e){
+      promocoes = [];
+      console.error('Erro ao buscar promoções', e);
+    }
+  }
+  function aplicarPromocao(prod){
+    const precoOriginal = Number(prod.preco || 0);
+    const promo = promocoes.find(p => p.nome_produto === prod.nome && p.ativo !== false);
+    if(!promo) return { preco: precoOriginal, label: null };
+    if(promo.data_fim && new Date(promo.data_fim) < new Date()) return { preco: precoOriginal, label: null };
+    if(promo.tipo === 'percentual'){
+      const preco = precoOriginal * (1 - Number(promo.valor)/100);
+      return { preco, label: `${promo.valor}% OFF` };
+    }
+    const preco = precoOriginal - Number(promo.valor);
+    return { preco: Math.max(0, preco), label: `R$ ${Number(promo.valor).toFixed(2)} OFF` };
+  }
+
+  /* --------- RENDER --------- */
+  function renderCategorias(){
+    const set = new Set(produtos.map(p=>p.categoria_nome || p.categoria || 'Outros'));
+    categorias = Array.from(set);
+    filterCategoria.innerHTML = '<option value="">Todas categorias</option>' + categorias.map(c=>`<option value="${c}">${c}</option>`).join('');
+  }
+
+  function renderProdutos(){
+    const term = q.value.trim().toLowerCase();
+    let list = produtos.slice();
+    if(term) list = list.filter(p => (p.nome + ' ' + (p.categoria_nome||p.categoria||'')).toLowerCase().includes(term));
+    const cat = filterCategoria.value;
+    if(cat) list = list.filter(p => (p.categoria_nome||p.categoria) === cat);
+    const s = sortSel.value;
+    if(s === 'price_asc') list.sort((a,b)=>Number(a.preco)-Number(b.preco));
+    if(s === 'price_desc') list.sort((a,b)=>Number(b.preco)-Number(a.preco));
+    if(s === 'recent') list.sort((a,b)=>b.id-a.id);
+    prodCount.textContent = list.length;
+
+    grid.innerHTML = list.map(p => {
+      let precoHtml = '';
+      if(p.preco_promocional && Number(p.preco_promocional) < Number(p.preco)) {
+        precoHtml = `
+          <div class="price">
+            <small style="text-decoration:line-through;color:var(--muted)">${money(p.preco)}</small>
+            <div style="color:var(--accent); font-weight:600">${money(p.preco_promocional)} <span style="color:#0f0;font-size:12px">PROMOÇÃO</span></div>
+          </div>
+        `;
+      } else {
+        precoHtml = `<div class="price">${money(p.preco)}</div>`;
+      }
+      let img = '/placeholder.png';
+      if (p.imagem_base64) img = p.imagem_base64.startsWith('data:image') ? p.imagem_base64 : `data:image/jpeg;base64,${p.imagem_base64}`;
+      return `
+        <article class="product-card" data-id="${p.id}">
+          <div class="thumb"><img src="${img}" alt="${escapeHtml(p.nome)}"></div>
+          <div class="title">${escapeHtml(p.nome)}</div>
+          <div style="color:var(--muted);font-size:13px">${escapeHtml(p.categoria_nome||p.categoria||'')}</div>
+          ${precoHtml}
+          <div class="actions">
+            <button class="btn info" data-id="${p.id}" onclick="openProduct(${p.id})">Ver detalhes</button>
+            <button class="btn buy" data-id="${p.id}" onclick="addToCart(${p.id},1)">Adicionar</button>
+          </div>
+        </article>
+      `;
+    }).join('');
+    updateCartUI();
+  }
+
+  /* --------- UTIL ---------- */
+  function escapeHtml(text){ return String(text||'').replace(/[&<>"']/g, s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]); }
+
+  /* --------- CART FUNCTIONS --------- */
+  function saveCart(){ localStorage.setItem('mp_cart', JSON.stringify(cart)); updateCartUI(); }
+  function updateCartUI(){
+    const count = cart.reduce((s,i)=>s + (i.qt||0), 0);
+    cartCountFloat.textContent = count;
+    cartItems.innerHTML = cart.length === 0
+      ? '<div style="color:var(--muted);padding:12px">Carrinho vazio</div>'
+      : cart.map(it => {
+          const prod = produtos.find(p=>p.id==it.id) || {};
+          let imgCart = '/placeholder.png';
+          if (prod.imagem_base64) imgCart = prod.imagem_base64.startsWith('data:image') ? prod.imagem_base64 : `data:image/jpeg;base64,${prod.imagem_base64}`;
+          return `
+            <div class="item">
+              <img src="${imgCart}" alt="">
+              <div style="flex:1">
+                <div style="font-weight:600">${escapeHtml(prod.nome||'Produto')}</div>
+                <div style="color:var(--muted)">${money(it.price)} x ${it.qt}</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <button style="background:transparent;border:none;color:var(--accent);cursor:pointer" onclick="increase(${it.id})">+</button>
+                <button style="background:transparent;border:none;color:#f55;cursor:pointer" onclick="decrease(${it.id})">−</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+    const totalVal = cart.reduce((s,i)=>s + ((i.price||0) * (i.qt||0)), 0);
+    cartTotalEl.textContent = money(totalVal);
+  }
+
+  function addToCart(id, qtd=1){
+    const prod = produtos.find(p=>p.id==id);
+    if(!prod){ alert('Produto não encontrado'); return; }
+    const promo = aplicarPromocao(prod);
+    const existing = cart.find(i=>i.id==id);
+    if(existing) existing.qt += qtd;
+    else cart.push({ id: prod.id, qt: qtd, price: Number(promo.preco || prod.preco) });
+    saveCart();
+    // abre o carrinho automaticamente quando item é adicionado
+    openCart();
+  }
+  function increase(id){ const it = cart.find(i=>i.id==id); if(it){ it.qt++; saveCart(); } }
+  function decrease(id){ const it = cart.find(i=>i.id==id); if(it){ it.qt--; if(it.qt<=0) cart = cart.filter(x=>x.id!=id); saveCart(); } }
+  function clearCart(){ if(confirm('Limpar carrinho?')){ cart = []; saveCart(); } }
+
+  /* --------- MODAL (produto) --------- */
+  let currentIndex = 0;
+  function openProduct(id){
+    const p = produtos.find(x => x.id == id); if(!p) return;
+    const imagens = Array.isArray(p.imagens) && p.imagens.length > 0 ? p.imagens : (p.imagem_base64 ? [p.imagem_base64] : []);
+    const track = document.getElementById('carouselTrack');
+    if(!imagens.length) track.innerHTML = '<div style="color:#aaa">Sem imagem</div>';
+    else track.innerHTML = imagens.map(img => {
+      const src = img.startsWith('data:image') ? img : `data:image/jpeg;base64,${img}`;
+      return `<img src="${src}" alt="">`;
+    }).join('');
+    currentIndex = 0;
+    track.style.transform = `translateX(0%)`;
+    const prevImg = document.getElementById('prevImg');
+    const nextImg = document.getElementById('nextImg');
+    prevImg.onclick = ()=>{ if(imagens.length){ currentIndex = (currentIndex - 1 + imagens.length) % imagens.length; track.style.transform = `translateX(-${currentIndex * 100}%)`; } };
+    nextImg.onclick = ()=>{ if(imagens.length){ currentIndex = (currentIndex + 1) % imagens.length; track.style.transform = `translateX(-${currentIndex * 100}%)`; } };
+
+    modalTitle.textContent = p.nome;
+    modalDesc.textContent = p.descricao || '';
+    const promo = aplicarPromocao(p);
+    if(promo.preco < Number(p.preco || 0)){
+      modalPrice.innerHTML = `<small style="text-decoration:line-through;color:var(--muted)">${money(p.preco)}</small>
+      <div style="color:#0f0;font-weight:700">${money(promo.preco)} <span style="font-size:12px;color:#0f0">${promo.label}</span></div>`;
+    } else modalPrice.textContent = money(p.preco);
+    qtyInput.value = 1;
+    addToCartModal.onclick = ()=>{ addToCart(p.id, Number(qtyInput.value || 1)); closeModal(); };
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal(){ modal.style.display = 'none'; document.body.style.overflow = 'auto'; }
+
+  /* --------- CHECKOUT --------- */
+  function checkout(){
+    if(cart.length === 0){ alert('Carrinho vazio'); return; }
+    const temPlaca = cart.some(item => { const prod = produtos.find(p=>p.id === item.id); return prod && (prod.categoria_nome || prod.categoria) === 'Placas Personalizadas'; });
+    document.getElementById('checkoutModal').style.display = 'flex';
+    document.getElementById('formPlaca').style.display = temPlaca ? 'block' : 'none';
+  }
+
+  /* --------- ABRIR / FECHAR CARRINHO (USANDO .open) --------- */
+  function openCart(){
+    cartEl.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeCart(){
+    cartEl.classList.remove('open');
+    document.body.style.overflow = 'auto';
+  }
+
+  /* --------- EVENT BINDINGS --------- */
+  // Floating button opens cart (usando a classe .open)
+  cartFloat.addEventListener('click', openCart);
+
+  // Voltar / fechar carrinho
+  document.getElementById('btnVoltarCarrinho').addEventListener('click', closeCart);
+
+  // Checkout / Clear
+  document.getElementById('btnCheckout').onclick = checkout;
+  document.getElementById('btnClear').onclick = clearCart;
+
+  // Close product modal
+  document.getElementById('closeModal').addEventListener('click', closeModal);
+  modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal(); });
+  document.getElementById('btnVoltar').addEventListener('click', closeModal);
+
+  // Checkout modal controls
+  document.getElementById('closeCheckout').addEventListener('click', ()=>{ document.getElementById('checkoutModal').style.display = 'none'; });
+  document.getElementById('confirmarCheckout').addEventListener('click', async () => {
+    const nome = document.getElementById('nomeCliente').value.trim();
+    const telefone = document.getElementById('telefoneCliente').value.trim();
+    if(!nome || !telefone){ alert('Por favor, preencha pelo menos o nome e o telefone.'); return; }
+    const valor_total = cart.reduce((s,i)=>s + ((i.price||0) * (i.qt||0)), 0);
+    // montar mensagem resumida
+    const resumoItens = cart.map(it => {
+      const prod = produtos.find(p=>p.id==it.id);
+      return `*${it.qt}* x *${prod?.nome || 'Produto'}*: R$ ${(it.price).toFixed(2)}`;
+    }).join('\n--------\n');
+    const tipoEntrega = document.querySelector('input[name="tipoEntrega"]:checked').value;
+    // mensagem mais simples (mantive seu formato)
+    const mensagem = `Olá, meu nome é *${nome}*, esse é o meu pedido... Total: ${money(valor_total)}`;
+    const linkWhats = `https://wa.me/5588994907177?text=${encodeURIComponent(mensagem)}`;
+    window.open(linkWhats, '_blank');
+    cart = [];
+    saveCart();
+    document.getElementById('checkoutModal').style.display = 'none';
+    closeCart();
+    alert('Pedido enviado com sucesso!');
   });
 
-  // Mostra o modal de checkout
-  document.getElementById('checkoutModal').style.display = 'flex';
+  // Search / filters
+  q.addEventListener('input', renderProdutos);
+  filterCategoria.addEventListener('change', renderProdutos);
+  sortSel.addEventListener('change', renderProdutos);
+  document.getElementById('clearFilters').addEventListener('click', ()=>{ q.value=''; filterCategoria.value=''; sortSel.value='recent'; renderProdutos(); });
 
-  // Exibe o formulário especial apenas se houver placa
-  const formPlaca = document.getElementById('formPlaca');
-  formPlaca.style.display = temPlaca ? 'block' : 'none';
-}
+  // Expose some functions globally (para botões inline no HTML)
+  window.addToCart = addToCart;
+  window.openProduct = openProduct;
+  window.increase = (id)=>{ increase(id); };
+  window.decrease = (id)=>{ decrease(id); };
 
-// Fechar modal de checkout
-document.getElementById('closeCheckout').addEventListener('click', () => {
-  document.getElementById('checkoutModal').style.display = 'none';
+  /* Initial load */
+  fetchProdutos();
+  carregarBanners();
+  updateCartUI();
 });
-
-// Confirmar pedido
-document.getElementById('confirmarCheckout').addEventListener('click', async () => {
-  const nome = document.getElementById('nomeCliente').value.trim();
-  const email = document.getElementById('emailCliente').value.trim();
-  const telefone = document.getElementById('telefoneCliente').value.trim();
-  const endereco = document.getElementById('enderecoCliente').value.trim();
-  const tipoEntrega = document.querySelector('input[name="tipoEntrega"]:checked').value;
-
-  if(!nome || !telefone){
-    alert('Por favor, preencha pelo menos o nome e o telefone.');
-    return;
-  }
-
-  const valor_total = cart.reduce((s,i)=>s + (i.price * i.qt),0);
-
-  const resumoItens = cart.map(it=>{
-    const prod = produtos.find(p=>p.id==it.id);
-    return `*${it.qt}* x *${prod?.nome || 'Produto'}*: R$ ${(it.price).toFixed(2)}`;
-  }).join('\n--------\n');
-
-  // Mensagem especial para placas
-  let mensagemPlaca = '';
-  if(cart.some(i => {
-    const prod = produtos.find(p => p.id === i.id);
-    return prod && (prod.categoria_nome || prod.categoria) === 'Placas Personalizadas';
-  })) {
-    mensagemPlaca = `
-📌 Placa Personalizada
-1️⃣ Cor da placa: ${document.getElementById('placa_cor').value}
-2️⃣ Nome na parte de cima: ${document.getElementById('placa_nome_topo').value}
-3️⃣ Bandeira: ${document.getElementById('placa_bandeira').value}
-4️⃣ QRA: ${document.getElementById('placa_qra').value}
-5️⃣ Nome ou frase extra: ${document.getElementById('placa_extra').value}
-6️⃣ Mais informações: ${document.getElementById('placa_info').value}
-`;
-  }
-
-  const mensagem = 
-`Olá, meu nome é *${nome}*, esse é o meu pedido realizado através da loja *Manchinha Px Arts*:
---------
-${resumoItens}
---------
-Quantidade de itens: *${cart.length}*
-Total dos itens: *${money(valor_total)}*
---------
-${mensagemPlaca}
-Valor da entrega: *A DEFINIR*
-Valor Total: *${money(valor_total)}*
-Veja o resumo do seu pedido aqui:
-${BACKEND}/pedido/ID_DO_PEDIDO
---------
-${tipoEntrega === 'retirada' ? 'Retirada em loja' : 'Entrega'}: *Manchinha Px Arts*
-Contato: *(88) 99490-7177*
-Número do pedido: *ID_DO_PEDIDO*
---------
-Pedido feito com *Manchinha Px Arts*`;
-
-  // Abre WhatsApp
-  const linkWhats = `https://wa.me/5588994907177?text=${encodeURIComponent(mensagem)}`;
-  window.open(linkWhats, '_blank');
-
-  // Limpa carrinho e fecha modal
-  cart = [];
-  saveCart();
-  document.getElementById('checkoutModal').style.display = 'none';
-  closeCart();
-  alert('Pedido enviado com sucesso!');
-});
-
-
-document.getElementById('btnCheckout').onclick = checkout;
-document.getElementById('btnClear').onclick = clearCart;
-document.getElementById('btnVoltarCarrinho').addEventListener('click', () => { closeCart(); });
-
-// fechar modal produto
-document.getElementById('closeModal').addEventListener('click', closeModal);
-modal.addEventListener('click', (e)=>{ if(e.target===modal) closeModal(); });
-
-/* SEARCH & FILTER */
-q.addEventListener('input', ()=> renderProdutos());
-filterCategoria.addEventListener('change', ()=> renderProdutos());
-sortSel.addEventListener('change', ()=> renderProdutos());
-document.getElementById('clearFilters').addEventListener('click', ()=>{ q.value=''; filterCategoria.value=''; sortSel.value='recent'; renderProdutos(); });
-
-/* INIT */
-function escapeHtml(text){ return String(text||'').replace(/[&<>"']/g, s=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]); }
-fetchProdutos();
-updateCartUI();
-
-carregarBanners();
-window.addToCart = addToCart;
-window.openProduct = openProduct;
-window.increase = increase;
-window.decrease = decrease;
-
-
-
-/* ===============================
-   FUNÇÕES DE ABRIR E FECHAR CARRINHO
-   =============================== */
-
-
-
-// Botão “Voltar” dentro do carrinho
-document.getElementById('btnVoltarCarrinho').addEventListener('click', closeCart);
-
-// Atualiza o badge flutuante sempre que o carrinho mudar
-function updateCartUI() {
-  const count = cart.reduce((s,i)=>s+i.qt,0);
-  document.getElementById('cartCountFloat').textContent = count;
-
-  const cartItems = document.getElementById('cartItems');
-  cartItems.innerHTML = cart.length === 0
-    ? '<div style="color:var(--muted);padding:12px">Carrinho vazio</div>'
-    : cart.map(it => {
-        const prod = produtos.find(p=>p.id==it.id) || {};
-        let imgCart = '/placeholder.png';
-        if (prod.imagem_base64) {
-          imgCart = prod.imagem_base64.startsWith('data:image')
-            ? prod.imagem_base64
-            : `data:image/jpeg;base64,${prod.imagem_base64}`;
-        }
-        return `
-          <div class="item">
-            <img src="${imgCart}" alt="">
-            <div style="flex:1">
-              <div style="font-weight:600">${escapeHtml(prod.nome||'Produto')}</div>
-              <div style="color:var(--muted)">${money(it.price)} x ${it.qt}</div>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:6px">
-              <button style="background:transparent;border:none;color:var(--accent);cursor:pointer" onclick="increase(${it.id})">+</button>
-              <button style="background:transparent;border:none;color:#f55;cursor:pointer" onclick="decrease(${it.id})">−</button>
-            </div>
-          </div>`;
-      }).join('');
-
-  document.getElementById('cartTotal').textContent = money(total);
-}
 </script>
+
 </body>
 </html>
