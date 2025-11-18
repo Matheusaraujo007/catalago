@@ -646,18 +646,19 @@ async function fetchPromocoes(){
   }
 }
 function aplicarPromocao(prod) {
+  const precoOriginal = Number(p.preco); // <--- garante que seja número
   const promo = promocoes.find(p => p.nome_produto === prod.nome && p.ativo !== false);
-  if (!promo) return { preco: Number(prod.preco), label: null };
+  if (!promo) return { preco: precoOriginal, label: null };
 
   if (promo.data_fim && new Date(promo.data_fim) < new Date()) 
-    return { preco: Number(prod.preco), label: null };
+    return { preco: precoOriginal, label: null };
 
   if (promo.tipo === 'percentual') {
-    const preco = Number(prod.preco) * (1 - Number(promo.valor)/100);
+    const preco = precoOriginal * (1 - Number(promo.valor)/100);
     return { preco, label: `${promo.valor}% OFF` };
   }
 
-  const preco = Number(prod.preco) - Number(promo.valor);
+  const preco = precoOriginal - Number(promo.valor);
   return { preco: Math.max(0, preco), label: `R$ ${Number(promo.valor).toFixed(2)} OFF` };
 }
 
@@ -683,11 +684,11 @@ function renderProdutos(){
     const promo = aplicarPromocao(prod);
     if(promo.preco < prod.preco){
       return `<div class="price">
-        <small style="text-decoration:line-through;color:var(--muted)">R$ ${prod.preco.toFixed(2)}</small>
-        <div style="color:#0f0;font-weight:700">${money(promo.preco)} <span style="font-size:12px;color:#0f0">${promo.label}</span></div>
+        <small style="text-decoration:line-through;color:var(--muted)">${money(precoOriginal)}</small>
+        <div style="color:var(--accent)">${money(promo.preco)} <span style="color:#0f0;font-size:12px">${promo.label}</span></div>
       </div>`;
     } else {
-      return `<div class="price">${money(prod.preco)}</div>`;
+      return `<div class="price">${money(precoOriginal)}</div>`;
     }
   }
 
