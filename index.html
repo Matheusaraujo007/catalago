@@ -220,6 +220,20 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 .banner-carousel .prev { left: 8px; }
 .banner-carousel .next { right: 8px; }
 
+/* Modal responsivo com rolagem no mobile */
+@media (max-width: 600px) {
+  .dialog {
+    max-height: 85vh;        /* altura máxima do modal */
+    overflow-y: auto;        /* ativa a rolagem */
+    padding-bottom: 30px;    /* espaço p/ botão e fim da descrição */
+  }
+
+  .carousel img {
+    height: 220px !important;  /* mantém a imagem visível */
+    object-fit: cover;
+    width: 100%;
+  }
+}
 
 
 </style>
