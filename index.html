@@ -567,7 +567,7 @@ const prodCount = document.getElementById('prodCount');
 const q = document.getElementById('q');
 const filterCategoria = document.getElementById('filterCategoria');
 const sortSel = document.getElementById('sort');
-
+const cartEl = document.getElementById('cart');
 const cartItems = document.getElementById('cartItems');
 const cartTotalEl = document.getElementById('cartTotal');
 const cartCountFloat = document.getElementById('cartCountFloat');
@@ -1001,7 +1001,6 @@ window.decrease = decrease;
 /* ===============================
    FUNÇÕES DE ABRIR E FECHAR CARRINHO
    =============================== */
-const cartEl = document.getElementById('cart');
 
 function openCart() {
   cartEl.style.display = 'flex';
@@ -1014,8 +1013,9 @@ function closeCart() {
 }
 
 // Botão flutuante do carrinho
-document.getElementById('cartFloat').addEventListener('click', openCart);
-
+function openCart() {
+  document.getElementById('cart').classList.add('open');
+}
 // Botão “Voltar” dentro do carrinho
 document.getElementById('btnVoltarCarrinho').addEventListener('click', closeCart);
 
