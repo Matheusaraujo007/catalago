@@ -319,41 +319,16 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 }
 
 
-.products-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  gap: 10px;
-}
-
 .products-row {
   display: flex;
+  gap: 16px; /* espaço entre os produtos */
   overflow-x: auto;
   scroll-behavior: smooth;
-  gap: 14px;
-  padding: 10px;
-  width: 100%;
+  -ms-overflow-style: none;  /* IE e Edge */
+  scrollbar-width: none;  /* Firefox */
 }
-
 .products-row::-webkit-scrollbar {
-  display: none;
-}
-
-/* Seus cards já são os artigos renderizados */
-.card {
-  min-width: 180px;
-  max-width: 180px;
-  background: #131313;
-  padding: 12px;
-  border-radius: 12px;
-  flex-shrink: 0;
-  text-align: center;
-}
-
-.card img {
-  width: 100%;
-  border-radius: 10px;
+  display: none;  /* Chrome, Safari e Opera */
 }
 
 
@@ -399,7 +374,7 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   <div class="products-wrapper">
   <button class="arrow-left" onclick="scrollProducts(-300)">❮</button>
 
- <div class="products-Row" id="productsRow">
+  <div class="products-row" id="PoductsGrid">
     <!-- O renderProdutos() já vai colocar todos os produtos aqui -->
   </div>
 
@@ -552,7 +527,7 @@ let cart = JSON.parse(localStorage.getItem('mp_cart') || '[]');
 const money = v => Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 
 /* UI Refs */
-const grid = document.getElementById('productsRow');
+const grid = document.getElementById('productsGrid');
 const prodCount = document.getElementById('prodCount');
 const q = document.getElementById('q');
 const filterCategoria = document.getElementById('filterCategoria');
@@ -623,6 +598,32 @@ function startBannerCarousel() {
   }, 6000);
 }
 
+const row = document.getElementById('productsRow');
+let isDown = false;
+let startX;
+let scrollLeft;
+
+row.addEventListener('mousedown', (e) => {
+  isDown = true;
+  row.classList.add('active'); // opcional para efeito de cursor
+  startX = e.pageX - row.offsetLeft;
+  scrollLeft = row.scrollLeft;
+});
+row.addEventListener('mouseleave', () => {
+  isDown = false;
+  row.classList.remove('active');
+});
+row.addEventListener('mouseup', () => {
+  isDown = false;
+  row.classList.remove('active');
+});
+row.addEventListener('mousemove', (e) => {
+  if(!isDown) return;
+  e.preventDefault();
+  const x = e.pageX - row.offsetLeft;
+  const walk = (x - startX) * 2; // multiplica para velocidade
+  row.scrollLeft = scrollLeft - walk;
+});
 
 
 /* FETCH DATA */
