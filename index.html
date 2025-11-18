@@ -567,7 +567,7 @@ const prodCount = document.getElementById('prodCount');
 const q = document.getElementById('q');
 const filterCategoria = document.getElementById('filterCategoria');
 const sortSel = document.getElementById('sort');
-const cartEl = document.getElementById('cart');
+
 const cartItems = document.getElementById('cartItems');
 const cartTotalEl = document.getElementById('cartTotal');
 const cartCountFloat = document.getElementById('cartCountFloat');
@@ -995,7 +995,64 @@ window.addToCart = addToCart;
 window.openProduct = openProduct;
 window.increase = increase;
 window.decrease = decrease;
+
+
+
+/* ===============================
+   FUNÇÕES DE ABRIR E FECHAR CARRINHO
+   =============================== */
+const cartEl = document.getElementById('cart');
+
+function openCart() {
+  cartEl.style.display = 'flex';
+  document.body.style.overflow = 'hidden'; // trava scroll do fundo
+}
+
+function closeCart() {
+  cartEl.style.display = 'none';
+  document.body.style.overflow = 'auto'; // libera scroll
+}
+
+// Botão flutuante do carrinho
 document.getElementById('cartFloat').addEventListener('click', openCart);
+
+// Botão “Voltar” dentro do carrinho
+document.getElementById('btnVoltarCarrinho').addEventListener('click', closeCart);
+
+// Atualiza o badge flutuante sempre que o carrinho mudar
+function updateCartUI() {
+  const count = cart.reduce((s,i)=>s+i.qt,0);
+  document.getElementById('cartCountFloat').textContent = count;
+
+  const cartItems = document.getElementById('cartItems');
+  cartItems.innerHTML = cart.length === 0
+    ? '<div style="color:var(--muted);padding:12px">Carrinho vazio</div>'
+    : cart.map(it => {
+        const prod = produtos.find(p=>p.id==it.id) || {};
+        let imgCart = '/placeholder.png';
+        if (prod.imagem_base64) {
+          imgCart = prod.imagem_base64.startsWith('data:image')
+            ? prod.imagem_base64
+            : `data:image/jpeg;base64,${prod.imagem_base64}`;
+        }
+        return `
+          <div class="item">
+            <img src="${imgCart}" alt="">
+            <div style="flex:1">
+              <div style="font-weight:600">${escapeHtml(prod.nome||'Produto')}</div>
+              <div style="color:var(--muted)">${money(it.price)} x ${it.qt}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <button style="background:transparent;border:none;color:var(--accent);cursor:pointer" onclick="increase(${it.id})">+</button>
+              <button style="background:transparent;border:none;color:#f55;cursor:pointer" onclick="decrease(${it.id})">−</button>
+            </div>
+          </div>`;
+      }).join('');
+
+  const total = cart.reduce((s,i)=>s + (i.price * i.qt),0);
+  document.getElementById('cartTotal').textContent = money(total);
+}
+
 </script>
 </body>
 </html>
