@@ -881,26 +881,83 @@ document.addEventListener('DOMContentLoaded', () => {
   // Checkout modal controls
   document.getElementById('closeCheckout').addEventListener('click', ()=>{ document.getElementById('checkoutModal').style.display = 'none'; });
   document.getElementById('confirmarCheckout').addEventListener('click', async () => {
-    const nome = document.getElementById('nomeCliente').value.trim();
-    const telefone = document.getElementById('telefoneCliente').value.trim();
-    if(!nome || !telefone){ alert('Por favor, preencha pelo menos o nome e o telefone.'); return; }
-    const valor_total = cart.reduce((s,i)=>s + ((i.price||0) * (i.qt||0)), 0);
-    // montar mensagem resumida
-    const resumoItens = cart.map(it => {
-      const prod = produtos.find(p=>p.id==it.id);
-      return `*${it.qt}* x *${prod?.nome || 'Produto'}*: R$ ${(it.price).toFixed(2)}`;
-    }).join('\n--------\n');
-    const tipoEntrega = document.querySelector('input[name="tipoEntrega"]:checked').value;
-    // mensagem mais simples (mantive seu formato)
-    const mensagem = `Olá, meu nome é *${nome}*, esse é o meu pedido... Total: ${money(valor_total)}`;
-    const linkWhats = `https://wa.me/5588994907177?text=${encodeURIComponent(mensagem)}`;
-    window.open(linkWhats, '_blank');
-    cart = [];
-    saveCart();
-    document.getElementById('checkoutModal').style.display = 'none';
-    closeCart();
-    alert('Pedido enviado com sucesso!');
+  const nome = document.getElementById('nomeCliente').value.trim();
+  const telefone = document.getElementById('telefoneCliente').value.trim();
+  const email = document.getElementById('emailCliente').value.trim();
+  const endereco = document.getElementById('enderecoCliente').value.trim();
+  const tipoEntrega = document.querySelector('input[name="tipoEntrega"]:checked').value;
+
+  if(!nome || !telefone){
+    alert('Por favor, preencha pelo menos o nome e o telefone.');
+    return;
+  }
+
+  const valor_total = cart.reduce((s,i)=>s + (i.price * i.qt),0);
+
+  const resumoItens = cart.map(it=>{
+    const prod = produtos.find(p=>p.id==it.id);
+    return `${it.qt} x ${prod?.nome || 'Produto'}: R$ ${(it.price).toFixed(2)}`;
+  }).join('\n--------\n');
+
+  // Verifica se tem placa
+  const temPlaca = cart.some(i => {
+    const prod = produtos.find(p=>p.id===i.id);
+    return prod && (prod.categoria_nome || prod.categoria) === 'Placas Personalizadas';
   });
+
+  let msgPlaca = "";
+
+  if(temPlaca){
+    msgPlaca = `
+Detalhes da Placa Pesonalizada
+
+1️⃣ Cor da placa:
+ ${document.getElementById('placa_cor').value}
+
+2️⃣ Nome na parte de cima (Cidade/Estado):
+ ${document.getElementById('placa_nome_topo').value}
+
+3️⃣ Bandeira (se quiser):
+ ${document.getElementById('placa_bandeira').value}
+
+4️⃣ QRA (nome/apelido grande no centro):
+ ${document.getElementById('placa_qra').value}
+
+5️⃣ Nome ou frase extra embaixo:
+ ${document.getElementById('placa_extra').value}
+
+6️⃣ Mais informações:
+ ${document.getElementById('placa_info').value}
+--------`;
+  }
+
+  const mensagem = 
+`Olá, meu nome é ${nome}, esse é o meu pedido realizado através da loja Manchinha Px Arts
+--------
+${resumoItens}
+--------
+Quantidade de itens: ${cart.length}
+Total dos itens: ${money(valor_total)}
+--------
+${msgPlaca}
+Valor da entrega: A DEFINIR
+Valor Total: ${money(valor_total)}
+--------
+${tipoEntrega === 'retirada' ? 'Retirada' : 'Entrega'}: Manchinha Px Arts
+Contato: (88) 99490-7177
+--------
+Pedido feito com Manchinha Px Arts`;
+
+  const linkWhats = `https://wa.me/5588994907177?text=${encodeURIComponent(mensagem)}`;
+  window.open(linkWhats, '_blank');
+
+  cart = [];
+  saveCart();
+  document.getElementById('checkoutModal').style.display = 'none';
+  closeCart();
+  alert('Pedido enviado com sucesso!');
+});
+
 
   // Search / filters
   q.addEventListener('input', renderProdutos);
