@@ -353,60 +353,6 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   align-items: center;
 }
 
-.checkout-modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.55);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-
-.checkout-box {
-  background: #121212;
-  padding: 25px;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 420px;
-  color: white;
-  position: relative;
-}
-
-.checkout-box input,
-.checkout-box textarea {
-  width: 100%;
-  padding: 10px;
-  background: #1d1d1d;
-  border: 1px solid #333;
-  border-radius: 8px;
-  color: white;
-  margin-bottom: 12px;
-}
-
-.close-checkout {
-  position: absolute;
-  right: 10px;
-  top: 10px;
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-.btn-confirmar-pedido {
-  width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  border: none;
-  background: #FDD835;
-  color: #000;
-  font-size: 16px;
-  font-weight: bold;
-  border-radius: 8px;
-  cursor: pointer;
-}
 
 
 </style>
@@ -555,67 +501,37 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 
 <footer>© ManchinhaPx Arts</footer>
 
-<!-- ===========================
-     MODAL DE CHECKOUT
-=========================== -->
-<div id="checkoutModal" class="checkout-modal" style="display:none;">
-  <div class="checkout-box">
+<!-- Modal de Checkout -->
 
-    <button id="closeCheckout" class="close-checkout">✖</button>
+    <button id="closeCheckout" style="position:absolute; top:10px; right:10px;">✖</button>
+    <h2>Checkout</h2>
+    
+    <label>Nome:<br><input type="text" id="nomeCliente"></label><br>
+    <label>Email:<br><input type="email" id="emailCliente"></label><br>
+    <label>Telefone:<br><input type="text" id="telefoneCliente"></label><br>
+    <label>Endereço:<br><input type="text" id="enderecoCliente"></label><br>
+    
+    <p>Tipo de entrega:</p>
+    <label><input type="radio" name="tipoEntrega" value="retirada" checked> Retirada</label>
+    <label><input type="radio" name="tipoEntrega" value="entrega"> Entrega</label>
 
-    <h2>Finalizar Pedido</h2>
-
-    <div class="checkout-form">
-
-      <label>Nome completo *</label>
-      <input id="nomeCliente" type="text" placeholder="Seu nome">
-
-      <label>Telefone *</label>
-      <input id="telefoneCliente" type="tel" placeholder="(DDD) 00000-0000">
-
-      <label>Email</label>
-      <input id="emailCliente" type="email" placeholder="Seu email (opcional)">
-
-      <label>Endereço</label>
-      <input id="enderecoCliente" type="text" placeholder="Rua, número, bairro...">
-
-      <label>Forma de entrega:</label>
-      <div class="tipo-entrega">
-        <label><input type="radio" name="tipoEntrega" value="retirada" checked> Retirada</label>
-        <label><input type="radio" name="tipoEntrega" value="entrega"> Entrega</label>
-      </div>
+    <!-- FORMULÁRIO EXCLUSIVO PARA PLACAS -->
+    <div id="formPlaca" style="display:none; margin-top:15px; border:1px solid #ccc; padding:10px; border-radius:5px;">
+      <p>📌 Escolha como gostaria sua placa personalizada</p>
+      <p>➡️ Preencha as informações abaixo:</p>
+      <label>1️⃣ Cor da placa:<br><input type="text" id="placa_cor"></label><br>
+      <label>2️⃣ Nome na parte de cima (Cidade/Estado):<br><input type="text" id="placa_nome_topo"></label><br>
+      <label>3️⃣ Bandeira (se quiser):<br><input type="text" id="placa_bandeira"></label><br>
+      <label>4️⃣ QRA (nome/apelido grande no centro):<br><input type="text" id="placa_qra"></label><br>
+      <label>5️⃣ Nome ou frase extra embaixo:<br><input type="text" id="placa_extra"></label><br>
+      <label>6️⃣ Mais informações:<br><textarea id="placa_info"></textarea></label>
     </div>
 
-    <!-- FORMULÁRIO ESPECIAL PARA PLACAS -->
-    <div id="formPlaca" style="display:none; margin-top:20px; padding:15px; border:1px solid #444; border-radius:10px;">
-      <h3 style="margin-bottom:10px; color:#fdd835;">📌 Informações da Placa</h3>
-
-      <label>1️⃣ Cor da placa:</label>
-      <input id="placa_cor" type="text" placeholder="Ex: Preta, Azul, Vermelha...">
-
-      <label>2️⃣ Nome da parte de cima (Cidade/Estado):</label>
-      <input id="placa_nome_topo" type="text" placeholder="Ex: Fortaleza - CE">
-
-      <label>3️⃣ Bandeira:</label>
-      <input id="placa_bandeira" type="text" placeholder="Ex: Brasil, Ceará...">
-
-      <label>4️⃣ QRA (nome grande no centro):</label>
-      <input id="placa_qra" type="text" placeholder="Seu apelido aqui">
-
-      <label>5️⃣ Nome ou frase extra embaixo:</label>
-      <input id="placa_extra" type="text" placeholder="Ex: Deus é fiel">
-
-      <label>6️⃣ Mais informações:</label>
-      <textarea id="placa_info"></textarea>
+    <div style="margin-top:15px;">
+      <button id="confirmarCheckout">Confirmar Pedido</button>
     </div>
-
-    <button id="confirmarCheckout" class="btn-confirmar-pedido">
-      Confirmar Pedido
-    </button>
-
   </div>
 </div>
-
   
 <script>
 /* ========== CONFIG ========= */
@@ -852,81 +768,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('formPlaca').style.display = temPlaca ? 'block' : 'none';
   }
 
-  function enviarPedidoSimples() {
-  const nome = document.getElementById('nomeCliente').value;
-  const telefone = document.getElementById('telefoneCliente').value;
-
-  const valor_total = cart.reduce((s,i)=>s + (i.price * i.qt),0);
-
-  const resumoItens = cart.map(it=>{
-    const prod = produtos.find(p=>p.id==it.id);
-    return `*${it.qt}* x *${prod?.nome || 'Produto'}*: R$ ${(it.price).toFixed(2)}`;
-  }).join('\n--------\n');
-
-  const mensagem =
-`Olá, meu nome é *${nome}*.
-Segue meu pedido:
---------
-${resumoItens}
---------
-Total dos itens: *${money(valor_total)}*`;
-
-  const linkWhats = `https://wa.me/5588994907177?text=${encodeURIComponent(mensagem)}`;
-  window.open(linkWhats, "_blank");
-
-  cart = [];
-  saveCart();
-  document.getElementById('checkoutModal').style.display = 'none';
-  closeCart();
-}
-
-function enviarPedidoComPlaca(){
-
-  const nome = document.getElementById('nomeCliente').value;
-
-  // Campos extras da placa
-  const placa_cor = document.getElementById('placa_cor').value;
-  const placa_nome_topo = document.getElementById('placa_nome_topo').value;
-  const placa_bandeira = document.getElementById('placa_bandeira').value;
-  const placa_qra = document.getElementById('placa_qra').value;
-  const placa_extra = document.getElementById('placa_extra').value;
-  const placa_info = document.getElementById('placa_info').value;
-
-  const valor_total = cart.reduce((s,i)=>s + (i.price * i.qt),0);
-
-  const resumoItens = cart.map(it=>{
-    const prod = produtos.find(p=>p.id==it.id);
-    return `*${it.qt}x* ${prod?.nome || 'Produto'} — R$ ${(it.price).toFixed(2)}`;
-  }).join('\n--------\n');
-
-  const mensagem =
-`Olá, meu nome é *${nome}*.
-Segue meu pedido com placa personalizada:
-
---------
-${resumoItens}
---------
-
-📌 *Informações da Placa*
-1️⃣ Cor: ${placa_cor}
-2️⃣ Nome do topo: ${placa_nome_topo}
-3️⃣ Bandeira: ${placa_bandeira}
-4️⃣ QRA: ${placa_qra}
-5️⃣ Extra: ${placa_extra}
-6️⃣ Informações adicionais: ${placa_info}
-
-Total: *${money(valor_total)}*`;
-
-  const linkWhats = `https://wa.me/5588994907177?text=${encodeURIComponent(mensagem)}`;
-  window.open(linkWhats, "_blank");
-
-  cart = [];
-  saveCart();
-  document.getElementById('checkoutModal').style.display = 'none';
-  closeCart();
-}
-
-
   /* --------- ABRIR / FECHAR CARRINHO (USANDO .open) --------- */
   function openCart(){
     cartEl.classList.add('open');
@@ -956,36 +797,17 @@ Total: *${money(valor_total)}*`;
   // Checkout modal controls
   document.getElementById('closeCheckout').addEventListener('click', ()=>{ document.getElementById('checkoutModal').style.display = 'none'; });
   document.getElementById('confirmarCheckout').addEventListener('click', async () => {
-
-  const nome = document.getElementById('nomeCliente').value.trim();
-  const telefone = document.getElementById('telefoneCliente').value.trim();
-
-  if(!nome || !telefone){
-    alert('Por favor, preencha pelo menos o nome e o telefone.');
-    return;
-  }
-
-  // Verifica se existe placa personalizada no carrinho
-  const temPlaca = cart.some(item => {
-    const prod = produtos.find(p => p.id === item.id);
-    return prod && (prod.categoria_nome || prod.categoria) === "Placas Personalizadas";
-  });
-
-  // SE TIVER PLACA → MOSTRAR FORMULÁRIO ANTES DE ENVIAR
-  if(temPlaca){
-    alert("Precisamos de mais informações para montar sua placa personalizada.");
-    document.getElementById('formPlaca').style.display = 'block';
-    document.getElementById('confirmarCheckout').textContent = "Enviar Pedido Agora";
-    
-    // Muda comportamento do botão na segunda etapa
-    document.getElementById('confirmarCheckout').onclick = enviarPedidoComPlaca;
-    return;
-  }
-
-  // Se não tiver placa → enviar direto
-  enviarPedidoSimples();
-});
-
+    const nome = document.getElementById('nomeCliente').value.trim();
+    const telefone = document.getElementById('telefoneCliente').value.trim();
+    if(!nome || !telefone){ alert('Por favor, preencha pelo menos o nome e o telefone.'); return; }
+    const valor_total = cart.reduce((s,i)=>s + ((i.price||0) * (i.qt||0)), 0);
+    // montar mensagem resumida
+    const resumoItens = cart.map(it => {
+      const prod = produtos.find(p=>p.id==it.id);
+      return `*${it.qt}* x *${prod?.nome || 'Produto'}*: R$ ${(it.price).toFixed(2)}`;
+    }).join('\n--------\n');
+    const tipoEntrega = document.querySelector('input[name="tipoEntrega"]:checked').value;
+    // mensagem mais simples (mantive seu formato)
     const mensagem = `Olá, meu nome é *${nome}*, esse é o meu pedido... Total: ${money(valor_total)}`;
     const linkWhats = `https://wa.me/5588994907177?text=${encodeURIComponent(mensagem)}`;
     window.open(linkWhats, '_blank');
@@ -1012,7 +834,7 @@ Total: *${money(valor_total)}*`;
   fetchProdutos();
   carregarBanners();
   updateCartUI();
-
+});
 </script>
 </body>
 </html>
