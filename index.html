@@ -399,7 +399,7 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   <div class="products-wrapper">
   <button class="arrow-left" onclick="scrollProducts(-300)">❮</button>
 
-  <div class="products-row" id="grid">
+ <div class="products-grid" id="productsgrid">
     <!-- O renderProdutos() já vai colocar todos os produtos aqui -->
   </div>
 
@@ -552,7 +552,7 @@ let cart = JSON.parse(localStorage.getItem('mp_cart') || '[]');
 const money = v => Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 
 /* UI Refs */
-const grid = document.getElementById('productsRow');
+const grid = document.getElementById('productsGrid');
 const prodCount = document.getElementById('prodCount');
 const q = document.getElementById('q');
 const filterCategoria = document.getElementById('filterCategoria');
