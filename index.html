@@ -847,7 +847,10 @@ document.addEventListener('DOMContentLoaded', () => {
   /* --------- CHECKOUT --------- */
   function checkout(){
     if(cart.length === 0){ alert('Carrinho vazio'); return; }
-    const temPlaca = cart.some(item => { const prod = produtos.find(p=>p.id === item.id); return prod && (prod.categoria_nome || prod.categoria) === 'Placas Personalizadas'; });
+    const temPlaca = cart.some(item => { 
+  const prod = produtos.find(p=>p.id === item.id); 
+  return prod && (prod.categoria_nome || prod.categoria) === 'Placa Personalizada';
+});
     document.getElementById('checkoutModal').style.display = 'flex';
     document.getElementById('formPlaca').style.display = temPlaca ? 'block' : 'none';
   }
