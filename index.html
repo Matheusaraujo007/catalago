@@ -552,7 +552,7 @@ let cart = JSON.parse(localStorage.getItem('mp_cart') || '[]');
 const money = v => Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 
 /* UI Refs */
-const grid = document.getElementById('productsGrid');
+const grid = document.getElementById('productsRow');
 const prodCount = document.getElementById('prodCount');
 const q = document.getElementById('q');
 const filterCategoria = document.getElementById('filterCategoria');
