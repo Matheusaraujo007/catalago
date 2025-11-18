@@ -451,31 +451,6 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
           background:#0b0b0b;color:var(--white)">
         
         <button class="btn buy" id="addToCartModal">Adicionar ao carrinho</button>
-
-        <!-- FORMULÁRIO PLACA (dentro do modal do produto) -->
-<div id="formPlaca" style="display:none;margin-top:10px">
-  <p>📌 Escolha como gostaria sua placa personalizada</p>
-  <p>➡️ Preencha as informações abaixo:</p>
-
-  <label>1️⃣ Cor da placa:<br>
-    <input type="text" id="placa_cor">
-  </label><br>
-  <label>2️⃣ Nome na parte de cima (Cidade/Estado):<br>
-    <input type="text" id="placa_nome_cima">
-  </label><br>
-  <label>3️⃣ Bandeira (se quiser):<br>
-    <input type="text" id="placa_bandeira">
-  </label><br>
-  <label>4️⃣ QRA (nome/apelido grande no centro):<br>
-    <input type="text" id="placa_qra">
-  </label><br>
-  <label>5️⃣ Nome ou frase extra embaixo:<br>
-    <input type="text" id="placa_extra">
-  </label><br>
-  <label>6️⃣ Mais informações (desenhos, símbolos, personagens, estilo de letra, etc):<br>
-    <textarea id="placa_info"></textarea>
-  </label>
-</div>
       </div>
 
       <button id="btnVoltar" style="
@@ -535,25 +510,38 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 <footer>© ManchinhaPx Arts</footer>
 
 <!-- Modal de Checkout -->
-<div class="modal" id="checkoutModal">
-  <div class="dialog" style="max-width:600px;display:flex;flex-direction:column;gap:14px">
-    <button class="close" id="closeCheckout">✕</button>
-    <h3>Finalizar Pedido</h3>
-    <p style="color:var(--muted);margin-top:-10px">Preencha os dados abaixo para concluir seu pedido:</p>
+<div id="checkoutModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
+  <div style="background:#fff; padding:20px; max-width:500px; width:90%; position:relative;">
+    <button id="closeCheckout" style="position:absolute; top:10px; right:10px;">✖</button>
+    <h2>Checkout</h2>
+    
+    <label>Nome:<br><input type="text" id="nomeCliente"></label><br>
+    <label>Email:<br><input type="email" id="emailCliente"></label><br>
+    <label>Telefone:<br><input type="text" id="telefoneCliente"></label><br>
+    <label>Endereço:<br><input type="text" id="enderecoCliente"></label><br>
+    
+    <p>Tipo de entrega:</p>
+    <label><input type="radio" name="tipoEntrega" value="retirada" checked> Retirada</label>
+    <label><input type="radio" name="tipoEntrega" value="entrega"> Entrega</label>
 
-    <input id="nomeCliente" placeholder="Nome completo" style="padding:10px;border-radius:8px;border:none;background:#0b0b0b;color:#fff">
-    <input id="telefoneCliente" placeholder="Telefone (ex: 88994907177)" style="padding:10px;border-radius:8px;border:none;background:#0b0b0b;color:#fff">
-    <input id="emailCliente" placeholder="E-mail" style="padding:10px;border-radius:8px;border:none;background:#0b0b0b;color:#fff">
-    <textarea id="enderecoCliente" placeholder="Endereço completo" style="padding:10px;border-radius:8px;border:none;background:#0b0b0b;color:#fff;height:80px"></textarea>
-
-    <div style="display:flex;gap:10px;align-items:center">
-      <label><input type="radio" name="tipoEntrega" value="retirada" checked> Retirada</label>
-      <label><input type="radio" name="tipoEntrega" value="entrega"> Entrega</label>
+    <!-- FORMULÁRIO EXCLUSIVO PARA PLACAS -->
+    <div id="formPlaca" style="display:none; margin-top:15px; border:1px solid #ccc; padding:10px; border-radius:5px;">
+      <p>📌 Escolha como gostaria sua placa personalizada</p>
+      <p>➡️ Preencha as informações abaixo:</p>
+      <label>1️⃣ Cor da placa:<br><input type="text" id="placa_cor"></label><br>
+      <label>2️⃣ Nome na parte de cima (Cidade/Estado):<br><input type="text" id="placa_nome_topo"></label><br>
+      <label>3️⃣ Bandeira (se quiser):<br><input type="text" id="placa_bandeira"></label><br>
+      <label>4️⃣ QRA (nome/apelido grande no centro):<br><input type="text" id="placa_qra"></label><br>
+      <label>5️⃣ Nome ou frase extra embaixo:<br><input type="text" id="placa_extra"></label><br>
+      <label>6️⃣ Mais informações:<br><textarea id="placa_info"></textarea></label>
     </div>
 
-    <button id="confirmarCheckout" style="padding:12px;border:none;background:var(--accent);color:#000;border-radius:8px;font-weight:700;cursor:pointer">Confirmar Pedido</button>
+    <div style="margin-top:15px;">
+      <button id="confirmarCheckout">Confirmar Pedido</button>
+    </div>
   </div>
 </div>
+
 
 
 <script>
@@ -812,22 +800,23 @@ function clearCart(){ if(confirm('Limpar carrinho?')){ cart=[]; saveCart(); } }
 /* MODAL */
 let currentIndex = 0;
 
-/* ABRIR PRODUTO NO MODAL */
 function openProduct(id) {
   const p = produtos.find(x => x.id == id);
   if (!p) return;
 
-  // Carrossel de imagens
   const imagens = Array.isArray(p.imagens) && p.imagens.length > 0
     ? p.imagens
     : (p.imagem_base64 ? [p.imagem_base64] : []);
+
   const track = document.getElementById('carouselTrack');
   track.innerHTML = imagens.map(img => {
     const src = img.startsWith('data:image') ? img : `data:image/jpeg;base64,${img}`;
     return `<img src="${src}" alt="">`;
   }).join('');
+
   let currentIndex = 0;
   track.style.transform = `translateX(0%)`;
+
   document.getElementById('prevImg').onclick = () => {
     currentIndex = (currentIndex - 1 + imagens.length) % imagens.length;
     track.style.transform = `translateX(-${currentIndex * 100}%)`;
@@ -840,100 +829,66 @@ function openProduct(id) {
   modalTitle.textContent = p.nome;
   modalDesc.textContent = p.descricao || '';
 
-  // Preço com promoção
   const promo = aplicarPromocao(p);
-  modalPrice.textContent = promo.label
-    ? `${money(promo.preco)} (${promo.label})`
-    : money(p.preco);
-
-  // Mostrar formulário de placa apenas se for categoria específica
-  if (p.categoria === 'Placas Personalizadas') {
-    document.getElementById('formPlaca').style.display = 'block';
-    // Limpar campos
-    ['placa_cor','placa_nome_cima','placa_bandeira','placa_qra','placa_extra','placa_info'].forEach(id => document.getElementById(id).value = '');
+  if(promo.preco < p.preco){
+    modalPrice.innerHTML = `
+      <small style="text-decoration:line-through;color:var(--muted)">${money(p.preco)}</small>
+      <div style="color:#0f0;font-weight:700">${money(promo.preco)} <span style="font-size:12px;color:#0f0">${promo.label}</span></div>
+    `;
   } else {
-    document.getElementById('formPlaca').style.display = 'none';
+    modalPrice.textContent = money(p.preco);
   }
 
   qtyInput.value = 1;
-
-  // Adicionar ao carrinho
   addToCartModal.onclick = () => {
-    let placaData = null;
-    if (p.categoria === 'Placas Personalizadas') {
-      placaData = {
-        cor: document.getElementById('placa_cor').value,
-        nome_cima: document.getElementById('placa_nome_cima').value,
-        bandeira: document.getElementById('placa_bandeira').value,
-        qra: document.getElementById('placa_qra').value,
-        extra: document.getElementById('placa_extra').value,
-        info: document.getElementById('placa_info').value,
-      };
-    }
-    addToCart(p.id, Number(qtyInput.value || 1), placaData);
+    addToCart(p.id, Number(qtyInput.value || 1));
     closeModal();
   };
 
   modal.style.display = 'flex';
 }
 
-/* FECHAR MODAL */
-function closeModal() {
-  modal.style.display = 'none';
-  document.body.style.overflow = 'auto';
-}
+function closeModal(){ modal.style.display = 'none'; document.body.style.overflow = 'auto'; }
+// Botão de Voltar (fecha o modal)
+document.getElementById("btnVoltar").addEventListener("click", () => {
+  modal.style.display = "none";
+  document.body.style.overflow = "auto";
+});
 
-/* ADICIONAR AO CARRINHO */
-function addToCart(id, qtd=1, placaData=null){
-  const prod = produtos.find(p=>p.id==id);
-  if(!prod){ alert('Produto não encontrado'); return; }
-  const promo = aplicarPromocao(prod);
-  const existing = cart.find(i => i.id==id && JSON.stringify(i.placaData) === JSON.stringify(placaData));
-  if(existing) existing.qt += qtd;
-  else cart.push({ 
-    id: prod.id, 
-    qt: qtd, 
-    price: Number(promo.preco || prod.preco),
-    placaData
+
+/* CHECKOUT */
+// FUNÇÃO DE CHECKOUT COM FORMULÁRIO ESPECIAL PARA PLACAS
+function checkout() {
+  if(cart.length === 0){ 
+    alert('Carrinho vazio'); 
+    return; 
+  }
+
+  // Verifica se há algum produto da categoria "Placas Personalizadas"
+  const temPlaca = cart.some(item => {
+    const prod = produtos.find(p => p.id === item.id);
+    return prod && (prod.categoria_nome || prod.categoria) === 'Placas Personalizadas';
   });
-  saveCart();
+
+  // Mostra o modal de checkout
+  document.getElementById('checkoutModal').style.display = 'flex';
+
+  // Exibe o formulário especial apenas se houver placa
+  const formPlaca = document.getElementById('formPlaca');
+  formPlaca.style.display = temPlaca ? 'block' : 'none';
 }
 
-/* UPDATE CARRINHO */
-function updateCartUI() {
-  const count = cart.reduce((s,i)=>s+i.qt,0);
-  cartCountFloat.textContent = count;
-  cartItems.innerHTML = cart.length === 0
-    ? '<div style="color:var(--muted);padding:12px">Carrinho vazio</div>'
-    : cart.map(it => {
-        const prod = produtos.find(p=>p.id==it.id) || {};
-        let imgCart = '/placeholder.png';
-        if (prod.imagem_base64) {
-          imgCart = prod.imagem_base64.startsWith('data:image')
-            ? prod.imagem_base64
-            : `data:image/jpeg;base64,${prod.imagem_base64}`;
-        }
-        return `
-          <div class="item">
-            <img src="${imgCart}" alt="">
-            <div style="flex:1">
-              <div style="font-weight:600">${escapeHtml(prod.nome||'Produto')}</div>
-              <div style="color:var(--muted)">${money(it.price)} x ${it.qt}</div>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:6px">
-              <button style="background:transparent;border:none;color:var(--accent);cursor:pointer" onclick="increase(${it.id})">+</button>
-              <button style="background:transparent;border:none;color:#f55;cursor:pointer" onclick="decrease(${it.id})">−</button>
-            </div>
-          </div>`;
-      }).join('');
-  const total = cart.reduce((s,i)=>s + (i.price * i.qt),0);
-  cartTotalEl.textContent = money(total);
-}
+// Fechar modal de checkout
+document.getElementById('closeCheckout').addEventListener('click', () => {
+  document.getElementById('checkoutModal').style.display = 'none';
+});
 
-/* CHECKOUT - WhatsApp com dados da placa */
-document.getElementById('confirmarCheckout').addEventListener('click', async ()=>{ 
+// Confirmar pedido
+document.getElementById('confirmarCheckout').addEventListener('click', async () => {
   const nome = document.getElementById('nomeCliente').value.trim();
+  const email = document.getElementById('emailCliente').value.trim();
   const telefone = document.getElementById('telefoneCliente').value.trim();
+  const endereco = document.getElementById('enderecoCliente').value.trim();
   const tipoEntrega = document.querySelector('input[name="tipoEntrega"]:checked').value;
 
   if(!nome || !telefone){
@@ -943,53 +898,60 @@ document.getElementById('confirmarCheckout').addEventListener('click', async ()=
 
   const valor_total = cart.reduce((s,i)=>s + (i.price * i.qt),0);
 
-  const resumoItens = cart.map(it => {
+  const resumoItens = cart.map(it=>{
     const prod = produtos.find(p=>p.id==it.id);
-    let detalhePlaca = '';
-    if (it.placaData) {
-      detalhePlaca = `
-📌 Placa personalizada:
-1️⃣ Cor: ${it.placaData.cor || '-'}
-2️⃣ Nome cima: ${it.placaData.nome_cima || '-'}
-3️⃣ Bandeira: ${it.placaData.bandeira || '-'}
-4️⃣ QRA: ${it.placaData.qra || '-'}
-5️⃣ Extra: ${it.placaData.extra || '-'}
-6️⃣ Mais informações: ${it.placaData.info || '-'}`;
-    }
-    return `*${it.qt}* x *${prod?.nome || 'Produto'}*: R$ ${(it.price).toFixed(2)}${detalhePlaca}`;
+    return `*${it.qt}* x *${prod?.nome || 'Produto'}*: R$ ${(it.price).toFixed(2)}`;
   }).join('\n--------\n');
 
+  // Mensagem especial para placas
+  let mensagemPlaca = '';
+  if(cart.some(i => {
+    const prod = produtos.find(p => p.id === i.id);
+    return prod && (prod.categoria_nome || prod.categoria) === 'Placas Personalizadas';
+  })) {
+    mensagemPlaca = `
+📌 Placa Personalizada
+1️⃣ Cor da placa: ${document.getElementById('placa_cor').value}
+2️⃣ Nome na parte de cima: ${document.getElementById('placa_nome_topo').value}
+3️⃣ Bandeira: ${document.getElementById('placa_bandeira').value}
+4️⃣ QRA: ${document.getElementById('placa_qra').value}
+5️⃣ Nome ou frase extra: ${document.getElementById('placa_extra').value}
+6️⃣ Mais informações: ${document.getElementById('placa_info').value}
+`;
+  }
+
   const mensagem = 
-`Olá, meu nome é *${nome}*, esse é o meu pedido:
+`Olá, meu nome é *${nome}*, esse é o meu pedido realizado através da loja *Manchinha Px Arts*:
 --------
 ${resumoItens}
 --------
 Quantidade de itens: *${cart.length}*
-Total: *${money(valor_total)}*
-Tipo de entrega: *${tipoEntrega === 'retirada' ? 'Retirada' : 'Entrega'}*`;
+Total dos itens: *${money(valor_total)}*
+--------
+${mensagemPlaca}
+Valor da entrega: *A DEFINIR*
+Valor Total: *${money(valor_total)}*
+Veja o resumo do seu pedido aqui:
+${BACKEND}/pedido/ID_DO_PEDIDO
+--------
+${tipoEntrega === 'retirada' ? 'Retirada em loja' : 'Entrega'}: *Manchinha Px Arts*
+Contato: *(88) 99490-7177*
+Número do pedido: *ID_DO_PEDIDO*
+--------
+Pedido feito com *Manchinha Px Arts*`;
 
+  // Abre WhatsApp
   const linkWhats = `https://wa.me/5588994907177?text=${encodeURIComponent(mensagem)}`;
   window.open(linkWhats, '_blank');
 
+  // Limpa carrinho e fecha modal
   cart = [];
   saveCart();
+  document.getElementById('checkoutModal').style.display = 'none';
   closeCart();
-  closeModal();
   alert('Pedido enviado com sucesso!');
 });
 
-/* UI helpers */
-function openCart(){ cartEl.classList.add('open'); } 
-function closeCart(){ cartEl.classList.remove('open'); }
-
-// Abre/fecha carrinho quando clicar no botão flutuante
-cartFloat.addEventListener('click', ()=> {
-  if(cartEl.classList.contains('open')) closeCart(); else openCart();
-});
-// keyboard support
-cartFloat.addEventListener('keydown', (e) => {
-  if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); cartFloat.click(); }
-});
 
 document.getElementById('btnCheckout').onclick = checkout;
 document.getElementById('btnClear').onclick = clearCart;
