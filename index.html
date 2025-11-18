@@ -738,7 +738,7 @@ function renderProdutos() {
   updateCartUI();
 }
 
-document.getElementById('cartFloat').addEventListener('click', openCart);
+
 
 function openCart() {
   const cartEl = document.getElementById('cart');
@@ -995,6 +995,7 @@ window.addToCart = addToCart;
 window.openProduct = openProduct;
 window.increase = increase;
 window.decrease = decrease;
+document.getElementById('cartFloat').addEventListener('click', openCart);
 </script>
 </body>
 </html>
