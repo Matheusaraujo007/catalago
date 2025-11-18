@@ -80,28 +80,39 @@ header{
   border-radius: 8px;
 }
 
-.carousel button {
+#prevProducts,
+#nextProducts {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   background: rgba(15,15,15,0.6);
   color: #fff;
   border: none;
-  font-size: 24px;
   cursor: pointer;
   z-index: 2;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
   transition: background 0.3s;
 }
 
-.carousel button:hover {
+#prevProducts:hover,
+#nextProducts:hover {
   background: rgba(255,255,255,0.1);
 }
 
-.carousel .prev { left: 8px; }
-.carousel .next { right: 8px; }
+#prevProducts {
+  left: 8px;
+}
+
+#nextProducts {
+  right: 8px;
+}
+
 
 /* carrinho lateral */
 .cart{position:fixed;right:0;top:0;height:100vh;width:360px;background:#0b0b0b;padding:18px;transform:translateX(100%);transition:transform .28s ease;box-shadow:-8px 0 30px rgba(0,0,0,0.6);z-index:80}
