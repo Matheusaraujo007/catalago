@@ -852,6 +852,81 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('formPlaca').style.display = temPlaca ? 'block' : 'none';
   }
 
+  function enviarPedidoSimples() {
+  const nome = document.getElementById('nomeCliente').value;
+  const telefone = document.getElementById('telefoneCliente').value;
+
+  const valor_total = cart.reduce((s,i)=>s + (i.price * i.qt),0);
+
+  const resumoItens = cart.map(it=>{
+    const prod = produtos.find(p=>p.id==it.id);
+    return `*${it.qt}* x *${prod?.nome || 'Produto'}*: R$ ${(it.price).toFixed(2)}`;
+  }).join('\n--------\n');
+
+  const mensagem =
+`Olá, meu nome é *${nome}*.
+Segue meu pedido:
+--------
+${resumoItens}
+--------
+Total dos itens: *${money(valor_total)}*`;
+
+  const linkWhats = `https://wa.me/5588994907177?text=${encodeURIComponent(mensagem)}`;
+  window.open(linkWhats, "_blank");
+
+  cart = [];
+  saveCart();
+  document.getElementById('checkoutModal').style.display = 'none';
+  closeCart();
+}
+
+function enviarPedidoComPlaca(){
+
+  const nome = document.getElementById('nomeCliente').value;
+
+  // Campos extras da placa
+  const placa_cor = document.getElementById('placa_cor').value;
+  const placa_nome_topo = document.getElementById('placa_nome_topo').value;
+  const placa_bandeira = document.getElementById('placa_bandeira').value;
+  const placa_qra = document.getElementById('placa_qra').value;
+  const placa_extra = document.getElementById('placa_extra').value;
+  const placa_info = document.getElementById('placa_info').value;
+
+  const valor_total = cart.reduce((s,i)=>s + (i.price * i.qt),0);
+
+  const resumoItens = cart.map(it=>{
+    const prod = produtos.find(p=>p.id==it.id);
+    return `*${it.qt}x* ${prod?.nome || 'Produto'} — R$ ${(it.price).toFixed(2)}`;
+  }).join('\n--------\n');
+
+  const mensagem =
+`Olá, meu nome é *${nome}*.
+Segue meu pedido com placa personalizada:
+
+--------
+${resumoItens}
+--------
+
+📌 *Informações da Placa*
+1️⃣ Cor: ${placa_cor}
+2️⃣ Nome do topo: ${placa_nome_topo}
+3️⃣ Bandeira: ${placa_bandeira}
+4️⃣ QRA: ${placa_qra}
+5️⃣ Extra: ${placa_extra}
+6️⃣ Informações adicionais: ${placa_info}
+
+Total: *${money(valor_total)}*`;
+
+  const linkWhats = `https://wa.me/5588994907177?text=${encodeURIComponent(mensagem)}`;
+  window.open(linkWhats, "_blank");
+
+  cart = [];
+  saveCart();
+  document.getElementById('checkoutModal').style.display = 'none';
+  closeCart();
+}
+
+
   /* --------- ABRIR / FECHAR CARRINHO (USANDO .open) --------- */
   function openCart(){
     cartEl.classList.add('open');
@@ -881,17 +956,36 @@ document.addEventListener('DOMContentLoaded', () => {
   // Checkout modal controls
   document.getElementById('closeCheckout').addEventListener('click', ()=>{ document.getElementById('checkoutModal').style.display = 'none'; });
   document.getElementById('confirmarCheckout').addEventListener('click', async () => {
-    const nome = document.getElementById('nomeCliente').value.trim();
-    const telefone = document.getElementById('telefoneCliente').value.trim();
-    if(!nome || !telefone){ alert('Por favor, preencha pelo menos o nome e o telefone.'); return; }
-    const valor_total = cart.reduce((s,i)=>s + ((i.price||0) * (i.qt||0)), 0);
-    // montar mensagem resumida
-    const resumoItens = cart.map(it => {
-      const prod = produtos.find(p=>p.id==it.id);
-      return `*${it.qt}* x *${prod?.nome || 'Produto'}*: R$ ${(it.price).toFixed(2)}`;
-    }).join('\n--------\n');
-    const tipoEntrega = document.querySelector('input[name="tipoEntrega"]:checked').value;
-    // mensagem mais simples (mantive seu formato)
+
+  const nome = document.getElementById('nomeCliente').value.trim();
+  const telefone = document.getElementById('telefoneCliente').value.trim();
+
+  if(!nome || !telefone){
+    alert('Por favor, preencha pelo menos o nome e o telefone.');
+    return;
+  }
+
+  // Verifica se existe placa personalizada no carrinho
+  const temPlaca = cart.some(item => {
+    const prod = produtos.find(p => p.id === item.id);
+    return prod && (prod.categoria_nome || prod.categoria) === "Placas Personalizadas";
+  });
+
+  // SE TIVER PLACA → MOSTRAR FORMULÁRIO ANTES DE ENVIAR
+  if(temPlaca){
+    alert("Precisamos de mais informações para montar sua placa personalizada.");
+    document.getElementById('formPlaca').style.display = 'block';
+    document.getElementById('confirmarCheckout').textContent = "Enviar Pedido Agora";
+    
+    // Muda comportamento do botão na segunda etapa
+    document.getElementById('confirmarCheckout').onclick = enviarPedidoComPlaca;
+    return;
+  }
+
+  // Se não tiver placa → enviar direto
+  enviarPedidoSimples();
+});
+
     const mensagem = `Olá, meu nome é *${nome}*, esse é o meu pedido... Total: ${money(valor_total)}`;
     const linkWhats = `https://wa.me/5588994907177?text=${encodeURIComponent(mensagem)}`;
     window.open(linkWhats, '_blank');
@@ -918,7 +1012,7 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchProdutos();
   carregarBanners();
   updateCartUI();
-});
+
 </script>
 </body>
 </html>
