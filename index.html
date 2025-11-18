@@ -680,17 +680,19 @@ function renderProdutos(){
 
   prodCount.textContent = list.length;
 
-  function precoHtml(prod) {
-    const promo = aplicarPromocao(prod);
-    if(promo.preco < prod.preco){
-      return `<div class="price">
-        <small style="text-decoration:line-through;color:var(--muted)">${money(precoOriginal)}</small>
-        <div style="color:var(--accent)">${money(promo.preco)} <span style="color:#0f0;font-size:12px">${promo.label}</span></div>
-      </div>`;
-    } else {
-      return `<div class="price">${money(precoOriginal)}</div>`;
-    }
+  function aplicarPromocao(prod){
+  const promo = promocoes.find(p => p.produto_id == prod.id && p.ativo);
+  if(!promo) return { preco: Number(prod.preco), label: null };
+  if(promo.data_fim && new Date(promo.data_fim) < new Date()) return { preco: Number(prod.preco), label: null };
+  
+  if(promo.tipo === 'percentual'){
+    const preco = Number(prod.preco) * (1 - Number(promo.valor)/100);
+    return { preco, label: `${promo.valor}% OFF` };
   }
+
+  const preco = Number(prod.preco) - Number(promo.valor);
+  return { preco: Math.max(0, preco), label: `R$ ${Number(promo.valor).toFixed(2)} OFF` };
+}
 
   grid.innerHTML = list.map(p => {
     let img = '/placeholder.png';
