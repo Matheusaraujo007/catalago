@@ -353,15 +353,61 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   align-items: center;
 }
 
-#checkoutModal .modal-content {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  max-width: 500px;
-  width: 90%;
-  position: relative;
-  z-index: 10000; /* garante que fique acima do fundo */
+.checkout-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
+
+.checkout-box {
+  background: #121212;
+  padding: 25px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 420px;
+  color: white;
+  position: relative;
+}
+
+.checkout-box input,
+.checkout-box textarea {
+  width: 100%;
+  padding: 10px;
+  background: #1d1d1d;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: white;
+  margin-bottom: 12px;
+}
+
+.close-checkout {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.btn-confirmar-pedido {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border: none;
+  background: #FDD835;
+  color: #000;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
 
 </style>
 </head>
@@ -509,38 +555,67 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 
 <footer>© ManchinhaPx Arts</footer>
 
-<!-- Modal de Checkout -->
-<div id="checkoutModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
-  <div style="background:#fff; padding:20px; max-width:500px; width:90%; position:relative;">
-    <button id="closeCheckout" style="position:absolute; top:10px; right:10px;">✖</button>
-    <h2>Checkout</h2>
-    
-    <label>Nome:<br><input type="text" id="nomeCliente"></label><br>
-    <label>Email:<br><input type="email" id="emailCliente"></label><br>
-    <label>Telefone:<br><input type="text" id="telefoneCliente"></label><br>
-    <label>Endereço:<br><input type="text" id="enderecoCliente"></label><br>
-    
-    <p>Tipo de entrega:</p>
-    <label><input type="radio" name="tipoEntrega" value="retirada" checked> Retirada</label>
-    <label><input type="radio" name="tipoEntrega" value="entrega"> Entrega</label>
+<!-- ===========================
+     MODAL DE CHECKOUT
+=========================== -->
+<div id="checkoutModal" class="checkout-modal" style="display:none;">
+  <div class="checkout-box">
 
-    <!-- FORMULÁRIO EXCLUSIVO PARA PLACAS -->
-    <div id="formPlaca" style="display:none; margin-top:15px; border:1px solid #ccc; padding:10px; border-radius:5px;">
-      <p>📌 Escolha como gostaria sua placa personalizada</p>
-      <p>➡️ Preencha as informações abaixo:</p>
-      <label>1️⃣ Cor da placa:<br><input type="text" id="placa_cor"></label><br>
-      <label>2️⃣ Nome na parte de cima (Cidade/Estado):<br><input type="text" id="placa_nome_topo"></label><br>
-      <label>3️⃣ Bandeira (se quiser):<br><input type="text" id="placa_bandeira"></label><br>
-      <label>4️⃣ QRA (nome/apelido grande no centro):<br><input type="text" id="placa_qra"></label><br>
-      <label>5️⃣ Nome ou frase extra embaixo:<br><input type="text" id="placa_extra"></label><br>
-      <label>6️⃣ Mais informações:<br><textarea id="placa_info"></textarea></label>
+    <button id="closeCheckout" class="close-checkout">✖</button>
+
+    <h2>Finalizar Pedido</h2>
+
+    <div class="checkout-form">
+
+      <label>Nome completo *</label>
+      <input id="nomeCliente" type="text" placeholder="Seu nome">
+
+      <label>Telefone *</label>
+      <input id="telefoneCliente" type="tel" placeholder="(DDD) 00000-0000">
+
+      <label>Email</label>
+      <input id="emailCliente" type="email" placeholder="Seu email (opcional)">
+
+      <label>Endereço</label>
+      <input id="enderecoCliente" type="text" placeholder="Rua, número, bairro...">
+
+      <label>Forma de entrega:</label>
+      <div class="tipo-entrega">
+        <label><input type="radio" name="tipoEntrega" value="retirada" checked> Retirada</label>
+        <label><input type="radio" name="tipoEntrega" value="entrega"> Entrega</label>
+      </div>
     </div>
 
-    <div style="margin-top:15px;">
-      <button id="confirmarCheckout">Confirmar Pedido</button>
+    <!-- FORMULÁRIO ESPECIAL PARA PLACAS -->
+    <div id="formPlaca" style="display:none; margin-top:20px; padding:15px; border:1px solid #444; border-radius:10px;">
+      <h3 style="margin-bottom:10px; color:#fdd835;">📌 Informações da Placa</h3>
+
+      <label>1️⃣ Cor da placa:</label>
+      <input id="placa_cor" type="text" placeholder="Ex: Preta, Azul, Vermelha...">
+
+      <label>2️⃣ Nome da parte de cima (Cidade/Estado):</label>
+      <input id="placa_nome_topo" type="text" placeholder="Ex: Fortaleza - CE">
+
+      <label>3️⃣ Bandeira:</label>
+      <input id="placa_bandeira" type="text" placeholder="Ex: Brasil, Ceará...">
+
+      <label>4️⃣ QRA (nome grande no centro):</label>
+      <input id="placa_qra" type="text" placeholder="Seu apelido aqui">
+
+      <label>5️⃣ Nome ou frase extra embaixo:</label>
+      <input id="placa_extra" type="text" placeholder="Ex: Deus é fiel">
+
+      <label>6️⃣ Mais informações:</label>
+      <textarea id="placa_info"></textarea>
     </div>
+
+    <button id="confirmarCheckout" class="btn-confirmar-pedido">
+      Confirmar Pedido
+    </button>
+
   </div>
 </div>
+
   
 <script>
 /* ========== CONFIG ========= */
@@ -845,6 +920,5 @@ document.addEventListener('DOMContentLoaded', () => {
   updateCartUI();
 });
 </script>
-
 </body>
 </html>
