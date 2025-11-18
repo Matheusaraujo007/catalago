@@ -657,32 +657,35 @@ function renderProdutos(){
   let list = produtos.slice();
   if(term) list = list.filter(p => (p.nome + ' ' + (p.categoria_nome||p.categoria||'')).toLowerCase().includes(term));
   const cat = filterCategoria.value; if(cat) list = list.filter(p => (p.categoria_nome||p.categoria) === cat);
-  const s = sortSel.value; if(s === 'price_asc') list.sort((a,b)=>a.preco-b.preco); if(s === 'price_desc') list.sort((a,b)=>b.preco-a.preco); if(s === 'recent') list.sort((a,b)=>b.id-a.id);
-  prodCount.textContent = list.length;
-  grid.innerHTML = list.map(p => {
-    const promo = aplicarPromocao(p);
-const precoHtml = promo.label
-  ? `<div class="price">
-       <small style="text-decoration:line-through;color:var(--muted)">${money(p.preco)}</small>
-       <div style="color:var(--accent)">
-         ${money(promo.preco)} <span style="color:#0f0;font-size:12px">${promo.label}</span>
-       </div>
-     </div>`
-  : `<div class="price">${money(p.preco)}</div>`;
-    let img = '/placeholder.png';
-if (p.imagem_base64) {
-  img = p.imagem_base64.startsWith('data:image')
-    ? p.imagem_base64
-    : `data:image/jpeg;base64,${p.imagem_base64}`;
-}
+  const s = sortSel.value; 
+  if(s === 'price_asc') list.sort((a,b)=>a.preco-b.preco); 
+  if(s === 'price_desc') list.sort((a,b)=>b.preco-a.preco); 
+  if(s === 'recent') list.sort((a,b)=>b.id-a.id);
 
+  prodCount.textContent = list.length;
+
+  function precoHtml(prod) {
+    const promo = aplicarPromocao(prod);
+    if(promo.preco < prod.preco){
+      return `<div class="price">
+        <small style="text-decoration:line-through;color:var(--muted)">R$ ${prod.preco.toFixed(2)}</small>
+        <div style="color:#0f0;font-weight:700">${money(promo.preco)} <span style="font-size:12px;color:#0f0">${promo.label}</span></div>
+      </div>`;
+    } else {
+      return `<div class="price">${money(prod.preco)}</div>`;
+    }
+  }
+
+  grid.innerHTML = list.map(p => {
+    let img = '/placeholder.png';
+    if (p.imagem_base64) img = p.imagem_base64.startsWith('data:image') ? p.imagem_base64 : `data:image/jpeg;base64,${p.imagem_base64}`;
 
     return `
       <article class="product-card" data-id="${p.id}">
         <div class="thumb"><img src="${img}" alt="${escapeHtml(p.nome)}"></div>
         <div class="title">${escapeHtml(p.nome)}</div>
         <div style="color:var(--muted);font-size:13px">${escapeHtml(p.categoria_nome||p.categoria||'')}</div>
-        ${precoHtml}
+        ${precoHtml(p)}
         <div class="actions">
           <button class="btn info" data-id="${p.id}" onclick="openProduct(${p.id})">Ver detalhes</button>
           <button class="btn buy" data-id="${p.id}" onclick="addToCart(${p.id},1)">Adicionar</button>
@@ -692,6 +695,8 @@ if (p.imagem_base64) {
   }).join('');
   updateCartUI();
 }
+
+
 
 const gridEl = document.getElementById('productsGrid');
 const nextBtn = document.getElementById('nextProducts');
@@ -767,10 +772,9 @@ function openProduct(id) {
     return `<img src="${src}" alt="">`;
   }).join('');
 
-  currentIndex = 0;
+  let currentIndex = 0;
   track.style.transform = `translateX(0%)`;
 
-  // Eventos das setas
   document.getElementById('prevImg').onclick = () => {
     currentIndex = (currentIndex - 1 + imagens.length) % imagens.length;
     track.style.transform = `translateX(-${currentIndex * 100}%)`;
@@ -782,10 +786,17 @@ function openProduct(id) {
 
   modalTitle.textContent = p.nome;
   modalDesc.textContent = p.descricao || '';
+
   const promo = aplicarPromocao(p);
-  modalPrice.textContent = promo.label
-    ? `${money(promo.preco)} (${promo.label})`
-    : money(p.preco);
+  if(promo.preco < p.preco){
+    modalPrice.innerHTML = `
+      <small style="text-decoration:line-through;color:var(--muted)">${money(p.preco)}</small>
+      <div style="color:#0f0;font-weight:700">${money(promo.preco)} <span style="font-size:12px;color:#0f0">${promo.label}</span></div>
+    `;
+  } else {
+    modalPrice.textContent = money(p.preco);
+  }
+
   qtyInput.value = 1;
   addToCartModal.onclick = () => {
     addToCart(p.id, Number(qtyInput.value || 1));
@@ -794,6 +805,7 @@ function openProduct(id) {
 
   modal.style.display = 'flex';
 }
+
 function closeModal(){ modal.style.display = 'none'; document.body.style.overflow = 'auto'; }
 // Botão de Voltar (fecha o modal)
 document.getElementById("btnVoltar").addEventListener("click", () => {
