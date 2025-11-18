@@ -260,7 +260,8 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   min-width: 180px;
   scroll-snap-align: start;
   flex-shrink: 0;
-} /* ← FECHAMENTO FALTANDO AQUI!! */
+}  /* ← ESTA CHAVE PRECISAVA SER FECHADA */
+
 
 /* Loja mais compacta no mobile */
 @media (max-width: 600px) {
@@ -289,9 +290,14 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 }
 
 /* Loja mais Menor */
-@media (max-width: 600px) {
+@media (max-width: 480px) {
+
+  body {
+    zoom: 0.88; /* deixa tudo menor */
+  }
+
   .product-card {
-    min-width: 140px;
+    min-width: 150px;
     padding: 10px;
   }
 
@@ -299,18 +305,16 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
     height: 120px;
   }
 
-  h3, p, .price {
-    font-size: 14px !important;
+  h2, h3, p, span {
+    font-size: 0.92rem;
   }
 
-  .products-grid {
-    gap: 10px;
-    padding: 6px;
+  .header {
+    padding: 10px;
   }
 
-  .arrow {
-    padding: 8px;
-    font-size: 16px;
+  .dialog {
+    width: 95% !important;
   }
 }
 
