@@ -668,42 +668,58 @@ function renderCategorias(){
   categorias = Array.from(set);
   filterCategoria.innerHTML = '<option value="">Todas categorias</option>' + categorias.map(c=>`<option value="${c}">${c}</option>`).join('');
 }
-function renderProdutos(){
+function renderProdutos() {
   const term = q.value.trim().toLowerCase();
   let list = produtos.slice();
-  if(term) list = list.filter(p => (p.nome + ' ' + (p.categoria_nome||p.categoria||'')).toLowerCase().includes(term));
-  const cat = filterCategoria.value; if(cat) list = list.filter(p => (p.categoria_nome||p.categoria) === cat);
-  const s = sortSel.value; 
-  if(s === 'price_asc') list.sort((a,b)=>a.preco-b.preco); 
-  if(s === 'price_desc') list.sort((a,b)=>b.preco-a.preco); 
-  if(s === 'recent') list.sort((a,b)=>b.id-a.id);
 
+  // Filtrar pelo termo
+  if(term) list = list.filter(p => (p.nome + ' ' + (p.categoria_nome||p.categoria||'')).toLowerCase().includes(term));
+  
+  // Filtrar por categoria
+  const cat = filterCategoria.value;
+  if(cat) list = list.filter(p => (p.categoria_nome||p.categoria) === cat);
+  
+  // Ordenar
+  const s = sortSel.value;
+  if(s === 'price_asc') list.sort((a,b)=>Number(a.preco)-Number(b.preco));
+  if(s === 'price_desc') list.sort((a,b)=>Number(b.preco)-Number(a.preco));
+  if(s === 'recent') list.sort((a,b)=>b.id-a.id);
+  
   prodCount.textContent = list.length;
 
-  function aplicarPromocao(prod){
-  const promo = promocoes.find(p => p.produto_id == prod.id && p.ativo);
-  if(!promo) return { preco: Number(prod.preco), label: null };
-  if(promo.data_fim && new Date(promo.data_fim) < new Date()) return { preco: Number(prod.preco), label: null };
-  
-  if(promo.tipo === 'percentual'){
-    const preco = Number(prod.preco) * (1 - Number(promo.valor)/100);
-    return { preco, label: `${promo.valor}% OFF` };
-  }
-
-  const preco = Number(prod.preco) - Number(promo.valor);
-  return { preco: Math.max(0, preco), label: `R$ ${Number(promo.valor).toFixed(2)} OFF` };
-}
-
+  // Render
   grid.innerHTML = list.map(p => {
+    const promo = aplicarPromocao(p);
+    
+    let precoHtml = '';
+    if(promo.label) {
+      // Com promoção: preço original riscado e preço promocional em destaque
+      precoHtml = `
+        <div class="price">
+          <small style="text-decoration:line-through;color:var(--muted)">${money(p.preco)}</small>
+          <div style="color:var(--accent); font-weight:600">
+            ${money(promo.preco)} <span style="color:#0f0;font-size:12px">${promo.label}</span>
+          </div>
+        </div>
+      `;
+    } else {
+      // Sem promoção: preço normal
+      precoHtml = `<div class="price">${money(p.preco)}</div>`;
+    }
+
     let img = '/placeholder.png';
-    if (p.imagem_base64) img = p.imagem_base64.startsWith('data:image') ? p.imagem_base64 : `data:image/jpeg;base64,${p.imagem_base64}`;
+    if (p.imagem_base64) {
+      img = p.imagem_base64.startsWith('data:image')
+        ? p.imagem_base64
+        : `data:image/jpeg;base64,${p.imagem_base64}`;
+    }
 
     return `
       <article class="product-card" data-id="${p.id}">
         <div class="thumb"><img src="${img}" alt="${escapeHtml(p.nome)}"></div>
         <div class="title">${escapeHtml(p.nome)}</div>
         <div style="color:var(--muted);font-size:13px">${escapeHtml(p.categoria_nome||p.categoria||'')}</div>
-        ${precoHtml(p)}
+        ${precoHtml}
         <div class="actions">
           <button class="btn info" data-id="${p.id}" onclick="openProduct(${p.id})">Ver detalhes</button>
           <button class="btn buy" data-id="${p.id}" onclick="addToCart(${p.id},1)">Adicionar</button>
@@ -711,8 +727,10 @@ function renderProdutos(){
       </article>
     `;
   }).join('');
+
   updateCartUI();
 }
+
 
 
 
