@@ -646,7 +646,7 @@ async function fetchPromocoes(){
   }
 }
 function aplicarPromocao(prod) {
-  const precoOriginal = Number(prod.preco); // <- usar "prod", não "p"
+  const precoOriginal = Number(prod.preco); // estava errado
   const promo = promocoes.find(p => p.nome_produto === prod.nome && p.ativo !== false);
   if (!promo) return { preco: precoOriginal, label: null };
 
@@ -661,7 +661,6 @@ function aplicarPromocao(prod) {
   const preco = precoOriginal - Number(promo.valor);
   return { preco: Math.max(0, preco), label: `R$ ${Number(promo.valor).toFixed(2)} OFF` };
 }
-
 
 
 /* RENDER */
@@ -716,8 +715,8 @@ function renderProdutos() {
         <div style="color:var(--muted);font-size:13px">${escapeHtml(p.categoria_nome||p.categoria||'')}</div>
         ${precoHtml}
         <div class="actions">
-          <button class="btn info" data-id="${p.id}" onclick="openProduct(${prod.id})">Ver detalhes</button>
-          <button class="btn buy" data-id="${p.id}" onclick="addToCart(${prod.id},1)">Adicionar</button>
+          <button class="btn info" data-id="${p.id}" onclick="openProduct(${p.id})">Ver detalhes</button>
+          <button class="btn buy" data-id="${p.id}" onclick="addToCart(${p.id},1)">Adicionar</button>
         </div>
       </article>
     `;
