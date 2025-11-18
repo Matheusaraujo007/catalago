@@ -257,15 +257,15 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 
 /* Cada card vira um item rolável */
 .product-card {
-  min-width: 180px;         /* largura mínima fixa */
-  scroll-snap-align: start; /* trava no item */
-  flex-shrink: 0;           /* impede de encolher */
+  min-width: 180px;
+  scroll-snap-align: start;
+  flex-shrink: 0;
+} /* ← FECHAMENTO FALTANDO AQUI!! */
 
-
-  /* Loja mais compacta no mobile */
+/* Loja mais compacta no mobile */
 @media (max-width: 600px) {
   .product-card {
-    min-width: 150px;      /* menor, fica perfeito para deslizar */
+    min-width: 150px;
     padding: 10px;
   }
 
@@ -288,7 +288,6 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   }
 }
 
-}
 
 </style>
 </head>
