@@ -319,6 +319,44 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 }
 
 
+.products-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px auto;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.products-row {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  gap: 14px;
+  padding: 10px;
+}
+
+.products-row::-webkit-scrollbar {
+  display: none;
+}
+
+.product-card {
+  min-width: 160px;
+  background: #131313;
+  padding: 12px;
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.product-card img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+
 </style>
 </head>
 <body>
@@ -358,7 +396,18 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
     <button id="clearFilters">Limpar filtros</button>
   </div>
 
-  <section class="grid" id="productsGrid"></section>
+  <div class="products-wrapper">
+  <button class="arrow-left" onclick="scrollProducts(-300)">❮</button>
+
+  <div class="products-row" id="productsRow">
+    <!-- AQUI entram os produtos criados automaticamente pelo JS -->
+  </div>
+
+  <button class="arrow-right" onclick="scrollProducts(300)">❯</button>
+</div>
+
+
+  
 </main>
 
 <!-- Modal produto -->
@@ -645,6 +694,26 @@ if (p.imagem_base64) {
   }).join('');
   updateCartUI();
 }
+
+
+
+
+
+function renderProducts(list) {
+  const row = document.getElementById("productsRow");
+  row.innerHTML = "";
+
+  list.forEach(p => {
+    row.innerHTML += `
+      <div class="product-card" onclick="openModal('${p.id}')">
+        <img src="${p.imagens[0]}" alt="">
+        <h3>${p.nome}</h3>
+        <span class="price">R$ ${p.preco}</span>
+      </div>
+    `;
+  });
+}
+
 
 /* CART */
 function saveCart(){ localStorage.setItem('mp_cart', JSON.stringify(cart)); updateCartUI(); }
