@@ -672,38 +672,31 @@ function renderProdutos() {
   const term = q.value.trim().toLowerCase();
   let list = produtos.slice();
 
-  // Filtrar pelo termo
   if(term) list = list.filter(p => (p.nome + ' ' + (p.categoria_nome||p.categoria||'')).toLowerCase().includes(term));
-  
-  // Filtrar por categoria
   const cat = filterCategoria.value;
   if(cat) list = list.filter(p => (p.categoria_nome||p.categoria) === cat);
-  
-  // Ordenar
+
   const s = sortSel.value;
   if(s === 'price_asc') list.sort((a,b)=>Number(a.preco)-Number(b.preco));
   if(s === 'price_desc') list.sort((a,b)=>Number(b.preco)-Number(a.preco));
   if(s === 'recent') list.sort((a,b)=>b.id-a.id);
-  
+
   prodCount.textContent = list.length;
 
-  // Render
   grid.innerHTML = list.map(p => {
-    const promo = aplicarPromocao(p);
-    
     let precoHtml = '';
-    if(promo.label) {
-      // Com promoção: preço original riscado e preço promocional em destaque
+
+    // Checa se existe preço promocional
+    if(p.preco_promocional && Number(p.preco_promocional) < Number(p.preco)) {
       precoHtml = `
         <div class="price">
           <small style="text-decoration:line-through;color:var(--muted)">${money(p.preco)}</small>
           <div style="color:var(--accent); font-weight:600">
-            ${money(promo.preco)} <span style="color:#0f0;font-size:12px">${promo.label}</span>
+            ${money(p.preco_promocional)} <span style="color:#0f0;font-size:12px">PROMOÇÃO</span>
           </div>
         </div>
       `;
     } else {
-      // Sem promoção: preço normal
       precoHtml = `<div class="price">${money(p.preco)}</div>`;
     }
 
