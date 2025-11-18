@@ -645,12 +645,20 @@ async function fetchPromocoes(){
     console.error('Erro ao buscar promoções', e);
   }
 }
-function aplicarPromocao(prod){
-  const promo = promocoes.find(p => p.produto_id == prod.id && p.ativo);
-  if(!promo) return { preco: Number(prod.preco), label: null };
-  if(promo.data_fim && new Date(promo.data_fim) < new Date()) return { preco: Number(prod.preco), label: null };
-  if(promo.tipo === 'percentual'){ const preco = Number(prod.preco) * (1 - Number(promo.valor)/100); return { preco, label: `${promo.valor}% OFF` }; }
-  const preco = Number(prod.preco) - Number(promo.valor); return { preco: Math.max(0, preco), label: `R$ ${Number(promo.valor).toFixed(2)} OFF` };
+function aplicarPromocao(prod) {
+  const promo = promocoes.find(p => p.nome_produto === prod.nome && p.ativo !== false);
+  if (!promo) return { preco: Number(prod.preco), label: null };
+
+  if (promo.data_fim && new Date(promo.data_fim) < new Date()) 
+    return { preco: Number(prod.preco), label: null };
+
+  if (promo.tipo === 'percentual') {
+    const preco = Number(prod.preco) * (1 - Number(promo.valor)/100);
+    return { preco, label: `${promo.valor}% OFF` };
+  }
+
+  const preco = Number(prod.preco) - Number(promo.valor);
+  return { preco: Math.max(0, preco), label: `R$ ${Number(promo.valor).toFixed(2)} OFF` };
 }
 
 /* RENDER */
