@@ -739,16 +739,16 @@ function renderProdutos() {
 
 
 function openCart() {
-  const cartEl = document.getElementById('cart');
-  cartEl.style.display = 'flex';  // ou 'block', depende do seu CSS
-  document.body.style.overflow = 'hidden';
+  document.getElementById('cart').classList.add('open');
 }
 
 function closeCart() {
-  const cartEl = document.getElementById('cart');
-  cartEl.style.display = 'none';
-  document.body.style.overflow = 'auto';
+  document.getElementById('cart').classList.remove('open');
 }
+
+document.getElementById('cartFloat').addEventListener('click', openCart);
+document.getElementById('btnVoltarCarrinho').addEventListener('click', closeCart);
+
 
 
 
