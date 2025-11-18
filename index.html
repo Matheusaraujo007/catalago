@@ -738,6 +738,17 @@ function renderProdutos() {
   updateCartUI();
 }
 
+function openCart() {
+  cartEl.style.display = 'flex'; // ou 'block', dependendo do seu CSS
+  document.body.style.overflow = 'hidden'; // opcional, para impedir scroll atrás do carrinho
+}
+
+function closeCart() {
+  cartEl.style.display = 'none';
+  document.body.style.overflow = 'auto';
+}
+
+
 
 
 
