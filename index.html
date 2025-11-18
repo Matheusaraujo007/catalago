@@ -646,7 +646,7 @@ async function fetchPromocoes(){
   }
 }
 function aplicarPromocao(prod) {
-  const precoOriginal = Number(p.preco); // <--- garante que seja número
+  const precoOriginal = Number(prod.preco); // <- usar "prod", não "p"
   const promo = promocoes.find(p => p.nome_produto === prod.nome && p.ativo !== false);
   if (!promo) return { preco: precoOriginal, label: null };
 
@@ -661,6 +661,8 @@ function aplicarPromocao(prod) {
   const preco = precoOriginal - Number(promo.valor);
   return { preco: Math.max(0, preco), label: `R$ ${Number(promo.valor).toFixed(2)} OFF` };
 }
+
+
 
 /* RENDER */
 function renderCategorias(){
@@ -714,8 +716,8 @@ function renderProdutos() {
         <div style="color:var(--muted);font-size:13px">${escapeHtml(p.categoria_nome||p.categoria||'')}</div>
         ${precoHtml}
         <div class="actions">
-          <button class="btn info" data-id="${p.id}" onclick="openProduct(${p.id})">Ver detalhes</button>
-          <button class="btn buy" data-id="${p.id}" onclick="addToCart(${p.id},1)">Adicionar</button>
+          <button class="btn info" data-id="${p.id}" onclick="openProduct(${prod.id})">Ver detalhes</button>
+          <button class="btn buy" data-id="${p.id}" onclick="addToCart(${prod.id},1)">Adicionar</button>
         </div>
       </article>
     `;
@@ -801,7 +803,7 @@ function openProduct(id) {
     return `<img src="${src}" alt="">`;
   }).join('');
 
-  let currentIndex = 0;
+  currentIndex = 0; // usar variável global
   track.style.transform = `translateX(0%)`;
 
   document.getElementById('prevImg').onclick = () => {
@@ -815,8 +817,8 @@ function openProduct(id) {
 
   modalTitle.textContent = p.nome;
   modalDesc.textContent = p.descricao || '';
-
   const promo = aplicarPromocao(p);
+
   if(promo.preco < p.preco){
     modalPrice.innerHTML = `
       <small style="text-decoration:line-through;color:var(--muted)">${money(p.preco)}</small>
@@ -833,6 +835,7 @@ function openProduct(id) {
   };
 
   modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
 }
 
 function closeModal(){ modal.style.display = 'none'; document.body.style.overflow = 'auto'; }
