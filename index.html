@@ -751,10 +751,6 @@ document.getElementById('btnVoltarCarrinho').addEventListener('click', closeCart
 
 
 
-
-
-
-
 const gridEl = document.getElementById('productsGrid');
 const nextBtn = document.getElementById('nextProducts');
 const prevBtn = document.getElementById('prevProducts');
@@ -1000,15 +996,6 @@ window.decrease = decrease;
    FUNÇÕES DE ABRIR E FECHAR CARRINHO
    =============================== */
 
-function openCart() {
-  cartEl.style.display = 'flex';
-  document.body.style.overflow = 'hidden'; // trava scroll do fundo
-}
-
-function closeCart() {
-  cartEl.style.display = 'none';
-  document.body.style.overflow = 'auto'; // libera scroll
-}
 
 
 // Botão “Voltar” dentro do carrinho
@@ -1046,11 +1033,6 @@ function updateCartUI() {
 
   document.getElementById('cartTotal').textContent = money(total);
 }
-
-// Botão flutuante abre o carrinho
-document.getElementById('cartFloat').addEventListener('click', openCart);
-
-
 </script>
 </body>
 </html>
