@@ -242,6 +242,53 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 
 }
 
+/* Lista de produtos em carrossel horizontal */
+.products-grid {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding: 10px;
+  scroll-snap-type: x mandatory;
+}
+
+.products-grid::-webkit-scrollbar {
+  display: none; /* some a barra no mobile */
+}
+
+/* Cada card vira um item rolável */
+.product-card {
+  min-width: 180px;         /* largura mínima fixa */
+  scroll-snap-align: start; /* trava no item */
+  flex-shrink: 0;           /* impede de encolher */
+
+
+  /* Loja mais compacta no mobile */
+@media (max-width: 600px) {
+  .product-card {
+    min-width: 150px;      /* menor, fica perfeito para deslizar */
+    padding: 10px;
+  }
+
+  .product-card img {
+    height: 150px !important;
+    object-fit: cover;
+  }
+
+  h2, h3, p {
+    font-size: 14px !important;
+  }
+
+  .price {
+    font-size: 16px !important;
+  }
+
+  .products-grid {
+    padding: 8px;
+    gap: 10px;
+  }
+}
+
+}
 
 </style>
 </head>
