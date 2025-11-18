@@ -510,25 +510,38 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 <footer>© ManchinhaPx Arts</footer>
 
 <!-- Modal de Checkout -->
-<div class="modal" id="checkoutModal">
-  <div class="dialog" style="max-width:600px;display:flex;flex-direction:column;gap:14px">
-    <button class="close" id="closeCheckout">✕</button>
-    <h3>Finalizar Pedido</h3>
-    <p style="color:var(--muted);margin-top:-10px">Preencha os dados abaixo para concluir seu pedido:</p>
+<div id="checkoutModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
+  <div style="background:#fff; padding:20px; max-width:500px; width:90%; position:relative;">
+    <button id="closeCheckout" style="position:absolute; top:10px; right:10px;">✖</button>
+    <h2>Checkout</h2>
+    
+    <label>Nome:<br><input type="text" id="nomeCliente"></label><br>
+    <label>Email:<br><input type="email" id="emailCliente"></label><br>
+    <label>Telefone:<br><input type="text" id="telefoneCliente"></label><br>
+    <label>Endereço:<br><input type="text" id="enderecoCliente"></label><br>
+    
+    <p>Tipo de entrega:</p>
+    <label><input type="radio" name="tipoEntrega" value="retirada" checked> Retirada</label>
+    <label><input type="radio" name="tipoEntrega" value="entrega"> Entrega</label>
 
-    <input id="nomeCliente" placeholder="Nome completo" style="padding:10px;border-radius:8px;border:none;background:#0b0b0b;color:#fff">
-    <input id="telefoneCliente" placeholder="Telefone (ex: 88994907177)" style="padding:10px;border-radius:8px;border:none;background:#0b0b0b;color:#fff">
-    <input id="emailCliente" placeholder="E-mail" style="padding:10px;border-radius:8px;border:none;background:#0b0b0b;color:#fff">
-    <textarea id="enderecoCliente" placeholder="Endereço completo" style="padding:10px;border-radius:8px;border:none;background:#0b0b0b;color:#fff;height:80px"></textarea>
-
-    <div style="display:flex;gap:10px;align-items:center">
-      <label><input type="radio" name="tipoEntrega" value="retirada" checked> Retirada</label>
-      <label><input type="radio" name="tipoEntrega" value="entrega"> Entrega</label>
+    <!-- FORMULÁRIO EXCLUSIVO PARA PLACAS -->
+    <div id="formPlaca" style="display:none; margin-top:15px; border:1px solid #ccc; padding:10px; border-radius:5px;">
+      <p>📌 Escolha como gostaria sua placa personalizada</p>
+      <p>➡️ Preencha as informações abaixo:</p>
+      <label>1️⃣ Cor da placa:<br><input type="text" id="placa_cor"></label><br>
+      <label>2️⃣ Nome na parte de cima (Cidade/Estado):<br><input type="text" id="placa_nome_topo"></label><br>
+      <label>3️⃣ Bandeira (se quiser):<br><input type="text" id="placa_bandeira"></label><br>
+      <label>4️⃣ QRA (nome/apelido grande no centro):<br><input type="text" id="placa_qra"></label><br>
+      <label>5️⃣ Nome ou frase extra embaixo:<br><input type="text" id="placa_extra"></label><br>
+      <label>6️⃣ Mais informações:<br><textarea id="placa_info"></textarea></label>
     </div>
 
-    <button id="confirmarCheckout" style="padding:12px;border:none;background:var(--accent);color:#000;border-radius:8px;font-weight:700;cursor:pointer">Confirmar Pedido</button>
+    <div style="margin-top:15px;">
+      <button id="confirmarCheckout">Confirmar Pedido</button>
+    </div>
   </div>
 </div>
+
 
 
 <script>
@@ -846,18 +859,34 @@ document.getElementById("btnVoltar").addEventListener("click", () => {
 
 
 /* CHECKOUT */
-async function checkout(){
+// FUNÇÃO DE CHECKOUT COM FORMULÁRIO ESPECIAL PARA PLACAS
+function checkout() {
   if(cart.length === 0){ 
     alert('Carrinho vazio'); 
     return; 
   }
+
+  // Verifica se há algum produto da categoria "Placas Personalizadas"
+  const temPlaca = cart.some(item => {
+    const prod = produtos.find(p => p.id === item.id);
+    return prod && (prod.categoria_nome || prod.categoria) === 'Placas Personalizadas';
+  });
+
+  // Mostra o modal de checkout
   document.getElementById('checkoutModal').style.display = 'flex';
+
+  // Exibe o formulário especial apenas se houver placa
+  const formPlaca = document.getElementById('formPlaca');
+  formPlaca.style.display = temPlaca ? 'block' : 'none';
 }
+
 // Fechar modal de checkout
-document.getElementById('closeCheckout').addEventListener('click', ()=>{ document.getElementById('checkoutModal').style.display = 'none'; });
+document.getElementById('closeCheckout').addEventListener('click', () => {
+  document.getElementById('checkoutModal').style.display = 'none';
+});
 
 // Confirmar pedido
-document.getElementById('confirmarCheckout').addEventListener('click', async ()=>{ /* ... (mantive seu fluxo original) */
+document.getElementById('confirmarCheckout').addEventListener('click', async () => {
   const nome = document.getElementById('nomeCliente').value.trim();
   const email = document.getElementById('emailCliente').value.trim();
   const telefone = document.getElementById('telefoneCliente').value.trim();
@@ -870,77 +899,61 @@ document.getElementById('confirmarCheckout').addEventListener('click', async ()=
   }
 
   const valor_total = cart.reduce((s,i)=>s + (i.price * i.qt),0);
-  const itens = cart.map(i=>({ produto_id:i.id, quantidade:i.qt, preco_unitario:i.price }));
 
-  try {
-    // Cadastrar cliente
-    const clienteRes = await fetch(API_BASE + '/clientes', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ nome, email, telefone, endereco })
-    });
-    const cliente = await clienteRes.json();
+  const resumoItens = cart.map(it=>{
+    const prod = produtos.find(p=>p.id==it.id);
+    return `*${it.qt}* x *${prod?.nome || 'Produto'}*: R$ ${(it.price).toFixed(2)}`;
+  }).join('\n--------\n');
 
-    // Cadastrar venda
-    const vendaRes = await fetch(API_BASE + '/vendas', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ cliente_id: cliente.id, valor_total, status: 'pendente', itens })
-    });
-    const venda = await vendaRes.json();
+  // Mensagem especial para placas
+  let mensagemPlaca = '';
+  if(cart.some(i => {
+    const prod = produtos.find(p => p.id === i.id);
+    return prod && (prod.categoria_nome || prod.categoria) === 'Placas Personalizadas';
+  })) {
+    mensagemPlaca = `
+📌 Placa Personalizada
+1️⃣ Cor da placa: ${document.getElementById('placa_cor').value}
+2️⃣ Nome na parte de cima: ${document.getElementById('placa_nome_topo').value}
+3️⃣ Bandeira: ${document.getElementById('placa_bandeira').value}
+4️⃣ QRA: ${document.getElementById('placa_qra').value}
+5️⃣ Nome ou frase extra: ${document.getElementById('placa_extra').value}
+6️⃣ Mais informações: ${document.getElementById('placa_info').value}
+`;
+  }
 
-    // Montar mensagem de resumo
-    const resumoItens = cart.map(it=>{
-      const prod = produtos.find(p=>p.id==it.id);
-      return `*${it.qt}* x *${prod?.nome || 'Produto'}*: R$ ${(it.price).toFixed(2)}`;
-    }).join('\n--------\n');
-
-    const mensagem = 
-`Olá, meu nome é *${nome}*, esse é o meu pedido realizado através da loja *Manchinha Px Arts*
+  const mensagem = 
+`Olá, meu nome é *${nome}*, esse é o meu pedido realizado através da loja *Manchinha Px Arts*:
 --------
 ${resumoItens}
 --------
 Quantidade de itens: *${cart.length}*
 Total dos itens: *${money(valor_total)}*
 --------
+${mensagemPlaca}
 Valor da entrega: *A DEFINIR*
 Valor Total: *${money(valor_total)}*
 Veja o resumo do seu pedido aqui:
-${BACKEND}/pedido/${venda.id}
+${BACKEND}/pedido/ID_DO_PEDIDO
 --------
 ${tipoEntrega === 'retirada' ? 'Retirada em loja' : 'Entrega'}: *Manchinha Px Arts*
 Contato: *(88) 99490-7177*
-Número do pedido: *${venda.id}*
+Número do pedido: *ID_DO_PEDIDO*
 --------
 Pedido feito com *Manchinha Px Arts*`;
 
-    // Enviar pelo WhatsApp (abrir janela com texto pronto)
-    const linkWhats = `https://wa.me/5588994907177?text=${encodeURIComponent(mensagem)}`;
-    window.open(linkWhats, '_blank');
+  // Abre WhatsApp
+  const linkWhats = `https://wa.me/5588994907177?text=${encodeURIComponent(mensagem)}`;
+  window.open(linkWhats, '_blank');
 
-    // Limpar carrinho
-    cart = [];
-    saveCart();
-    document.getElementById('checkoutModal').style.display = 'none';
-    closeCart();
-    alert('Pedido enviado com sucesso!');
-
-  } catch (e) {
-    console.error(e);
-    alert('Erro ao criar pedido.');
-  }
+  // Limpa carrinho e fecha modal
+  cart = [];
+  saveCart();
+  document.getElementById('checkoutModal').style.display = 'none';
+  closeCart();
+  alert('Pedido enviado com sucesso!');
 });
 
-/* UI helpers */
-function openCart(){ cartEl.classList.add('open'); } 
-function closeCart(){ cartEl.classList.remove('open'); }
-
-// Abre/fecha carrinho quando clicar no botão flutuante
-cartFloat.addEventListener('click', ()=> {
-  if(cartEl.classList.contains('open')) closeCart(); else openCart();
-});
-// keyboard support
-cartFloat.addEventListener('keydown', (e) => {
-  if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); cartFloat.click(); }
-});
 
 document.getElementById('btnCheckout').onclick = checkout;
 document.getElementById('btnClear').onclick = clearCart;
