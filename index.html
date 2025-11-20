@@ -272,6 +272,32 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   .arrow-btn, #prevProducts, #nextProducts { width: 38px; height: 38px; }
   .carousel-track img, .banner-track img { height: 220px; }
 }
+
+
+@media(max-width: 480px) {
+  .modal .dialog {
+    max-width: 95%;
+    padding: 12px !important;
+    gap: 12px !important;
+  }
+
+  .carousel {
+    height: 240px !important;
+  }
+
+  .carousel-track img {
+    height: 240px !important;
+  }
+
+  #modalDesc {
+    font-size: 14px !important;
+  }
+
+  #modalPrice {
+    font-size: 18px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -459,6 +485,25 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   </div>
 </div>
 
+<!-- MODAL FULLSCREEN DE IMAGEM -->
+<div id="imgFull" style="
+  position:fixed; inset:0;
+  background:rgba(0,0,0,0.9);
+  display:none; justify-content:center; align-items:center;
+  z-index:100000;">
+  
+  <button id="closeFull" style="
+    position:absolute; top:20px; right:20px;
+    font-size:30px; color:#fff;
+    background:transparent; border:none; cursor:pointer;">✕</button>
+
+  <div id="fullTrack" style="
+    display:flex; width:100%; height:100%;
+    transition:transform .3s;">
+  </div>
+</div>
+
+
 <script>
 /* ========== CONFIG ========= */
 const BACKEND = "https://catalago-ashen.vercel.app";
@@ -575,6 +620,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('');
     updateCartUI();
   }
+  // Clique para abrir fullscreen
+document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
+  img.style.cursor = "zoom-in";
+  img.onclick = () => openFullScreen(imagens, index);
+});
+
 
   function escapeHtml(text){ return String(text||'').replace(/[&<>"']/g, s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]); }
 
@@ -892,6 +943,53 @@ Pedido feito com Manchinha Px Arts`;
   filterCategoria.addEventListener('change', renderProdutos);
   sortSel.addEventListener('change', renderProdutos);
   document.getElementById('clearFilters').addEventListener('click', ()=>{ q.value=''; filterCategoria.value=''; sortSel.value='recent'; renderProdutos(); });
+
+
+  // === FULLSCREEN IMAGE ===
+const imgFull = document.getElementById("imgFull");
+const fullTrack = document.getElementById("fullTrack");
+const closeFull = document.getElementById("closeFull");
+
+function openFullScreen(imagens, startIndex = 0) {
+  fullTrack.innerHTML = imagens.map(img => `
+    <img src="${img.startsWith('data:image') ? img : `data:image/jpeg;base64,${img}`}"
+         style="min-width:100%; object-fit:contain;">
+  `).join('');
+
+  fullIndex = startIndex;
+  fullTrack.style.transform = `translateX(-${fullIndex * 100}%)`;
+
+  imgFull.style.display = "flex";
+  document.body.style.overflow = "hidden";
+}
+
+closeFull.onclick = () => {
+  imgFull.style.display = "none";
+  document.body.style.overflow = "auto";
+};
+
+// Swipe lateral (mobile)
+let startX = 0;
+fullTrack.addEventListener("touchstart", e => startX = e.touches[0].clientX);
+fullTrack.addEventListener("touchend", e => {
+  const endX = e.changedTouches[0].clientX;
+  if (endX < startX - 50) fullNext();
+  if (endX > startX + 50) fullPrev();
+});
+
+function fullNext(){
+  if(fullIndex < fullTrack.children.length - 1){
+    fullIndex++;
+    fullTrack.style.transform = `translateX(-${fullIndex * 100}%)`;
+  }
+}
+
+function fullPrev(){
+  if(fullIndex > 0){
+    fullIndex--;
+    fullTrack.style.transform = `translateX(-${fullIndex * 100}%)`;
+  }
+}
 
   // initial load
   fetchProdutos();
