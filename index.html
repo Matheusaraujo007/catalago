@@ -252,7 +252,18 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 
 /* modal placa / luminoso */
 .modal-placa-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.65); display: none; justify-content: center; align-items: center; z-index: 999999; }
-.modal-placa-box { width: 90%; max-width: 420px; background: #161616; padding: 25px; border-radius: 14px; color: #fff; animation: placaZoom .25s ease; box-shadow: 0 0 20px rgba(0,0,0,0.4); }
+.modal-placa-box {
+    width: 90%;
+    max-width: 380px; /* diminuímos o tamanho */
+    background: #161616;
+    padding: 18px; /* padding menor */
+    border-radius: 14px;
+    color: #fff;
+    animation: placaZoom .25s ease;
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    max-height: 85vh;         /* impede de ultrapassar tela */
+    overflow-y: auto;         /* ativa rolagem se necessário */
+}
 @keyframes placaZoom { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .modal-placa-box input, .modal-placa-box textarea { width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #333; background: #111; color: white; }
 
