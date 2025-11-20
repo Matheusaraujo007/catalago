@@ -977,7 +977,9 @@ function openFullScreen(imagens, startIndex = 0) {
 closeFull.onclick = () => {
   imgFull.style.display = "none";
   document.body.style.overflow = "auto";
+  fullIndex = 0; // reset para não travar a navegação
 };
+
 
 // Swipe lateral (mobile)
 let startX = 0;
