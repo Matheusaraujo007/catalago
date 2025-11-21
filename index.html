@@ -712,7 +712,7 @@ document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
     if(existing) existing.qt += qtd;
     else cart.push({ id: prod.id, qt: qtd, price: Number(promo.preco || prod.preco) });
     saveCart();
-    openCart();
+    /*openCart(); habilitar so por nescessidade do cliente*/ 
   }
   function increase(id){ const it = cart.find(i=>i.id==id); if(it){ it.qt++; saveCart(); } }
   function decrease(id){ const it = cart.find(i=>i.id==id); if(it){ it.qt--; if(it.qt<=0) cart = cart.filter(x=>x.id!=id); saveCart(); } }
