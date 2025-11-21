@@ -211,25 +211,35 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 
 .banner-carousel .arrow-btn { width:48px; height:48px; }
 
-/* Lista de produtos em carrossel horizontal */
 .products-grid {
-  display: flex;
-  gap: 14px;
-  overflow-x: auto;
-  padding: 10px;
-  scroll-snap-type: x mandatory;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(4, 1fr);
 }
 
-.products-grid::-webkit-scrollbar {
-  display: none; /* some a barra no mobile */
+@media (max-width: 1100px) {
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
-/* Cada card vira um item rolável */
+@media (max-width: 800px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 450px) {
+  .products-grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
 .product-card {
-  min-width: 180px;
-  scroll-snap-align: start;
-  flex-shrink: 0;
+  min-width: unset;
+  flex-shrink: unset;
 }
+
 
 /* product arrow buttons (made round like banner) */
 #prevProducts, #nextProducts {
@@ -364,11 +374,7 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
     <select id="sort"><option value="recent">Mais recentes</option><option value="price_asc">Preço ↑</option><option value="price_desc">Preço ↓</option></select>
     <button id="clearFilters">Limpar filtros</button>
   </div>
-<div style="position:relative">
-  <button id="prevProducts">❮</button>
-  <button id="nextProducts">❯</button>
-  <section class="products-grid" id="productsGrid"></section>
-</div>
+
 </main>
 
 <!-- Modal produto -->
@@ -763,13 +769,7 @@ document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
   function openCart(){ cartEl.classList.add('open'); document.body.style.overflow = 'hidden'; }
   function closeCart(){ cartEl.classList.remove('open'); document.body.style.overflow = 'auto'; }
 
-  /* bind controls for arrows / scrolling */
-  const gridEl = document.getElementById('productsGrid');
-  const nextBtn = document.getElementById('nextProducts');
-  const prevBtn = document.getElementById('prevProducts');
-  const scrollAmount = 250;
-  nextBtn.onclick = () => { gridEl.scrollBy({ left: scrollAmount, behavior: 'smooth' }); };
-  prevBtn.onclick = () => { gridEl.scrollBy({ left: -scrollAmount, behavior: 'smooth' }); };
+  
 
   /* event bindings */
   cartFloat.addEventListener('click', openCart);
