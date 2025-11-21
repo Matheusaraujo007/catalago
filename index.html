@@ -114,8 +114,8 @@ header{
   position: fixed;
   bottom: 110px; /* above whatsapp button */
   right: 22px;
-  width: 55px;
-  height: 55px;
+  width: 70px;
+  height: 70px;
   background: var(--accent);
   border-radius: 50%;
   display: flex;
@@ -135,19 +135,19 @@ header{
   50% { transform: scale(1.06); }
   100% { transform: scale(1); }
 }
-.cart-float svg { width:24px; height:24px; }
+.cart-float svg { width:30px; height:30px; }
 
 .cart-badge {
   position: absolute;
   top: 6px;
   right: 6px;
-  min-width:16px;
-  height:16px;
+  min-width:20px;
+  height:20px;
   border-radius:999px;
   background:#000;
   color:var(--accent);
   font-weight:700;
-  font-size:10px;
+  font-size:12px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -160,8 +160,8 @@ header{
   position: fixed;
   bottom: 22px;
   right: 22px;
-  width: 55px;
-  height: 55px;
+  width: 70px;
+  height: 70px;
   background: #25d366;
   border-radius: 50%;
   display: flex;
@@ -176,12 +176,6 @@ header{
 @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
 
 footer{padding:28px 18px;color:var(--muted);text-align:center}
-
-.whatsapp-float svg {
-  width: 22px !important;
-  height: 22px !important;
-}
-
 
 /* banners (kept) */
 .banner-carousel {
@@ -211,35 +205,25 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 
 .banner-carousel .arrow-btn { width:48px; height:48px; }
 
+/* Lista de produtos em carrossel horizontal */
 .products-grid {
-  display: grid;
-  gap: 18px;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding: 10px;
+  scroll-snap-type: x mandatory;
 }
 
-@media (max-width: 1100px) {
-  .products-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
+.products-grid::-webkit-scrollbar {
+  display: none; /* some a barra no mobile */
 }
 
-@media (max-width: 800px) {
-  .products-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 450px) {
-  .products-grid {
-    grid-template-columns: repeat(1, 1fr);
-  }
-}
-
+/* Cada card vira um item rolável */
 .product-card {
-  min-width: unset;
-  flex-shrink: unset;
+  min-width: 180px;
+  scroll-snap-align: start;
+  flex-shrink: 0;
 }
-
 
 /* product arrow buttons (made round like banner) */
 #prevProducts, #nextProducts {
@@ -292,55 +276,27 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 
 @media(max-width: 480px) {
   .modal .dialog {
-    width: 94% !important;
-    max-width: 360px !important;
-    padding: 14px !important;
-    border-radius: 12px !important;
-    gap: 10px !important;
-    max-height: 85vh !important; 
-    overflow-y: auto !important;
+    max-width: 95%;
+    padding: 12px !important;
+    gap: 12px !important;
   }
 
   .carousel {
-    height: 210px !important;
+    height: 240px !important;
   }
 
   .carousel-track img {
-    height: 210px !important;
-  }
-
-  #modalTitle {
-    font-size: 18px !important;
+    height: 240px !important;
   }
 
   #modalDesc {
-    font-size: 13px !important;
+    font-size: 14px !important;
   }
 
   #modalPrice {
-    font-size: 16px !important;
-  }
-
-  #qty {
-    padding: 6px !important;
-    width: 65px !important;
-  }
-
-  #addToCartModal {
-    padding: 10px !important;
-    font-size: 14px !important;
+    font-size: 18px !important;
   }
 }
-
-
-#fullTrack {
-    pointer-events: none;
-}
-
-#fullTrack img {
-    pointer-events: auto;
-}
-
 
 </style>
 </head>
@@ -364,24 +320,21 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   <button class="arrow-btn arrow-right" id="nextBanner">❯</button>
 </section>
 
-  
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <h2 style="margin:0">Produtos</h2>
+    <div style="color:var(--muted)">Mostrando <span id="prodCount">0</span> produtos</div>
+  </div>
 
-  <!-- AQUI — COLOQUE OS FILTROS -->
-<div class="filters">
-  <select id="filterCategoria"><option value="">Todas categorias</option></select>
-  <select id="sort"><option value="recent">Mais recentes</option>
-  <option value="price_asc">Preço ↑</option>
-  <option value="price_desc">Preço ↓</option></select>
-  <button id="clearFilters">Limpar filtros</button>
+  <div class="filters">
+    <select id="filterCategoria"><option value="">Todas categorias</option></select>
+    <select id="sort"><option value="recent">Mais recentes</option><option value="price_asc">Preço ↑</option><option value="price_desc">Preço ↓</option></select>
+    <button id="clearFilters">Limpar filtros</button>
+  </div>
+<div style="position:relative">
+  <button id="prevProducts">❮</button>
+  <button id="nextProducts">❯</button>
+  <section class="products-grid" id="productsGrid"></section>
 </div>
-
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-  <h2 style="margin:0">Produtos</h2>
-  <div style="color:var(--muted)">Mostrando <span id="prodCount">0</span> produtos</div>
-</div>
-
-<div id="productsGrid" class="products-grid"></div>
-
 </main>
 
 <!-- Modal produto -->
@@ -415,6 +368,7 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   style="width:80px;padding:8px;border-radius:8px;
   border:1px solid rgba(255,255,255,0.06);
   background:#0b0b0b;color:var(--white)">
+        >
         <button class="btn buy" id="addToCartModal">Adicionar ao carrinho</button>
       </div>
       <button id="btnVoltar" style="background-color:#333;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:10px;width:100%;">← Voltar</button>
@@ -532,28 +486,16 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 </div>
 
 <!-- MODAL FULLSCREEN DE IMAGEM -->
-<<div id="imgFull" style="
-  position:fixed;
-  inset:0;
+<div id="imgFull" style="
+  position:fixed; inset:0;
   background:rgba(0,0,0,0.9);
-  display:none;
-  justify-content:center;
-  align-items:center;
-  z-index:100000;
-">
+  display:none; justify-content:center; align-items:center;
+  z-index:100000;">
   
-  <<button id="closeFull" style="
-    position:absolute;
-    top:20px;
-    right:20px;
-    font-size:30px;
-    color:#fff;
-    background:transparent;
-    border:none;
-    cursor:pointer;
-    z-index:999999 !important;
-">✕</button>
-
+  <button id="closeFull" style="
+    position:absolute; top:20px; right:20px;
+    font-size:30px; color:#fff;
+    background:transparent; border:none; cursor:pointer;">✕</button>
 
   <div id="fullTrack" style="
     display:flex; width:100%; height:100%;
@@ -724,7 +666,7 @@ document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
     if(existing) existing.qt += qtd;
     else cart.push({ id: prod.id, qt: qtd, price: Number(promo.preco || prod.preco) });
     saveCart();
-    /*openCart(); habilitar so por nescessidade do cliente*/ 
+    openCart();
   }
   function increase(id){ const it = cart.find(i=>i.id==id); if(it){ it.qt++; saveCart(); } }
   function decrease(id){ const it = cart.find(i=>i.id==id); if(it){ it.qt--; if(it.qt<=0) cart = cart.filter(x=>x.id!=id); saveCart(); } }
@@ -743,7 +685,7 @@ document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
     }).join('');
 
     // ➜ Ativar clique para fullscreen
-    
+    let fullIndex = 0;
 
 document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
   img.style.cursor = "zoom-in";
@@ -775,7 +717,13 @@ document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
   function openCart(){ cartEl.classList.add('open'); document.body.style.overflow = 'hidden'; }
   function closeCart(){ cartEl.classList.remove('open'); document.body.style.overflow = 'auto'; }
 
-  
+  /* bind controls for arrows / scrolling */
+  const gridEl = document.getElementById('productsGrid');
+  const nextBtn = document.getElementById('nextProducts');
+  const prevBtn = document.getElementById('prevProducts');
+  const scrollAmount = 250;
+  nextBtn.onclick = () => { gridEl.scrollBy({ left: scrollAmount, behavior: 'smooth' }); };
+  prevBtn.onclick = () => { gridEl.scrollBy({ left: -scrollAmount, behavior: 'smooth' }); };
 
   /* event bindings */
   cartFloat.addEventListener('click', openCart);
@@ -1007,8 +955,6 @@ Pedido feito com Manchinha Px Arts`;
 
 
   // === FULLSCREEN IMAGE ===
-  let fullIndex = 0;  // ← ADICIONEI ESTA LINHA AQUI
-
 const imgFull = document.getElementById("imgFull");
 const fullTrack = document.getElementById("fullTrack");
 const closeFull = document.getElementById("closeFull");
@@ -1029,9 +975,7 @@ function openFullScreen(imagens, startIndex = 0) {
 closeFull.onclick = () => {
   imgFull.style.display = "none";
   document.body.style.overflow = "auto";
-  fullIndex = 0; // reset para não travar a navegação
 };
-
 
 // Swipe lateral (mobile)
 let startX = 0;
