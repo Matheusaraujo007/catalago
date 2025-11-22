@@ -403,6 +403,47 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 }
 
 
+.categoria-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.cat-btn {
+    border: none;
+    background: var(--card);
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 8px;
+    transition: 0.2s ease;
+    z-index: 9;
+}
+
+.cat-btn:hover {
+    background: var(--accent);
+}
+
+.cat-btn.left {
+    margin-right: 5px;
+}
+
+.cat-btn.right {
+    margin-left: 5px;
+}
+
+.categoria-carrossel {
+    flex: 1;
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 10px 0;
+}
+
+
+
 </style>
 </head>
 <body>
@@ -732,10 +773,18 @@ document.addEventListener('DOMContentLoaded', () => {
     section.className = "category-section";
 
     section.innerHTML = `
-      <h2 class="category-title">${categoria}</h2>
-      <div class="category-scroll" id="cat-${categoria}">
-      </div>
-    `;
+    <h2 class="categoria-titulo">${categoria}</h2>
+
+    <div class="categoria-wrapper">
+        <button class="cat-btn left" onclick="scrollCategoria('${categoria}', -1)">&#10094;</button>
+
+        <div class="categoria-carrossel" id="cat-${categoria}">
+        </div>
+
+        <button class="cat-btn right" onclick="scrollCategoria('${categoria}', 1)">&#10095;</button>
+    </div>
+`;
+
 
     container.appendChild(section);
 
@@ -1229,6 +1278,13 @@ function fullPrev(){
     fullTrack.style.transform = `translateX(-${fullIndex * 100}%)`;
   }
 }
+
+function scrollCategoria(cat, dir) {
+    const area = document.getElementById("cat-" + cat);
+    const amount = 250; // distância que desliza por clique
+    area.scrollBy({ left: dir * amount, behavior: "smooth" });
+}
+
 
   // initial load
   fetchProdutos();
