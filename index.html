@@ -370,6 +370,39 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 }
 
 
+
+.categoria-bloco {
+    margin-top: 25px;
+}
+
+.categoria-titulo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.categoria-carrossel {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding-bottom: 10px;
+}
+
+.categoria-carrossel::-webkit-scrollbar {
+    height: 6px;
+}
+
+.categoria-carrossel::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.product-card {
+    min-width: 170px;
+}
+
+
 </style>
 </head>
 <body>
@@ -722,38 +755,103 @@ document.addEventListener('DOMContentLoaded', () => {
 
 carregarProdutosPorCategoria();
 
-  function renderProdutos(){
+  function renderProdutos() {
     const term = q.value.trim().toLowerCase();
     let list = produtos.slice();
-    if(term) list = list.filter(p => (p.nome + ' ' + (p.categoria_nome||p.categoria||'')).toLowerCase().includes(term));
-    const cat = filterCategoria.value; if(cat) list = list.filter(p => (p.categoria_nome||p.categoria) === cat);
+
+    // 🔎 FILTROS EXISTENTES
+    if (term) {
+        list = list.filter(p =>
+            (p.nome + ' ' + (p.categoria_nome || p.categoria || '')).toLowerCase().includes(term)
+        );
+    }
+
+    const cat = filterCategoria.value;
+    if (cat) list = list.filter(p => (p.categoria_nome || p.categoria) === cat);
+
     const s = sortSel.value;
-    if(s === 'price_asc') list.sort((a,b)=>Number(a.preco)-Number(b.preco));
-    if(s === 'price_desc') list.sort((a,b)=>Number(b.preco)-Number(a.preco));
-    if(s === 'recent') list.sort((a,b)=>b.id-a.id);
+    if (s === 'price_asc') list.sort((a, b) => Number(a.preco) - Number(b.preco));
+    if (s === 'price_desc') list.sort((a, b) => Number(b.preco) - Number(a.preco));
+    if (s === 'recent') list.sort((a, b) => b.id - a.id);
+
+    // contador
     prodCount.textContent = list.length;
-    grid.innerHTML = list.map(p => {
-      let precoHtml = '';
-      if(p.preco_promocional && Number(p.preco_promocional) < Number(p.preco)) {
-        precoHtml = `<div class="price"><small style="text-decoration:line-through;color:var(--muted)">${money(p.preco)}</small><div style="color:var(--accent); font-weight:600">${money(p.preco_promocional)} <span style="color:#0f0;font-size:12px">PROMOÇÃO</span></div></div>`;
-      } else precoHtml = `<div class="price">${money(p.preco)}</div>`;
-      let img = '/placeholder.png';
-      if (p.imagem_base64) img = p.imagem_base64.startsWith('data:image') ? p.imagem_base64 : `data:image/jpeg;base64,${p.imagem_base64}`;
-      return `
-        <article class="product-card" data-id="${p.id}">
-          <div class="thumb"><img src="${img}" alt="${escapeHtml(p.nome)}"></div>
-          <div class="title">${escapeHtml(p.nome)}</div>
-          <div style="color:var(--muted);font-size:13px">${escapeHtml(p.categoria_nome||p.categoria||'')}</div>
-          ${precoHtml}
-          <div class="actions">
-            <button class="btn info" data-id="${p.id}" onclick="openProduct(${p.id})">Ver detalhes</button>
-            <button class="btn buy" data-id="${p.id}" onclick="addToCart(${p.id},1)">Adicionar</button>
-          </div>
-        </article>
-      `;
-    }).join('');
+
+    // -----------------------------
+    // 🟦 AGRUPAR PRODUTOS POR CATEGORIA
+    // -----------------------------
+    const categoriasMap = {};
+
+    list.forEach(p => {
+        const categoria = p.categoria_nome || p.categoria || "Outros";
+        if (!categoriasMap[categoria]) categoriasMap[categoria] = [];
+        categoriasMap[categoria].push(p);
+    });
+
+    // Limpa a grade e passa a exibir por categorias
+    grid.innerHTML = "";
+
+    // -----------------------------
+    // 🟦 CRIA AS SESSÕES DE CATEGORIA
+    // -----------------------------
+    Object.keys(categoriasMap).forEach(categoria => {
+
+        const section = document.createElement("section");
+        section.classList.add("categoria-bloco");
+
+        section.innerHTML = `
+            <h2 class="categoria-titulo">${categoria}</h2>
+            <div class="categoria-carrossel">
+            </div>
+        `;
+
+        grid.appendChild(section);
+
+        const carousel = section.querySelector(".categoria-carrossel");
+
+        // -----------------------------
+        // 🟦 CRIA OS CARDS DENTRO DO CARROSSEL
+        // -----------------------------
+        categoriasMap[categoria].forEach(p => {
+            let img = '/placeholder.png';
+            if (p.imagem_base64) {
+                img = p.imagem_base64.startsWith('data:image')
+                    ? p.imagem_base64
+                    : `data:image/jpeg;base64,${p.imagem_base64}`;
+            }
+
+            let precoHtml = "";
+            if (p.preco_promocional && Number(p.preco_promocional) < Number(p.preco)) {
+                precoHtml = `
+                <div class="price">
+                    <small style="text-decoration:line-through;color:var(--muted)">${money(p.preco)}</small>
+                    <div style="color:var(--accent); font-weight:600">
+                        ${money(p.preco_promocional)}
+                        <span style="color:#0f0;font-size:12px">PROMOÇÃO</span>
+                    </div>
+                </div>`;
+            } else {
+                precoHtml = `<div class="price">${money(p.preco)}</div>`;
+            }
+
+            carousel.innerHTML += `
+                <article class="product-card" data-id="${p.id}">
+                    <div class="thumb"><img src="${img}" alt="${escapeHtml(p.nome)}"></div>
+                    <div class="title">${escapeHtml(p.nome)}</div>
+                    <div style="color:var(--muted);font-size:13px">${escapeHtml(p.categoria_nome || p.categoria || '')}</div>
+                    ${precoHtml}
+                    <div class="actions">
+                        <button class="btn info" onclick="openProduct(${p.id})">Ver detalhes</button>
+                        <button class="btn buy" onclick="addToCart(${p.id},1)">Adicionar</button>
+                    </div>
+                </article>
+            `;
+        });
+    });
+
     updateCartUI();
-  }
+}
+
   // Clique para abrir fullscreen
 document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
   img.style.cursor = "zoom-in";
