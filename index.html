@@ -808,27 +808,27 @@ carregarProdutosPorCategoria();
     const term = q.value.trim().toLowerCase();
     let list = produtos.slice();
 
-    // 🔎 FILTROS EXISTENTES
+    // FILTRO DE BUSCA
     if (term) {
         list = list.filter(p =>
             (p.nome + ' ' + (p.categoria_nome || p.categoria || '')).toLowerCase().includes(term)
         );
     }
 
+    // FILTRO POR CATEGORIA
     const cat = filterCategoria.value;
     if (cat) list = list.filter(p => (p.categoria_nome || p.categoria) === cat);
 
+    // ORDENAÇÃO
     const s = sortSel.value;
     if (s === 'price_asc') list.sort((a, b) => Number(a.preco) - Number(b.preco));
     if (s === 'price_desc') list.sort((a, b) => Number(b.preco) - Number(a.preco));
     if (s === 'recent') list.sort((a, b) => b.id - a.id);
 
-    // contador
+    // Contador
     prodCount.textContent = list.length;
 
-    // -----------------------------
-    // 🟦 AGRUPAR PRODUTOS POR CATEGORIA
-    // -----------------------------
+    // AGRUPAR PRODUTOS POR CATEGORIA
     const categoriasMap = {};
 
     list.forEach(p => {
@@ -837,12 +837,10 @@ carregarProdutosPorCategoria();
         categoriasMap[categoria].push(p);
     });
 
-    // Limpa a grade e passa a exibir por categorias
+    // LIMPA
     grid.innerHTML = "";
 
-    // -----------------------------
-    // 🟦 CRIA AS SESSÕES DE CATEGORIA
-    // -----------------------------
+    // CRIA AS SESSÕES DE CATEGORIA
     Object.keys(categoriasMap).forEach(categoria => {
 
         const section = document.createElement("section");
@@ -850,18 +848,26 @@ carregarProdutosPorCategoria();
 
         section.innerHTML = `
             <h2 class="categoria-titulo">${categoria}</h2>
-            <div class="categoria-carrossel">
+
+            <div class="categoria-wrapper">
+                <button class="cat-btn left">❮</button>
+
+                <div class="categoria-carrossel">
+                </div>
+
+                <button class="cat-btn right">❯</button>
             </div>
         `;
 
         grid.appendChild(section);
 
         const carousel = section.querySelector(".categoria-carrossel");
+        const btnLeft = section.querySelector(".cat-btn.left");
+        const btnRight = section.querySelector(".cat-btn.right");
 
-        // -----------------------------
-        // 🟦 CRIA OS CARDS DENTRO DO CARROSSEL
-        // -----------------------------
+        // ADICIONA PRODUTOS NO CARROSSEL
         categoriasMap[categoria].forEach(p => {
+
             let img = '/placeholder.png';
             if (p.imagem_base64) {
                 img = p.imagem_base64.startsWith('data:image')
@@ -896,6 +902,18 @@ carregarProdutosPorCategoria();
                 </article>
             `;
         });
+
+        // FUNÇÃO DO CARROSSEL INDEPENDENTE POR CATEGORIA
+        const scrollAmount = 300;
+
+        btnLeft.addEventListener("click", () => {
+            carousel.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+        });
+
+        btnRight.addEventListener("click", () => {
+            carousel.scrollBy({ left: scrollAmount, behavior: "smooth" });
+        });
+
     });
 
     updateCartUI();
