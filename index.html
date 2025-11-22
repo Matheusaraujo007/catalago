@@ -114,8 +114,8 @@ header{
   position: fixed;
   bottom: 110px; /* above whatsapp button */
   right: 22px;
-  width: 70px;
-  height: 70px;
+  width: 55px;
+  height: 55px;
   background: var(--accent);
   border-radius: 50%;
   display: flex;
@@ -135,19 +135,19 @@ header{
   50% { transform: scale(1.06); }
   100% { transform: scale(1); }
 }
-.cart-float svg { width:30px; height:30px; }
+.cart-float svg { width:24px; height:24px; }
 
 .cart-badge {
   position: absolute;
   top: 6px;
   right: 6px;
-  min-width:20px;
-  height:20px;
+  min-width:16px;
+  height:16px;
   border-radius:999px;
   background:#000;
   color:var(--accent);
   font-weight:700;
-  font-size:12px;
+  font-size:10px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -160,8 +160,8 @@ header{
   position: fixed;
   bottom: 22px;
   right: 22px;
-  width: 70px;
-  height: 70px;
+  width: 55px;
+  height: 55px;
   background: #25d366;
   border-radius: 50%;
   display: flex;
@@ -176,6 +176,12 @@ header{
 @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
 
 footer{padding:28px 18px;color:var(--muted);text-align:center}
+
+.whatsapp-float svg {
+  width: 22px !important;
+  height: 22px !important;
+}
+
 
 /* banners (kept) */
 .banner-carousel {
@@ -205,25 +211,35 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 
 .banner-carousel .arrow-btn { width:48px; height:48px; }
 
-/* Lista de produtos em carrossel horizontal */
 .products-grid {
-  display: flex;
-  gap: 14px;
-  overflow-x: auto;
-  padding: 10px;
-  scroll-snap-type: x mandatory;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(4, 1fr);
 }
 
-.products-grid::-webkit-scrollbar {
-  display: none; /* some a barra no mobile */
+@media (max-width: 1100px) {
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
-/* Cada card vira um item rolável */
+@media (max-width: 800px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 450px) {
+  .products-grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
 .product-card {
-  min-width: 180px;
-  scroll-snap-align: start;
-  flex-shrink: 0;
+  min-width: unset;
+  flex-shrink: unset;
 }
+
 
 /* product arrow buttons (made round like banner) */
 #prevProducts, #nextProducts {
@@ -276,57 +292,54 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 
 @media(max-width: 480px) {
   .modal .dialog {
-    max-width: 95%;
-    padding: 12px !important;
-    gap: 12px !important;
+    width: 94% !important;
+    max-width: 360px !important;
+    padding: 14px !important;
+    border-radius: 12px !important;
+    gap: 10px !important;
+    max-height: 85vh !important; 
+    overflow-y: auto !important;
   }
 
   .carousel {
-    height: 240px !important;
+    height: 210px !important;
   }
 
   .carousel-track img {
-    height: 240px !important;
+    height: 210px !important;
+  }
+
+  #modalTitle {
+    font-size: 18px !important;
   }
 
   #modalDesc {
-    font-size: 14px !important;
+    font-size: 13px !important;
   }
 
   #modalPrice {
-    font-size: 18px !important;
+    font-size: 16px !important;
+  }
+
+  #qty {
+    padding: 6px !important;
+    width: 65px !important;
+  }
+
+  #addToCartModal {
+    padding: 10px !important;
+    font-size: 14px !important;
   }
 }
 
-.product-card {
-  background: var(--card);
-  padding: 10px;
-  border-radius: 12px;
-  min-width: 160px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+
+#fullTrack {
+    pointer-events: none;
 }
 
-#addToCartModal {
-  display: block !important;
-  width: 100%;
-  margin-top: 15px;
-  z-index: 9999;
+#fullTrack img {
+    pointer-events: auto;
 }
-
-#productModal, 
-#imageModal, 
-.modal {
-  z-index: 9999 !important;
-}
-
-.modal-content {
-  position: relative;
-  z-index: 9999;
-  padding-bottom: 70px !important; /* espaço pro botão caber */
-}
-
 
 
 </style>
@@ -351,21 +364,24 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   <button class="arrow-btn arrow-right" id="nextBanner">❯</button>
 </section>
 
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-    <h2 style="margin:0">Produtos</h2>
-    <div style="color:var(--muted)">Mostrando <span id="prodCount">0</span> produtos</div>
-  </div>
+  
 
-  <div class="filters">
-    <select id="filterCategoria"><option value="">Todas categorias</option></select>
-    <select id="sort"><option value="recent">Mais recentes</option><option value="price_asc">Preço ↑</option><option value="price_desc">Preço ↓</option></select>
-    <button id="clearFilters">Limpar filtros</button>
-  </div>
-<div style="position:relative">
-  <button id="prevProducts">❮</button>
-  <button id="nextProducts">❯</button>
-  <section class="products-grid" id="productsGrid"></section>
+  <!-- AQUI — COLOQUE OS FILTROS -->
+<div class="filters">
+  <select id="filterCategoria"><option value="">Todas categorias</option></select>
+  <select id="sort"><option value="recent">Mais recentes</option>
+  <option value="price_asc">Preço ↑</option>
+  <option value="price_desc">Preço ↓</option></select>
+  <button id="clearFilters">Limpar filtros</button>
 </div>
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+  <h2 style="margin:0">Produtos</h2>
+  <div style="color:var(--muted)">Mostrando <span id="prodCount">0</span> produtos</div>
+</div>
+
+<div id="productsGrid" class="products-grid"></div>
+
 </main>
 
 <!-- Modal produto -->
@@ -630,86 +646,38 @@ document.addEventListener('DOMContentLoaded', () => {
     categorias = Array.from(set);
     filterCategoria.innerHTML = '<option value="">Todas categorias</option>' + categorias.map(c=>`<option value="${c}">${c}</option>`).join('');
   }
-  function renderProdutos() {
-  const term = q.value.trim().toLowerCase();
-  let list = produtos.slice();
-
-  // Filtros
-  if (term)
-    list = list.filter(p =>
-      (p.nome + ' ' + (p.categoria_nome || p.categoria || '')).toLowerCase().includes(term)
-    );
-
-  const cat = filterCategoria.value;
-  if (cat) list = list.filter(p => (p.categoria_nome || p.categoria) === cat);
-
-  const s = sortSel.value;
-  if (s === 'price_asc') list.sort((a, b) => Number(a.preco) - Number(b.preco));
-  if (s === 'price_desc') list.sort((a, b) => Number(b.preco) - Number(a.preco));
-  if (s === 'recent') list.sort((a, b) => b.id - a.id);
-
-  prodCount.textContent = list.length;
-
-  // ★★ SEPARA POR CATEGORIA ★★
-  const categoriasMap = {};
-  list.forEach(p => {
-    const catName = p.categoria_nome || p.categoria || "Outros";
-    if (!categoriasMap[catName]) categoriasMap[catName] = [];
-    categoriasMap[catName].push(p);
-  });
-
-  // ★★ MONTA A SAÍDA POR CATEGORIA ★★
-  let htmlFinal = "";
-
-  for (const categoria in categoriasMap) {
-    htmlFinal += `
-    <div class="categoria-bloco">
-      <h2 class="categoria-titulo">${categoria}</h2>
-      <div class="carousel-container">
-        <div class="carousel-track">
-          ${categoriasMap[categoria].map(p => {
-            let precoHtml = '';
-
-            if (p.preco_promocional && Number(p.preco_promocional) < Number(p.preco)) {
-              precoHtml = `
-                <div class="price">
-                  <small style="text-decoration:line-through;color:var(--muted)">${money(p.preco)}</small>
-                  <div style="color:var(--accent); font-weight:600">
-                    ${money(p.preco_promocional)} 
-                    <span style="color:#0f0;font-size:12px">PROMOÇÃO</span>
-                  </div>
-                </div>`;
-            } else {
-              precoHtml = `<div class="price">${money(p.preco)}</div>`;
-            }
-
-            let img = "/placeholder.png";
-            if (p.imagem_base64)
-              img = p.imagem_base64.startsWith("data:image")
-                ? p.imagem_base64
-                : `data:image/jpeg;base64,${p.imagem_base64}`;
-
-            return `
-              <article class="product-card" style="min-width:150px" data-id="${p.id}">
-                <div class="thumb">
-                  <img src="${img}" alt="${escapeHtml(p.nome)}">
-                </div>
-                <div class="title">${escapeHtml(p.nome)}</div>
-                ${precoHtml}
-                <button class="btn info" onclick="openProduct(${p.id})">Ver</button>
-              </article>
-            `;
-          }).join('')}
-        </div>
-      </div>
-    `;
+  function renderProdutos(){
+    const term = q.value.trim().toLowerCase();
+    let list = produtos.slice();
+    if(term) list = list.filter(p => (p.nome + ' ' + (p.categoria_nome||p.categoria||'')).toLowerCase().includes(term));
+    const cat = filterCategoria.value; if(cat) list = list.filter(p => (p.categoria_nome||p.categoria) === cat);
+    const s = sortSel.value;
+    if(s === 'price_asc') list.sort((a,b)=>Number(a.preco)-Number(b.preco));
+    if(s === 'price_desc') list.sort((a,b)=>Number(b.preco)-Number(a.preco));
+    if(s === 'recent') list.sort((a,b)=>b.id-a.id);
+    prodCount.textContent = list.length;
+    grid.innerHTML = list.map(p => {
+      let precoHtml = '';
+      if(p.preco_promocional && Number(p.preco_promocional) < Number(p.preco)) {
+        precoHtml = `<div class="price"><small style="text-decoration:line-through;color:var(--muted)">${money(p.preco)}</small><div style="color:var(--accent); font-weight:600">${money(p.preco_promocional)} <span style="color:#0f0;font-size:12px">PROMOÇÃO</span></div></div>`;
+      } else precoHtml = `<div class="price">${money(p.preco)}</div>`;
+      let img = '/placeholder.png';
+      if (p.imagem_base64) img = p.imagem_base64.startsWith('data:image') ? p.imagem_base64 : `data:image/jpeg;base64,${p.imagem_base64}`;
+      return `
+        <article class="product-card" data-id="${p.id}">
+          <div class="thumb"><img src="${img}" alt="${escapeHtml(p.nome)}"></div>
+          <div class="title">${escapeHtml(p.nome)}</div>
+          <div style="color:var(--muted);font-size:13px">${escapeHtml(p.categoria_nome||p.categoria||'')}</div>
+          ${precoHtml}
+          <div class="actions">
+            <button class="btn info" data-id="${p.id}" onclick="openProduct(${p.id})">Ver detalhes</button>
+            <button class="btn buy" data-id="${p.id}" onclick="addToCart(${p.id},1)">Adicionar</button>
+          </div>
+        </article>
+      `;
+    }).join('');
+    updateCartUI();
   }
-
-  grid.innerHTML = htmlFinal;
-
-  updateCartUI();
-}
-
   // Clique para abrir fullscreen
 document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
   img.style.cursor = "zoom-in";
@@ -756,7 +724,7 @@ document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
     if(existing) existing.qt += qtd;
     else cart.push({ id: prod.id, qt: qtd, price: Number(promo.preco || prod.preco) });
     saveCart();
-    openCart();
+    /*openCart(); habilitar so por nescessidade do cliente*/ 
   }
   function increase(id){ const it = cart.find(i=>i.id==id); if(it){ it.qt++; saveCart(); } }
   function decrease(id){ const it = cart.find(i=>i.id==id); if(it){ it.qt--; if(it.qt<=0) cart = cart.filter(x=>x.id!=id); saveCart(); } }
@@ -775,7 +743,7 @@ document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
     }).join('');
 
     // ➜ Ativar clique para fullscreen
-    let fullIndex = 0;
+    
 
 document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
   img.style.cursor = "zoom-in";
@@ -807,13 +775,7 @@ document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
   function openCart(){ cartEl.classList.add('open'); document.body.style.overflow = 'hidden'; }
   function closeCart(){ cartEl.classList.remove('open'); document.body.style.overflow = 'auto'; }
 
-  /* bind controls for arrows / scrolling */
-  const gridEl = document.getElementById('productsGrid');
-  const nextBtn = document.getElementById('nextProducts');
-  const prevBtn = document.getElementById('prevProducts');
-  const scrollAmount = 250;
-  nextBtn.onclick = () => { gridEl.scrollBy({ left: scrollAmount, behavior: 'smooth' }); };
-  prevBtn.onclick = () => { gridEl.scrollBy({ left: -scrollAmount, behavior: 'smooth' }); };
+  
 
   /* event bindings */
   cartFloat.addEventListener('click', openCart);
@@ -1045,6 +1007,8 @@ Pedido feito com Manchinha Px Arts`;
 
 
   // === FULLSCREEN IMAGE ===
+  let fullIndex = 0;  // ← ADICIONEI ESTA LINHA AQUI
+
 const imgFull = document.getElementById("imgFull");
 const fullTrack = document.getElementById("fullTrack");
 const closeFull = document.getElementById("closeFull");
@@ -1065,7 +1029,9 @@ function openFullScreen(imagens, startIndex = 0) {
 closeFull.onclick = () => {
   imgFull.style.display = "none";
   document.body.style.overflow = "auto";
+  fullIndex = 0; // reset para não travar a navegação
 };
+
 
 // Swipe lateral (mobile)
 let startX = 0;
