@@ -298,21 +298,36 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   }
 }
 
-.categoria-bloco {
-  margin-bottom: 35px;
+.product-card {
+  background: var(--card);
+  padding: 10px;
+  border-radius: 12px;
+  min-width: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.categoria-titulo {
-  font-size: 20px;
-  margin: 0 0 10px 5px; /* não some */
-  color: #fff;
-  font-weight: 600;
-  position: sticky;
-  left: 0;
-  background: var(--bg);
-  padding: 5px 0;
-  z-index: 2;
+#addToCartModal {
+  display: block !important;
+  width: 100%;
+  margin-top: 15px;
+  z-index: 9999;
 }
+
+#productModal, 
+#imageModal, 
+.modal {
+  z-index: 9999 !important;
+}
+
+.modal-content {
+  position: relative;
+  z-index: 9999;
+  padding-bottom: 70px !important; /* espaço pro botão caber */
+}
+
+
 
 </style>
 </head>
