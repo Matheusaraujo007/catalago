@@ -371,22 +371,66 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 
 
 
+/* BLOCO DA CATEGORIA */
 .categoria-bloco {
-    margin-top: 25px;
+    margin-top: 35px;
+    width: 100%;
 }
 
+/* TÍTULO DA CATEGORIA */
 .categoria-titulo {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     font-weight: 700;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    padding-left: 4px;
 }
 
+/* WRAPPER DO CARROSSEL */
+.categoria-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+/* BOTÕES LATERAIS */
+.cat-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 50%;
+    z-index: 20;
+    transition: 0.2s ease;
+}
+
+.cat-btn:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.cat-btn.left {
+    left: -5px;
+}
+
+.cat-btn.right {
+    right: -5px;
+}
+
+/* O CARROSSEL REAL */
 .categoria-carrossel {
+    width: 100%;
     display: flex;
     gap: 15px;
     overflow-x: auto;
+    overflow-y: hidden;
     scroll-behavior: smooth;
-    padding-bottom: 10px;
+    padding: 8px 5px;
+    scrollbar-width: thin;
 }
 
 .categoria-carrossel::-webkit-scrollbar {
@@ -394,12 +438,15 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 }
 
 .categoria-carrossel::-webkit-scrollbar-thumb {
-    background: #888;
+    background: #777;
     border-radius: 10px;
 }
 
+/* AJUSTE DOS PRODUTOS */
 .product-card {
-    min-width: 170px;
+    min-width: 180px !important;
+    max-width: 180px !important;
+    flex-shrink: 0;
 }
 
 
