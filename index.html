@@ -341,6 +341,34 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
     pointer-events: auto;
 }
 
+.category-section {
+  margin-top: 25px;
+}
+
+.category-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  padding-left: 5px;
+}
+
+.category-scroll {
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  scroll-behavior: smooth;
+}
+
+.category-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.category-scroll::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
 
 </style>
 </head>
@@ -374,6 +402,9 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   <option value="price_desc">Preço ↓</option></select>
   <button id="clearFilters">Limpar filtros</button>
 </div>
+
+<div id="categoriesContainer"></div>
+
 
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
   <h2 style="margin:0">Produtos</h2>
@@ -646,6 +677,51 @@ document.addEventListener('DOMContentLoaded', () => {
     categorias = Array.from(set);
     filterCategoria.innerHTML = '<option value="">Todas categorias</option>' + categorias.map(c=>`<option value="${c}">${c}</option>`).join('');
   }
+
+  async function carregarProdutosPorCategoria() {
+  const response = await fetch("/api/products");
+  const produtos = await response.json();
+
+  const categoriasOrganizadas = {};
+
+  produtos.forEach(prod => {
+    if (!categoriasOrganizadas[prod.category]) {
+      categoriasOrganizadas[prod.category] = [];
+    }
+    categoriasOrganizadas[prod.category].push(prod);
+  });
+
+  const container = document.getElementById("categoriesContainer");
+  container.innerHTML = "";
+
+  Object.keys(categoriasOrganizadas).forEach(categoria => {
+    const section = document.createElement("div");
+    section.className = "category-section";
+
+    section.innerHTML = `
+      <h2 class="category-title">${categoria}</h2>
+      <div class="category-scroll" id="cat-${categoria}">
+      </div>
+    `;
+
+    container.appendChild(section);
+
+    const scrollArea = section.querySelector(".category-scroll");
+
+    categoriasOrganizadas[categoria].forEach(prod => {
+      scrollArea.innerHTML += `
+        <div class="product-card">
+          <img src="${prod.img}" alt="${prod.name}">
+          <h3>${prod.name}</h3>
+          <p>${prod.price}</p>
+        </div>
+      `;
+    });
+  });
+}
+
+carregarProdutosPorCategoria();
+
   function renderProdutos(){
     const term = q.value.trim().toLowerCase();
     let list = produtos.slice();
