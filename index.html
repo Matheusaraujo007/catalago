@@ -342,6 +342,62 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 }
 
 
+/* ===== CARROSSEL POR CATEGORIA ===== */
+.categoria-section {
+  margin: 35px 0;
+}
+
+.categoria-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.categoria-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.categoria-track {
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 8px 0;
+  flex-wrap: nowrap;
+
+  /* ESSENCIAL NO MOBILE */
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+.categoria-track::-webkit-scrollbar {
+  height: 0;
+}
+
+.cat-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(15,15,15,0.6);
+  color: #fff;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 10;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.cat-arrow.left { left: -5px; }
+.cat-arrow.right { right: -5px; }
+
+
+
 </style>
 </head>
 <body>
@@ -640,12 +696,76 @@ document.addEventListener('DOMContentLoaded', () => {
     return { preco: Math.max(0, preco), label: `R$ ${Number(promo.valor).toFixed(2)} OFF` };
   }
 
-  /* Render */
-  function renderCategorias(){
-    const set = new Set(produtos.map(p=>p.categoria_nome || p.categoria || 'Outros'));
-    categorias = Array.from(set);
-    filterCategoria.innerHTML = '<option value="">Todas categorias</option>' + categorias.map(c=>`<option value="${c}">${c}</option>`).join('');
-  }
+ /* ===============================
+      CARROSSEL POR CATEGORIA
+=============================== */
+
+function renderCategoriasComCarrossel(lista) {
+    const container = document.getElementById("productsGrid");
+    container.innerHTML = ""; // grade antiga é apagada
+
+    // AGRUPAR POR CATEGORIA
+    const grupos = {};
+    lista.forEach(p => {
+        const cat = p.categoria_nome || p.categoria || "Outros";
+        if (!grupos[cat]) grupos[cat] = [];
+        grupos[cat].push(p);
+    });
+
+    // CRIAR BLOCOS POR CATEGORIA
+    Object.keys(grupos).forEach(cat => {
+        const produtosDaCategoria = grupos[cat];
+
+        const bloco = document.createElement("section");
+        bloco.className = "categoria-section";
+
+        bloco.innerHTML = `
+            <h2 class="categoria-title">${cat}</h2>
+
+            <div class="categoria-wrap">
+                <button class="cat-arrow left" onclick="scrollCategoria('${cat}', -1)">❮</button>
+
+                <div class="categoria-track" id="cat_${cat.replace(/\s+/g,'_')}"></div>
+
+                <button class="cat-arrow right" onclick="scrollCategoria('${cat}', 1)">❯</button>
+            </div>
+        `;
+
+        container.appendChild(bloco);
+
+        const track = bloco.querySelector(".categoria-track");
+
+        produtosDaCategoria.forEach(p => {
+            let img = "/placeholder.png";
+            if (p.imagem_base64)
+                img = p.imagem_base64.startsWith("data:image")
+                    ? p.imagem_base64
+                    : `data:image/jpeg;base64,${p.imagem_base64}`;
+
+            track.innerHTML += `
+                <article class="product-card" style="min-width:220px;flex-shrink:0;">
+                    <div class="thumb"><img src="${img}"></div>
+                    <div class="title">${escapeHtml(p.nome)}</div>
+                    <div style="color:var(--muted);font-size:13px">${p.categoria_nome || p.categoria}</div>
+
+                    <div class="price">${money(p.preco)}</div>
+
+                    <div class="actions">
+                        <button class="btn info" onclick="openProduct(${p.id})">Ver detalhes</button>
+                        <button class="btn buy" onclick="addToCart(${p.id},1)">Adicionar</button>
+                    </div>
+                </article>
+            `;
+        });
+    });
+}
+
+window.scrollCategoria = function (cat, dir) {
+    const id = `cat_${cat.replace(/\s+/g, "_")}`;
+    const track = document.getElementById(id);
+    track.scrollBy({ left: dir * 300, behavior: "smooth" });
+};
+
   function renderProdutos(){
     const term = q.value.trim().toLowerCase();
     let list = produtos.slice();
@@ -676,6 +796,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </article>
       `;
     }).join('');
+    renderCategoriasComCarrossel(list);
     updateCartUI();
   }
   // Clique para abrir fullscreen
