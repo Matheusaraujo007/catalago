@@ -678,7 +678,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try{
       const r = await fetch(API_BASE + '/produtos');
       produtos = await r.json();
-      renderCategorias();
+      
       await fetchPromocoes();
       renderProdutos();
     }catch(e){ console.error('Erro produtos', e); grid.innerHTML = '<div style="color:#f33">Erro ao carregar produtos</div>'; }
@@ -776,8 +776,8 @@ window.scrollCategoria = function (cat, dir) {
     if(s === 'price_desc') list.sort((a,b)=>Number(b.preco)-Number(a.preco));
     if(s === 'recent') list.sort((a,b)=>b.id-a.id);
     prodCount.textContent = list.length;
-    prodCount.textContent = list.length;
     
+
     renderCategoriasComCarrossel(list);
     updateCartUI();
   }
