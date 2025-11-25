@@ -646,38 +646,109 @@ document.addEventListener('DOMContentLoaded', () => {
     categorias = Array.from(set);
     filterCategoria.innerHTML = '<option value="">Todas categorias</option>' + categorias.map(c=>`<option value="${c}">${c}</option>`).join('');
   }
-  function renderProdutos(){
+  function renderProdutos() {
     const term = q.value.trim().toLowerCase();
-    let list = produtos.slice();
-    if(term) list = list.filter(p => (p.nome + ' ' + (p.categoria_nome||p.categoria||'')).toLowerCase().includes(term));
-    const cat = filterCategoria.value; if(cat) list = list.filter(p => (p.categoria_nome||p.categoria) === cat);
+    const catFiltro = filterCategoria.value;
+    let lista = produtos.slice();
+
+    // 🔎 filtro busca
+    if (term)
+        lista = lista.filter(p =>
+            (p.nome + " " + (p.categoria_nome || p.categoria || "")).toLowerCase().includes(term)
+        );
+
+    // 🔎 filtro categoria
+    if (catFiltro)
+        lista = lista.filter(p => (p.categoria_nome || p.categoria) === catFiltro);
+
+    // 🔎 ordenação
     const s = sortSel.value;
-    if(s === 'price_asc') list.sort((a,b)=>Number(a.preco)-Number(b.preco));
-    if(s === 'price_desc') list.sort((a,b)=>Number(b.preco)-Number(a.preco));
-    if(s === 'recent') list.sort((a,b)=>b.id-a.id);
-    prodCount.textContent = list.length;
-    grid.innerHTML = list.map(p => {
-      let precoHtml = '';
-      if(p.preco_promocional && Number(p.preco_promocional) < Number(p.preco)) {
-        precoHtml = `<div class="price"><small style="text-decoration:line-through;color:var(--muted)">${money(p.preco)}</small><div style="color:var(--accent); font-weight:600">${money(p.preco_promocional)} <span style="color:#0f0;font-size:12px">PROMOÇÃO</span></div></div>`;
-      } else precoHtml = `<div class="price">${money(p.preco)}</div>`;
-      let img = '/placeholder.png';
-      if (p.imagem_base64) img = p.imagem_base64.startsWith('data:image') ? p.imagem_base64 : `data:image/jpeg;base64,${p.imagem_base64}`;
-      return `
-        <article class="product-card" data-id="${p.id}">
-          <div class="thumb"><img src="${img}" alt="${escapeHtml(p.nome)}"></div>
-          <div class="title">${escapeHtml(p.nome)}</div>
-          <div style="color:var(--muted);font-size:13px">${escapeHtml(p.categoria_nome||p.categoria||'')}</div>
-          ${precoHtml}
-          <div class="actions">
-            <button class="btn info" data-id="${p.id}" onclick="openProduct(${p.id})">Ver detalhes</button>
-            <button class="btn buy" data-id="${p.id}" onclick="addToCart(${p.id},1)">Adicionar</button>
-          </div>
-        </article>
-      `;
-    }).join('');
+    if (s === "price_asc") lista.sort((a, b) => Number(a.preco) - Number(b.preco));
+    if (s === "price_desc") lista.sort((a, b) => Number(b.preco) - Number(a.preco));
+    if (s === "recent") lista.sort((a, b) => b.id - a.id);
+
+    // ⚠ Apagamos o Grid atual, pois agora será por categoria
+    const container = document.getElementById("productsGrid");
+    container.innerHTML = "";
+    prodCount.textContent = lista.length;
+
+    // 🧩 AGRUPAR POR CATEGORIA
+    const grupos = {};
+    lista.forEach(p => {
+        const cat = p.categoria_nome || p.categoria || "Outros";
+        if (!grupos[cat]) grupos[cat] = [];
+        grupos[cat].push(p);
+    });
+
+    // 🔄 CRIAÇÃO DAS SESSÕES POR CATEGORIA
+    Object.keys(grupos).forEach(cat => {
+        const produtosDaCategoria = grupos[cat];
+
+        // Criar bloco
+        const bloco = document.createElement("section");
+        bloco.className = "categoria-section";
+        bloco.style.marginBottom = "40px";
+
+        bloco.innerHTML = `
+            <h2 style="margin: 10px 0 12px; font-size: 22px;">${cat}</h2>
+
+            <div class="categoria-carrossel" style="position:relative; overflow:hidden;">
+                <button class="arrow-btn arrow-left" onclick="scrollCat('${cat}', -1)">❮</button>
+
+                <div class="categoria-track" id="track_${cat.replace(/\s+/g,'_')}"
+                     style="display:flex; gap:18px; overflow-x:auto; scroll-behavior:smooth; padding-bottom:6px;">
+                </div>
+
+                <button class="arrow-btn arrow-right" onclick="scrollCat('${cat}', 1)">❯</button>
+            </div>
+        `;
+
+        // Inserir no container
+        container.appendChild(bloco);
+
+        // Preencher carrossel
+        const track = document.getElementById(`track_${cat.replace(/\s+/g,'_')}`);
+
+        produtosDaCategoria.forEach(p => {
+            let img = "/placeholder.png";
+            if (p.imagem_base64)
+                img = p.imagem_base64.startsWith("data:image")
+                    ? p.imagem_base64
+                    : `data:image/jpeg;base64,${p.imagem_base64}`;
+
+            const promo = aplicarPromocao(p);
+
+            const card = document.createElement("article");
+            card.className = "product-card";
+            card.style.minWidth = "220px"; // largura padrão para carrossel
+            card.style.flexShrink = "0";  
+
+            card.innerHTML = `
+                <div class="thumb"><img src="${img}"></div>
+                <div class="title">${escapeHtml(p.nome)}</div>
+                <div style="color:var(--muted); font-size:13px">${escapeHtml(p.categoria_nome || p.categoria || "")}</div>
+                <div class="price">${money(promo.preco)}</div>
+
+                <div class="actions">
+                    <button class="btn info" onclick="openProduct(${p.id})">Ver detalhes</button>
+                    <button class="btn buy" onclick="addToCart(${p.id},1)">Adicionar</button>
+                </div>
+            `;
+
+            track.appendChild(card);
+        });
+    });
+
     updateCartUI();
-  }
+}
+
+// 🔄 função para rolar carrossel
+window.scrollCat = function (categoria, dir) {
+    const id = `track_${categoria.replace(/\s+/g, '_')}`;
+    const el = document.getElementById(id);
+    el.scrollLeft += dir * 300; // move 300px
+};
+
   // Clique para abrir fullscreen
 document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
   img.style.cursor = "zoom-in";
