@@ -776,26 +776,8 @@ window.scrollCategoria = function (cat, dir) {
     if(s === 'price_desc') list.sort((a,b)=>Number(b.preco)-Number(a.preco));
     if(s === 'recent') list.sort((a,b)=>b.id-a.id);
     prodCount.textContent = list.length;
-    grid.innerHTML = list.map(p => {
-      let precoHtml = '';
-      if(p.preco_promocional && Number(p.preco_promocional) < Number(p.preco)) {
-        precoHtml = `<div class="price"><small style="text-decoration:line-through;color:var(--muted)">${money(p.preco)}</small><div style="color:var(--accent); font-weight:600">${money(p.preco_promocional)} <span style="color:#0f0;font-size:12px">PROMOÇÃO</span></div></div>`;
-      } else precoHtml = `<div class="price">${money(p.preco)}</div>`;
-      let img = '/placeholder.png';
-      if (p.imagem_base64) img = p.imagem_base64.startsWith('data:image') ? p.imagem_base64 : `data:image/jpeg;base64,${p.imagem_base64}`;
-      return `
-        <article class="product-card" data-id="${p.id}">
-          <div class="thumb"><img src="${img}" alt="${escapeHtml(p.nome)}"></div>
-          <div class="title">${escapeHtml(p.nome)}</div>
-          <div style="color:var(--muted);font-size:13px">${escapeHtml(p.categoria_nome||p.categoria||'')}</div>
-          ${precoHtml}
-          <div class="actions">
-            <button class="btn info" data-id="${p.id}" onclick="openProduct(${p.id})">Ver detalhes</button>
-            <button class="btn buy" data-id="${p.id}" onclick="addToCart(${p.id},1)">Adicionar</button>
-          </div>
-        </article>
-      `;
-    }).join('');
+    prodCount.textContent = list.length;
+    
     renderCategoriasComCarrossel(list);
     updateCartUI();
   }
