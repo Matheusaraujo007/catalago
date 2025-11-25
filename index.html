@@ -758,6 +758,7 @@ function renderCategoriasComCarrossel(lista) {
             `;
         });
     });
+    ativarTravamentoDeScroll(track); // ← ATIVAR TRAVAMENTO DE SCROLL
 }
 
 window.scrollCategoria = function (cat, dir) {
@@ -765,6 +766,28 @@ window.scrollCategoria = function (cat, dir) {
     const track = document.getElementById(id);
     track.scrollBy({ left: dir * 300, behavior: "smooth" });
 };
+
+// Impedir página de rolar enquanto arrasta o carrossel
+function ativarTravamentoDeScroll(track) {
+    let startX = 0;
+    let startY = 0;
+
+    track.addEventListener("touchstart", e => {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+    });
+
+    track.addEventListener("touchmove", e => {
+        const dx = Math.abs(e.touches[0].clientX - startX);
+        const dy = Math.abs(e.touches[0].clientY - startY);
+
+        // se o movimento for MAIS horizontal que vertical → trava o scroll vertical
+        if (dx > dy) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+}
+
 
   function renderProdutos(){
     const term = q.value.trim().toLowerCase();
