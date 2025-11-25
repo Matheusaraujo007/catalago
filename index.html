@@ -341,6 +341,30 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
     pointer-events: auto;
 }
 
+.categoria-track {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  display: flex;
+  gap: 18px;
+  padding-bottom: 6px;
+  scroll-behavior: smooth;
+
+  /* 👇 ESSENCIAL PARA MOBILE */
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+.categoria-track::-webkit-scrollbar {
+  height: 0; /* esconder barra */
+}
+
+.categoria-track {
+  scroll-snap-type: x mandatory;
+}
+
+.product-card {
+  scroll-snap-align: start;
+}
 
 </style>
 </head>
