@@ -341,22 +341,155 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
     pointer-events: auto;
 }
 
-.categoria-track {
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
+.category-section {
+  margin-top: 25px;
+}
+
+.category-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  padding-left: 5px;
+}
+
+.category-scroll {
   display: flex;
-  gap: 18px;
-  padding-bottom: 6px;
+  gap: 15px;
+  overflow-x: auto;
+  padding-bottom: 10px;
   scroll-behavior: smooth;
-
-  /* 👇 ESSENCIAL PARA MOBILE */
-  touch-action: pan-y;
-  -webkit-overflow-scrolling: touch;
 }
 
-.categoria-track::-webkit-scrollbar {
-  height: 0; /* esconder barra */
+.category-scroll::-webkit-scrollbar {
+  height: 6px;
 }
+
+.category-scroll::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+
+
+/* BLOCO DA CATEGORIA */
+.categoria-bloco {
+    margin-top: 35px;
+    width: 100%;
+}
+
+/* TÍTULO DA CATEGORIA */
+.categoria-titulo {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    padding-left: 4px;
+}
+
+/* WRAPPER DO CARROSSEL */
+.categoria-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+/* BOTÕES LATERAIS */
+.cat-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 50%;
+    z-index: 20;
+    transition: 0.2s ease;
+}
+
+.cat-btn:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.cat-btn.left {
+    left: -5px;
+}
+
+.cat-btn.right {
+    right: -5px;
+}
+
+/* O CARROSSEL REAL */
+.categoria-carrossel {
+    width: 100%;
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    padding: 8px 5px;
+    scrollbar-width: thin;
+}
+
+.categoria-carrossel::-webkit-scrollbar {
+    height: 6px;
+}
+
+.categoria-carrossel::-webkit-scrollbar-thumb {
+    background: #777;
+    border-radius: 10px;
+}
+
+/* AJUSTE DOS PRODUTOS */
+.product-card {
+    min-width: 180px !important;
+    max-width: 180px !important;
+    flex-shrink: 0;
+}
+
+
+.categoria-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.cat-btn {
+    border: none;
+    background: var(--card);
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 8px;
+    transition: 0.2s ease;
+    z-index: 9;
+}
+
+.cat-btn:hover {
+    background: var(--accent);
+}
+
+.cat-btn.left {
+    margin-right: 5px;
+}
+
+.cat-btn.right {
+    margin-left: 5px;
+}
+
+.categoria-carrossel {
+    flex: 1;
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 10px 0;
+}
+
+
 
 </style>
 </head>
@@ -391,12 +524,20 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   <button id="clearFilters">Limpar filtros</button>
 </div>
 
+<div id="categoriesContainer"></div>
+
+
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
   <h2 style="margin:0">Produtos</h2>
   <div style="color:var(--muted)">Mostrando <span id="prodCount">0</span> produtos</div>
 </div>
 
-<div id="productsGrid" class="products-grid"></div>
+
+<!-- ============================
+     CATEGORIAS EM CARROSSEL
+============================ -->
+<div id="categoriasContainer"></div>
+
 
 </main>
 
@@ -662,108 +803,173 @@ document.addEventListener('DOMContentLoaded', () => {
     categorias = Array.from(set);
     filterCategoria.innerHTML = '<option value="">Todas categorias</option>' + categorias.map(c=>`<option value="${c}">${c}</option>`).join('');
   }
+
+  async function carregarProdutosPorCategoria() {
+  const response = await fetch("/api/products");
+  const produtos = await response.json();
+
+  const categoriasOrganizadas = {};
+
+  produtos.forEach(prod => {
+    if (!categoriasOrganizadas[prod.category]) {
+      categoriasOrganizadas[prod.category] = [];
+    }
+    categoriasOrganizadas[prod.category].push(prod);
+  });
+
+  const container = document.getElementById("categoriesContainer");
+  container.innerHTML = "";
+
+  Object.keys(categoriasOrganizadas).forEach(categoria => {
+    const section = document.createElement("div");
+    section.className = "category-section";
+
+    section.innerHTML = `
+    <h2 class="categoria-titulo">${categoria}</h2>
+
+    <div class="categoria-wrapper">
+        <button class="cat-btn left" onclick="scrollCategoria('${categoria}', -1)">&#10094;</button>
+
+        <div class="categoria-carrossel" id="cat-${categoria}">
+        </div>
+
+        <button class="cat-btn right" onclick="scrollCategoria('${categoria}', 1)">&#10095;</button>
+    </div>
+`;
+
+
+    container.appendChild(section);
+
+    const scrollArea = section.querySelector(".category-scroll");
+
+    categoriasOrganizadas[categoria].forEach(prod => {
+      scrollArea.innerHTML += `
+        <div class="product-card">
+          <img src="${prod.img}" alt="${prod.name}">
+          <h3>${prod.name}</h3>
+          <p>${prod.price}</p>
+        </div>
+      `;
+    });
+  });
+}
+
+carregarProdutosPorCategoria();
+
   function renderProdutos() {
     const term = q.value.trim().toLowerCase();
-    const catFiltro = filterCategoria.value;
-    let lista = produtos.slice();
+    let list = produtos.slice();
 
-    // 🔎 filtro busca
-    if (term)
-        lista = lista.filter(p =>
-            (p.nome + " " + (p.categoria_nome || p.categoria || "")).toLowerCase().includes(term)
+    // FILTRO DE BUSCA
+    if (term) {
+        list = list.filter(p =>
+            (p.nome + ' ' + (p.categoria_nome || p.categoria || '')).toLowerCase().includes(term)
         );
+    }
 
-    // 🔎 filtro categoria
-    if (catFiltro)
-        lista = lista.filter(p => (p.categoria_nome || p.categoria) === catFiltro);
+    // FILTRO POR CATEGORIA
+    const cat = filterCategoria.value;
+    if (cat) list = list.filter(p => (p.categoria_nome || p.categoria) === cat);
 
-    // 🔎 ordenação
+    // ORDENAÇÃO
     const s = sortSel.value;
-    if (s === "price_asc") lista.sort((a, b) => Number(a.preco) - Number(b.preco));
-    if (s === "price_desc") lista.sort((a, b) => Number(b.preco) - Number(a.preco));
-    if (s === "recent") lista.sort((a, b) => b.id - a.id);
+    if (s === 'price_asc') list.sort((a, b) => Number(a.preco) - Number(b.preco));
+    if (s === 'price_desc') list.sort((a, b) => Number(b.preco) - Number(a.preco));
+    if (s === 'recent') list.sort((a, b) => b.id - a.id);
 
-    // ⚠ Apagamos o Grid atual, pois agora será por categoria
-    const container = document.getElementById("productsGrid");
-    container.innerHTML = "";
-    prodCount.textContent = lista.length;
+    // Contador
+    prodCount.textContent = list.length;
 
-    // 🧩 AGRUPAR POR CATEGORIA
-    const grupos = {};
-    lista.forEach(p => {
-        const cat = p.categoria_nome || p.categoria || "Outros";
-        if (!grupos[cat]) grupos[cat] = [];
-        grupos[cat].push(p);
+    // AGRUPAR PRODUTOS POR CATEGORIA
+    const categoriasMap = {};
+
+    list.forEach(p => {
+        const categoria = p.categoria_nome || p.categoria || "Outros";
+        if (!categoriasMap[categoria]) categoriasMap[categoria] = [];
+        categoriasMap[categoria].push(p);
     });
 
-    // 🔄 CRIAÇÃO DAS SESSÕES POR CATEGORIA
-    Object.keys(grupos).forEach(cat => {
-        const produtosDaCategoria = grupos[cat];
+    // LIMPA
+    grid.innerHTML = "";
 
-        // Criar bloco
-        const bloco = document.createElement("section");
-        bloco.className = "categoria-section";
-        bloco.style.marginBottom = "40px";
+    // CRIA AS SESSÕES DE CATEGORIA
+    Object.keys(categoriasMap).forEach(categoria => {
 
-        bloco.innerHTML = `
-            <h2 style="margin: 10px 0 12px; font-size: 22px;">${cat}</h2>
+        const section = document.createElement("section");
+        section.classList.add("categoria-bloco");
 
-            <div class="categoria-carrossel" style="position:relative; overflow:hidden;">
-                <button class="arrow-btn arrow-left" onclick="scrollCat('${cat}', -1)">❮</button>
+        section.innerHTML = `
+            <h2 class="categoria-titulo">${categoria}</h2>
 
-                <div class="categoria-track" id="track_${cat.replace(/\s+/g,'_')}"
-                     style="display:flex; gap:18px; overflow-x:auto; scroll-behavior:smooth; padding-bottom:6px;">
+            <div class="categoria-wrapper">
+                <button class="cat-btn left">❮</button>
+
+                <div class="categoria-carrossel">
                 </div>
 
-                <button class="arrow-btn arrow-right" onclick="scrollCat('${cat}', 1)">❯</button>
+                <button class="cat-btn right">❯</button>
             </div>
         `;
 
-        // Inserir no container
-        container.appendChild(bloco);
+        grid.appendChild(section);
 
-        // Preencher carrossel
-        const track = document.getElementById(`track_${cat.replace(/\s+/g,'_')}`);
+        const carousel = section.querySelector(".categoria-carrossel");
+        const btnLeft = section.querySelector(".cat-btn.left");
+        const btnRight = section.querySelector(".cat-btn.right");
 
-        produtosDaCategoria.forEach(p => {
-            let img = "/placeholder.png";
-            if (p.imagem_base64)
-                img = p.imagem_base64.startsWith("data:image")
+        // ADICIONA PRODUTOS NO CARROSSEL
+        categoriasMap[categoria].forEach(p => {
+
+            let img = '/placeholder.png';
+            if (p.imagem_base64) {
+                img = p.imagem_base64.startsWith('data:image')
                     ? p.imagem_base64
                     : `data:image/jpeg;base64,${p.imagem_base64}`;
+            }
 
-            const promo = aplicarPromocao(p);
+            let precoHtml = "";
+            if (p.preco_promocional && Number(p.preco_promocional) < Number(p.preco)) {
+                precoHtml = `
+                <div class="price">
+                    <small style="text-decoration:line-through;color:var(--muted)">${money(p.preco)}</small>
+                    <div style="color:var(--accent); font-weight:600">
+                        ${money(p.preco_promocional)}
+                        <span style="color:#0f0;font-size:12px">PROMOÇÃO</span>
+                    </div>
+                </div>`;
+            } else {
+                precoHtml = `<div class="price">${money(p.preco)}</div>`;
+            }
 
-            const card = document.createElement("article");
-            card.className = "product-card";
-            card.style.minWidth = "220px"; // largura padrão para carrossel
-            card.style.flexShrink = "0";  
-
-            card.innerHTML = `
-                <div class="thumb"><img src="${img}"></div>
-                <div class="title">${escapeHtml(p.nome)}</div>
-                <div style="color:var(--muted); font-size:13px">${escapeHtml(p.categoria_nome || p.categoria || "")}</div>
-                <div class="price">${money(promo.preco)}</div>
-
-                <div class="actions">
-                    <button class="btn info" onclick="openProduct(${p.id})">Ver detalhes</button>
-                    <button class="btn buy" onclick="addToCart(${p.id},1)">Adicionar</button>
-                </div>
+            carousel.innerHTML += `
+                <article class="product-card" data-id="${p.id}">
+                    <div class="thumb"><img src="${img}" alt="${escapeHtml(p.nome)}"></div>
+                    <div class="title">${escapeHtml(p.nome)}</div>
+                    <div style="color:var(--muted);font-size:13px">${escapeHtml(p.categoria_nome || p.categoria || '')}</div>
+                    ${precoHtml}
+                    <div class="actions">
+                        <button class="btn info" onclick="openProduct(${p.id})">Ver detalhes</button>
+                        <button class="btn buy" onclick="addToCart(${p.id},1)">Adicionar</button>
+                    </div>
+                </article>
             `;
-
-            track.appendChild(card);
         });
+
+        // FUNÇÃO DO CARROSSEL INDEPENDENTE POR CATEGORIA
+        const scrollAmount = 300;
+
+        btnLeft.addEventListener("click", () => {
+            carousel.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+        });
+
+        btnRight.addEventListener("click", () => {
+            carousel.scrollBy({ left: scrollAmount, behavior: "smooth" });
+        });
+
     });
 
     updateCartUI();
 }
-
-// 🔄 função para rolar carrossel
-window.scrollCat = function (categoria, dir) {
-    const id = `track_${categoria.replace(/\s+/g, '_')}`;
-    const el = document.getElementById(id);
-    el.scrollLeft += dir * 300; // move 300px
-};
 
   // Clique para abrir fullscreen
 document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
@@ -1142,6 +1348,13 @@ function fullPrev(){
     fullTrack.style.transform = `translateX(-${fullIndex * 100}%)`;
   }
 }
+
+function scrollCategoria(cat, dir) {
+    const area = document.getElementById("cat-" + cat);
+    const amount = 250; // distância que desliza por clique
+    area.scrollBy({ left: dir * amount, behavior: "smooth" });
+}
+
 
   // initial load
   fetchProdutos();
