@@ -617,6 +617,48 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   </div>
 </div>
 
+<!-- ========== MODAL ENTREGA J&T EXPRESS ========== -->
+<div id="modalEntrega" class="modal-placa-bg" style="display:none;">
+  <div class="modal-placa-box">
+    <h2 style="margin-top:0; text-align:center; color:#fdd835;">📦 Endereço para Entrega</h2>
+
+    <p style="font-size:14px; opacity:.9; margin-bottom:12px;">
+      📌 Por favor nos envie seu endereço para emitirmos o tag de envio pela transportadora J&T Express!<br>
+      🚨 POR FAVOR, ENVIAR AS INFORMAÇÕES DIGITADAS!
+    </p>
+
+    <label>Endereço + número:</label>
+    <input id="ent_endereco" type="text" placeholder="Rua, Nº...">
+
+    <label>Número telefone:</label>
+    <input id="ent_tel" type="text" placeholder="DDD + número">
+
+    <label>CEP:</label>
+    <input id="ent_cep" type="text">
+
+    <label>Bairro:</label>
+    <input id="ent_bairro" type="text">
+
+    <label>Complemento:</label>
+    <input id="ent_complemento" type="text">
+
+    <label>Nome completo:</label>
+    <input id="ent_nome" type="text">
+
+    <label>CPF:</label>
+    <input id="ent_cpf" type="text">
+
+    <label>Próximo a:</label>
+    <input id="ent_proximo" type="text">
+
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button id="cancelEntrega" class="btn info" style="flex:1;background:transparent">Cancelar</button>
+      <button id="btnEnviarEntrega" class="btn-confirmar-pedido" style="flex:1">Confirmar Endereço</button>
+    </div>
+  </div>
+</div>
+
+
 
 <script>
 /* ========== CONFIG ========= */
@@ -649,6 +691,41 @@ document.addEventListener('DOMContentLoaded', () => {
   const qtyInput = document.getElementById('qty');
   const addToCartModal = document.getElementById('addToCartModal');
   const cartFloat = document.getElementById('cartFloat');
+
+  // abrir modal ENTREGA ao selecionar "entrega"
+document.querySelectorAll("input[name='tipoEntrega']").forEach(r => {
+  r.addEventListener("change", e => {
+    if (e.target.value === "entrega") {
+      document.getElementById("modalEntrega").style.display = "flex";
+    }
+  });
+});
+
+// fechar modal
+document.getElementById("cancelEntrega").onclick = () => {
+  document.getElementById("modalEntrega").style.display = "none";
+};
+
+// salvar dados de entrega
+document.getElementById("btnEnviarEntrega").onclick = () => {
+  const dadosEntrega = {
+    endereco: document.getElementById("ent_endereco").value.trim(),
+    telefone: document.getElementById("ent_tel").value.trim(),
+    cep: document.getElementById("ent_cep").value.trim(),
+    bairro: document.getElementById("ent_bairro").value.trim(),
+    complemento: document.getElementById("ent_complemento").value.trim(),
+    nome: document.getElementById("ent_nome").value.trim(),
+    cpf: document.getElementById("ent_cpf").value.trim(),
+    proximo: document.getElementById("ent_proximo").value.trim(),
+  };
+
+  window.__dados_entrega = dadosEntrega;
+
+  document.getElementById("modalEntrega").style.display = "none";
+  alert("Endereço salvo! Agora finalize seu pedido.");
+};
+
+
 
   /* Banner controls */
   async function carregarBanners(){
@@ -1012,6 +1089,27 @@ Detalhes Faixa Refletiva (Luminoso)
 --------`;
     }
 
+        // Recupera dados do modal de entrega
+    let dadosEntrega = window.__dados_entrega || null;
+
+    let secEntrega = "";
+    if (dadosEntrega) {
+      secEntrega = `
+📦 *ENDEREÇO PARA ENTREGA (J&T)*
+
+Endereço: ${dadosEntrega.endereco}
+Telefone: ${dadosEntrega.telefone}
+CEP: ${dadosEntrega.cep}
+Bairro: ${dadosEntrega.bairro}
+Complemento: ${dadosEntrega.complemento}
+Nome: ${dadosEntrega.nome}
+CPF: ${dadosEntrega.cpf}
+Próximo à: ${dadosEntrega.proximo}
+--------
+`;
+    }
+
+
     const mensagem = `Olá, meu nome é ${cliente.nome}, esse é o meu pedido realizado através da loja Manchinha Px Arts
 --------
 ${resumoItens}
@@ -1021,6 +1119,7 @@ Total dos itens: ${money(valor_total)}
 --------
 ${secPlaca}
 ${secLum}
+${secEntrega}   ← AGORA SERÁ INCLUÍDO AUTOMATICAMENTE
 Valor da entrega: A DEFINIR
 Valor Total: ${money(valor_total)}
 --------
