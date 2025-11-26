@@ -289,7 +289,8 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   .carousel-track img, .banner-track img { height: 220px; }
 }
 
-/* MODAL DO PRODUTO — NOVO DESIGN PADRÃO */
+/* ===== MODAL PADRONIZADO ===== */
+
 .modal {
   position: fixed;
   inset: 0;
@@ -303,7 +304,8 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 
 .modal .dialog {
   width: 100%;
-  max-width: 480px;        /* TAMANHO PERFEITO */
+  max-width: 460px;       /* TAMANHO FIXO */
+  height: auto;
   background: #161616;
   border-radius: 14px;
   padding: 16px;
@@ -312,22 +314,34 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   gap: 14px;
   position: relative;
   box-shadow: 0 0 25px rgba(0,0,0,0.5);
+  overflow: hidden;       /* evita esticar */
 }
 
-/* imagem menor e mais elegante */
+/* Forçar o carrossel a ter o MESMO TAMANHO SEMPRE */
 .modal .carousel {
   width: 100%;
-  height: 260px;
+  height: 260px;          /* FIXO */
   border-radius: 10px;
   overflow: hidden;
   background: #000;
+  position: relative;
+}
+
+.carousel-track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform .3s ease;
 }
 
 .carousel-track img {
-  height: 260px !important;
+  width: 100%;
+  height: 100% !important; /* PADRÃO IGUAL */
+  object-fit: contain !important;
+  background: #000;
 }
 
-/* botão fechar */
+/* Botões */
 .modal .close {
   position: absolute;
   top: 10px;
@@ -341,15 +355,14 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   border-radius: 50%;
 }
 
-/* Texto mais profissional */
 #modalTitle {
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 700;
 }
 
 #modalDesc {
   font-size: 14px;
-  opacity: .8;
+  opacity: 0.8;
   line-height: 1.4;
 }
 
@@ -360,11 +373,11 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 }
 
 #qty {
-  width: 70px;
-  padding: 6px;
+  width: 75px;
+  padding: 7px;
 }
 
-/* MOBILE */
+/* ===== MOBILE ===== */
 @media (max-width: 480px) {
   .modal .dialog {
     max-width: 92%;
@@ -372,23 +385,11 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   }
 
   .modal .carousel {
-    height: 220px;
+    height: 220px;       /* fixo */
   }
 
   .carousel-track img {
     height: 220px !important;
-  }
-
-  #modalTitle {
-    font-size: 17px;
-  }
-
-  #modalDesc {
-    font-size: 13px;
-  }
-
-  #modalPrice {
-    font-size: 16px;
   }
 }
 
