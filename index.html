@@ -289,6 +289,110 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   .carousel-track img, .banner-track img { height: 220px; }
 }
 
+/* MODAL DO PRODUTO — NOVO DESIGN PADRÃO */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 999;
+}
+
+.modal .dialog {
+  width: 100%;
+  max-width: 480px;        /* TAMANHO PERFEITO */
+  background: #161616;
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  box-shadow: 0 0 25px rgba(0,0,0,0.5);
+}
+
+/* imagem menor e mais elegante */
+.modal .carousel {
+  width: 100%;
+  height: 260px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #000;
+}
+
+.carousel-track img {
+  height: 260px !important;
+}
+
+/* botão fechar */
+.modal .close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #00000070;
+  border: none;
+  color: #fff;
+  font-size: 22px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+/* Texto mais profissional */
+#modalTitle {
+  font-size: 19px;
+  font-weight: 700;
+}
+
+#modalDesc {
+  font-size: 14px;
+  opacity: .8;
+  line-height: 1.4;
+}
+
+#modalPrice {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+#qty {
+  width: 70px;
+  padding: 6px;
+}
+
+/* MOBILE */
+@media (max-width: 480px) {
+  .modal .dialog {
+    max-width: 92%;
+    padding: 14px;
+  }
+
+  .modal .carousel {
+    height: 220px;
+  }
+
+  .carousel-track img {
+    height: 220px !important;
+  }
+
+  #modalTitle {
+    font-size: 17px;
+  }
+
+  #modalDesc {
+    font-size: 13px;
+  }
+
+  #modalPrice {
+    font-size: 16px;
+  }
+}
+
+
 
 /* --- CORREÇÃO DEFINITIVA DO MODAL NO MOBILE --- */
 @media (max-width: 480px) {
