@@ -7,11 +7,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0f0f10; --card:#565555; --accent:#ffcc00; --muted:#bfbfbf; --white:#fff;
+  --bg:#8a8ac2; --card:#565555; --accent:#ffcc00; --muted:#bfbfbf; --white:#8e7a0b;
 }
 *{box-sizing:border-box}
 body{
-  margin:0; font-family:"Poppins",sans-serif; background:linear-gradient(180deg,#4f4f50,#111);
+  margin:0; font-family:"Poppins",sans-serif; background:linear-gradient(180deg,#e5e5e6,#ffffff);
   color:var(--white);
 }
 header{
@@ -19,7 +19,7 @@ header{
   background:linear-gradient(90deg,#2e2e30,#474646); border-bottom:1px solid rgba(109, 106, 106, 0.03);
 }
 .brand{display:flex; align-items:center; gap:12px}
-.brand .logo{width:46px;height:46px;border-radius:8px;background:linear-gradient(135deg,#222,#111);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent)}
+.brand .logo{width:46px;height:46px;border-radius:8px;background:linear-gradient(135deg,#a5a3a3,#111);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent)}
 .search{flex:1; margin:0 20px}
 .search input{width:100%; padding:10px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:#0b0b0b; color:var(--white)}
 
@@ -43,8 +43,8 @@ header{
 .price{font-weight:700;color:var(--accent)}
 .actions{display:flex;gap:8px;margin-top:auto}
 .btn{flex:1;padding:8px 10px;border-radius:8px;border:none;cursor:pointer;font-weight:600}
-.btn.info{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--white)}
-.btn.buy{background:var(--accent);color:#000}
+.btn.info{background:transparent;border:1px solid rgba(219, 19, 19, 0.06);color:var(--white)}
+.btn.buy{background:var(--accent);color:#898484}
 
 /* modal produto */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;padding:20px;z-index:60}
@@ -247,7 +247,7 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   top: 50%;
   transform: translateY(-50%);
   background: rgba(15,15,15,0.6);
-  color: #fff;
+  color: #faf8f8;
   border: none;
   cursor: pointer;
   z-index: 2;
@@ -290,24 +290,26 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 }
 
 
-@media(max-width: 480px) {
+@media (max-width: 480px) {
   .modal .dialog {
-    width: 94% !important;
-    max-width: 360px !important;
-    padding: 14px !important;
-    border-radius: 12px !important;
-    gap: 10px !important;
-    max-height: 85vh !important; 
+    display: flex !important;
+    flex-direction: column !important;
+    max-height: 90vh !important;
     overflow-y: auto !important;
   }
 
   .carousel {
-    height: 210px !important;
+    width: 100% !important;
+    height: auto !important;
   }
 
   .carousel-track img {
-    height: 210px !important;
+    height: auto !important;
+    max-height: 280px !important;
+    width: 100% !important;
+    object-fit: contain !important;
   }
+}
 
   #modalTitle {
     font-size: 18px !important;
@@ -522,13 +524,10 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
       <label>Telefone *</label>
       <input id="telefoneCliente" type="tel" placeholder="(DDD) 00000-0000">
       <label>Email</label>
-      <input id="emailCliente" type="email" placeholder="Seu email (opcional)">
-      <label>Endereço</label>
-      <input id="enderecoCliente" type="text" placeholder="Rua, número, bairro...">
       <label>Forma de entrega:</label>
       <div class="tipo-entrega">
-        <label><input type="radio" name="tipoEntrega" value="retirada" checked> Retirada</label>
-        <label><input type="radio" name="tipoEntrega" value="entrega"> Entrega</label>
+        <label><input type="radio" name="tipoEntrega" value="retirada" checked> Retirada Em Loja</label>
+        <label><input type="radio" name="tipoEntrega" value="entrega"> Envio Por Transportadora</label>
       </div>
     </div>
     <button id="confirmarCheckout" class="btn-confirmar-pedido">Confirmar Pedido</button>
@@ -902,7 +901,7 @@ function ativarTravamentoDeScroll(track) {
     updateCartUI();
   }
   // Clique para abrir fullscreen
-document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
+  document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
   img.style.cursor = "zoom-in";
   img.onclick = () => openFullScreen(imagens, index);
 });
