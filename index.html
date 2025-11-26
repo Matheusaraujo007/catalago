@@ -483,6 +483,19 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
   }
 }
 
+.modal .dialog {
+  display: flex;
+  flex-direction: column;
+  height: 92vh; /* altura do modal toda */
+}
+
+.modal .dialog .conteudo-modal {
+  overflow-y: auto;
+  padding-right: 8px;
+  flex: 1; /* ocupa o restante do espaço */
+}
+
+
 
 </style>
 </head>
@@ -536,7 +549,8 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
       <div class="carousel-track" id="carouselTrack"></div>
       <button class="arrow-btn arrow-right" id="nextImg">❯</button>
     </div>
-    <div style="display:flex;flex-direction:column;gap:12px;padding:6px">
+    <div class="conteudo-modal" style="display:flex;flex-direction:column;gap:12px;padding:6px">
+
       <h3 id="modalTitle"></h3>
       <p id="modalDesc" style="color:var(--muted)"></p>
       <div style="margin:8px 0">
