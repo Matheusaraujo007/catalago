@@ -496,6 +496,27 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 }
 
 
+/* Altura padrão no PC */
+.banner-carousel,
+.banner-track img {
+    height: 300px !important;
+}
+
+/* Ajuste perfeito no mobile */
+@media (max-width: 600px) {
+    .banner-carousel,
+    .banner-track img {
+        height: 160px !important; /* banner menor e sem cortar */
+    }
+}
+
+/* Ajuste ainda menor para telas muito pequenas */
+@media (max-width: 400px) {
+    .banner-carousel,
+    .banner-track img {
+        height: 130px !important;
+    }
+}
 
 </style>
 </head>
@@ -850,7 +871,7 @@ document.getElementById("btnEnviarEntrega").onclick = () => {
 
     track.addEventListener("touchmove", (e) => {
         const x = e.touches[0].pageX;
-        const walk = (startX - x) * 1.2; // velocidade
+        const walk = (startX - x) * 1.5; // velocidade
         track.scrollLeft = scrollLeft + walk;
     });
 
