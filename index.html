@@ -398,6 +398,18 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 .cat-arrow.left { left: -5px; }
 .cat-arrow.right { right: -5px; }
 
+@media (max-width: 480px) {
+  #modal .dialog {
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+  }
+
+  .carousel {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 10;
+  }
+}
 
 
 </style>
