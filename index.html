@@ -290,22 +290,28 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 }
 
 
+/* --- CORREÇÃO DEFINITIVA DO MODAL NO MOBILE --- */
 @media (max-width: 480px) {
 
   .modal .dialog {
-    max-height: 90vh;
-    overflow-y: auto;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
 
   .carousel {
-    height: 260px;
+    height: 250px !important;
+    position: relative !important; /* REMOVE O STICKY */
+    top: 0 !important;
   }
 
   .carousel-track img {
-    height: 260px;
+    height: 250px !important;
     object-fit: cover;
   }
 }
+
 
 
   #modalTitle {
