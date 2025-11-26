@@ -837,6 +837,53 @@ document.getElementById("btnEnviarEntrega").onclick = () => {
     setInterval(()=>{ currentBanner = (currentBanner + 1) % banners.length; track.style.transform = `translateX(-${currentBanner * 100}%)`; }, 6000);
   }
 
+  function ativarSwipeCategoria(track) {
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    // --- MOBILE TOUCH ---
+    track.addEventListener("touchstart", (e) => {
+        startX = e.touches[0].pageX;
+        scrollLeft = track.scrollLeft;
+    });
+
+    track.addEventListener("touchmove", (e) => {
+        const x = e.touches[0].pageX;
+        const walk = (startX - x) * 1.2; // velocidade
+        track.scrollLeft = scrollLeft + walk;
+    });
+
+    // --- PC MOUSE DRAG ---
+    track.addEventListener("mousedown", (e) => {
+        isDown = true;
+        startX = e.pageX;
+        scrollLeft = track.scrollLeft;
+        track.style.cursor = "grabbing";
+    });
+
+    track.addEventListener("mouseleave", () => {
+        isDown = false;
+        track.style.cursor = "grab";
+    });
+
+    track.addEventListener("mouseup", () => {
+        isDown = false;
+        track.style.cursor = "grab";
+    });
+
+    track.addEventListener("mousemove", (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX;
+        const walk = (startX - x) * 1.3; 
+        track.scrollLeft = scrollLeft + walk;
+    });
+
+    track.style.cursor = "grab";
+}
+
+
   /* Fetch produtos/promocoes */
   async function fetchProdutos(){
     try{
@@ -939,7 +986,7 @@ function renderCategoriasComCarrossel(lista) {
 `;
 
             ativarTravamentoDeScroll(track);
-
+            ativarSwipeCategoria(track);
         });
     });
     
