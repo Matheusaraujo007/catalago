@@ -1017,9 +1017,10 @@ function renderCategoriasComCarrossel(lista) {
     </article>
 `;
 
-            ativarTravamentoDeScroll(track);
-            ativarSwipeCategoria(track);
+            
         });
+        ativarTravamentoDeScroll(track);
+        ativarSwipeCategoria(track);
     });
     
 }
@@ -1041,16 +1042,19 @@ function ativarTravamentoDeScroll(track) {
     });
 
     track.addEventListener("touchmove", e => {
-    const dx = Math.abs(e.touches[0].clientX - startX);
-    const dy = Math.abs(e.touches[0].clientY - startY);
+        const dx = Math.abs(e.touches[0].clientX - startX);
+        const dy = Math.abs(e.touches[0].clientY - startY);
 
-    // Só bloqueia o scroll vertical se REALMENTE for swipe lateral
-    if (dx > dy * 2) {
-        e.preventDefault();
-    }
-}, { passive: false });
-
+        // Libera o scroll vertical a menos que seja MUITO horizontal
+        if (dx > dy * 2.2) {
+            e.preventDefault(); // trava vertical
+        } else {
+            // libera scroll vertical
+            return;
+        }
+    }, { passive: false });
 }
+
 
 
   function renderProdutos(){
