@@ -1035,28 +1035,30 @@ window.scrollCategoria = function (cat, dir) {
 function ativarTravamentoDeScroll(track) {
     let startX = 0;
     let startY = 0;
-    let isScrollingHorizontal = false;
+    let isHorizontal = false;
 
-    track.addEventListener("touchstart", e => {
+    track.addEventListener("touchstart", (e) => {
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
-        isScrollingHorizontal = false;
-    });
+        isHorizontal = false;
+    }, { passive: true });
 
-    track.addEventListener("touchmove", e => {
+    track.addEventListener("touchmove", (e) => {
         const dx = e.touches[0].clientX - startX;
         const dy = e.touches[0].clientY - startY;
 
-        // Quando o movimento horizontal for MUITO maior que o vertical → trave o scroll vertical
-        if (Math.abs(dx) > Math.abs(dy) * 1.5) {
-            isScrollingHorizontal = true;
+        // Detecta se o movimento é horizontal
+        if (!isHorizontal && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
+            isHorizontal = true;
         }
 
-        if (isScrollingHorizontal) {
-            e.preventDefault();  
-            track.scrollLeft -= dx * 0.25;
+        // Se for HORIZONTAL → trava scroll vertical e move o carrossel
+        if (isHorizontal) {
+            e.preventDefault(); 
+            track.scrollLeft -= dx;
         }
 
+        // Atualiza ponto atual
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
     }, { passive: false });
