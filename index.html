@@ -1041,14 +1041,15 @@ function ativarTravamentoDeScroll(track) {
     });
 
     track.addEventListener("touchmove", e => {
-        const dx = Math.abs(e.touches[0].clientX - startX);
-        const dy = Math.abs(e.touches[0].clientY - startY);
+    const dx = Math.abs(e.touches[0].clientX - startX);
+    const dy = Math.abs(e.touches[0].clientY - startY);
 
-        // se o movimento for MAIS horizontal que vertical → trava o scroll vertical
-        if (dx > dy) {
-            e.preventDefault();
-        }
-    }, { passive: false });
+    // Só bloqueia o scroll vertical se REALMENTE for swipe lateral
+    if (dx > dy * 2) {
+        e.preventDefault();
+    }
+}, { passive: false });
+
 }
 
 
