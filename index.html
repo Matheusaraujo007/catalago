@@ -1035,23 +1035,30 @@ window.scrollCategoria = function (cat, dir) {
 function ativarTravamentoDeScroll(track) {
     let startX = 0;
     let startY = 0;
+    let isScrollingHorizontal = false;
 
     track.addEventListener("touchstart", e => {
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
+        isScrollingHorizontal = false;
     });
 
     track.addEventListener("touchmove", e => {
-        const dx = Math.abs(e.touches[0].clientX - startX);
-        const dy = Math.abs(e.touches[0].clientY - startY);
+        const dx = e.touches[0].clientX - startX;
+        const dy = e.touches[0].clientY - startY;
 
-        // Libera o scroll vertical a menos que seja MUITO horizontal
-        if (dx > dy * 2.2) {
-            e.preventDefault(); // trava vertical
-        } else {
-            // libera scroll vertical
-            return;
+        // Quando o movimento horizontal for MUITO maior que o vertical → trave o scroll vertical
+        if (Math.abs(dx) > Math.abs(dy) * 1.5) {
+            isScrollingHorizontal = true;
         }
+
+        if (isScrollingHorizontal) {
+            e.preventDefault();  
+            track.scrollLeft -= dx * 0.25;
+        }
+
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
     }, { passive: false });
 }
 
