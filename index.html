@@ -1284,6 +1284,26 @@ function ativarTravamentoDeScroll(track) {
       : cart.map(it => {
           const prod = produtos.find(p=>p.id==it.id) || {};
           let imgCart = '/placeholder.png';
+
+// IMAGEM PERSONALIZADA PARA A TAXA DE ARTE
+if (it.id === 999999) {
+    return `
+        <div class="item">
+            <img src="icone-tax.png" alt="Taxa de Arte" style="width:56px;height:56px;object-fit:cover;border-radius:8px;">
+            <div style="flex:1">
+                <div style="font-weight:600">Taxa de Arte Personalizada</div>
+                <div style="color:var(--muted)">${money(it.price)}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+                <button style="background:transparent;border:none;color:#f55;cursor:pointer"
+                        onclick="decrease(999999)">−</button>
+            </div>
+        </div>
+    `;
+}
+
+
+
           if (prod.imagem_base64) imgCart = prod.imagem_base64.startsWith('data:image') ? prod.imagem_base64 : `data:image/jpeg;base64,${prod.imagem_base64}`;
           return `
             <div class="item">
