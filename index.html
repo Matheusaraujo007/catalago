@@ -827,7 +827,6 @@ footer {
       <input id="nomeCliente" type="text" placeholder="Seu nome">
       <label>Telefone *</label>
       <input id="telefoneCliente" type="tel" placeholder="(DDD) 00000-0000">
-      <label>Email</label>
       <label>Forma de entrega:</label>
       <div class="tipo-entrega">
         <label><input type="radio" name="tipoEntrega" value="retirada" checked> Retirada Em Loja</label>
@@ -1483,6 +1482,13 @@ document.getElementById('btnCheckout').addEventListener('click', () => {
   function sendOrder({ placaData = null, lumData = null, cliente }) {
     const valor_total = cart.reduce((s,i)=>s + ((i.price||0) * (i.qt||0)), 0);
     const resumoItens = cart.map(it => {
+
+  // --- item especial: taxa de arte personalizada ---
+  if (it.id === 999999) {
+    return `${it.qt} x Taxa de Arte Bandeira Personalizada: R$ ${(it.price).toFixed(2)}`;
+  }
+
+  // produtos normais
       const prod = produtos.find(p=>p.id==it.id);
       return `${it.qt} x ${prod?.nome || 'Produto'}: R$ ${(it.price).toFixed(2)}`;
     }).join('\n--------\n');
