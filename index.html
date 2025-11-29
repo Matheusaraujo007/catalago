@@ -705,6 +705,7 @@ footer {
 
 .logo-topo {
     width: 90px;
+    border-radius: 20px; /* arredondamento */
 }
 
 .linha-baixo {
@@ -716,6 +717,8 @@ footer {
 .campo-pesquisa {
     padding: 8px;
     font-size: 15px;
+    border-radius: 20px; /* borda arredondada */
+    border: 1px solid #ccc;
 }
 
 
@@ -731,35 +734,91 @@ footer {
         gap: 10px;
     }
 
-    /* Logo centralizada */
+    /* Logo centralizada e arredondada */
     .logo-topo {
-        width: 120px;
+        width: 130px;
+        border-radius: 25px; /* mais arredondado no mobile */
     }
 
     /* Linha com 2 colunas */
     .linha-baixo {
         display: grid;
-        grid-template-columns: 1fr 1fr; /* duas colunas */
+        grid-template-columns: 1fr 1fr;
         width: 100%;
         align-items: center;
     }
 
-    /* Nome da loja na esquerda */
     .nome-loja {
         font-size: 18px;
         font-weight: bold;
         text-align: left;
         padding-left: 5px;
-        color: #000; /* ou a cor que quiser */
+        color: #000;
     }
 
-    /* Pesquisa na direita */
+    /* Pesquisa arredondada */
     .campo-pesquisa {
         width: 100%;
-        padding: 10px;
+        padding: 12px;
+        text-align: right;
+        border-radius: 25px; /* bem arredondado */
+        border: 1px solid #aaa;
+    }
+}
+
+/* ---- Estilo padrão (PC) ---- */
+.sub-frase {
+    display: none; /* some no PC */
+}
+
+
+/* ---- MOBILE ---- */
+@media (max-width: 600px) {
+
+    .sub-frase {
+        display: block;
+        font-size: 14px;
+        color: #333;
+        margin-top: -5px;
+        padding-left: 5px;
+        text-align: left;
+        font-weight: 500;
+    }
+
+    .linha-baixo {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+        width: 100%;
+        gap: 2px;
+    }
+
+    /* Nome da loja fica no canto esquerdo */
+    .nome-loja {
+        grid-column: 1;
+        grid-row: 1;
+        font-size: 18px;
+        font-weight: bold;
+        color: #000;
+    }
+
+    /* Frase fica logo abaixo */
+    .sub-frase {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    /* Barra de pesquisa à direita */
+    .campo-pesquisa {
+        grid-column: 2;
+        grid-row: 1 / span 2; /* ocupa duas linhas */
+        width: 100%;
+        padding: 12px;
+        border-radius: 25px;
         text-align: right;
     }
 }
+
 
 </style>
 </head>
@@ -769,9 +828,14 @@ footer {
 
     <div class="linha-baixo">
         <h1 class="nome-loja">Manchinha Px Arts</h1>
+
+        <!-- AQUI ENTRA A FRASE -->
+        <p class="sub-frase">Acessórios para Caminhão</p>
+
         <input type="text" id="q" class="campo-pesquisa" placeholder="Pesquisar...">
     </div>
 </header>
+
 
 
 
