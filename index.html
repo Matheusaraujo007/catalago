@@ -1310,6 +1310,7 @@ document.getElementById("btnEnviarEntrega").onclick = () => {
       
       await fetchPromocoes();
       renderProdutos();
+      carregarCategoriasMenu(); // <-- AGORA CATEGORIAS VÃO APARECER!
     }catch(e){ console.error('Erro produtos', e); grid.innerHTML = '<div style="color:#f33">Erro ao carregar produtos</div>'; }
   }
   async function fetchPromocoes(){
@@ -1323,6 +1324,7 @@ document.getElementById("btnEnviarEntrega").onclick = () => {
     if(promo.tipo === 'percentual'){ const preco = precoOriginal * (1 - Number(promo.valor)/100); return { preco, label: `${promo.valor}% OFF` }; }
     const preco = precoOriginal - Number(promo.valor);
     return { preco: Math.max(0, preco), label: `R$ ${Number(promo.valor).toFixed(2)} OFF` };
+    
   }
 
  /* ===============================
@@ -1964,7 +1966,10 @@ overlayMenu.addEventListener("click", () => {
 
 // preencher categorias automaticamente
 function carregarCategoriasMenu() {
-  const categoriasUnicas = [...new Set(produtos.map(p => p.categoria || "Outros"))];
+  const categoriasUnicas = [...new Set(
+  produtos.map(p => (p.categoria_nome || p.categoria || "Outros").trim())
+)];
+
 
 
   listaCategoriasEl.innerHTML = categoriasUnicas
