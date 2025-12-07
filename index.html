@@ -1311,6 +1311,8 @@ document.getElementById("btnEnviarEntrega").onclick = () => {
       await fetchPromocoes();
       renderProdutos();
       carregarCategoriasMenu(); // <-- AGORA CATEGORIAS VÃO APARECER!
+      preencherSelectCategorias();
+
     }catch(e){ console.error('Erro produtos', e); grid.innerHTML = '<div style="color:#f33">Erro ao carregar produtos</div>'; }
   }
   async function fetchPromocoes(){
@@ -1967,29 +1969,27 @@ overlayMenu.addEventListener("click", () => {
 // preencher categorias automaticamente
 function carregarCategoriasMenu() {
   const categoriasUnicas = [...new Set(
-  produtos.map(p => (p.categoria_nome || p.categoria || "Outros").trim())
-)];
-
-
+    produtos.map(p => (p.categoria_nome || p.categoria || "Outros").trim())
+  )];
 
   listaCategoriasEl.innerHTML = categoriasUnicas
     .map(cat => `<li onclick="filtrarPorCategoria('${cat}')">${cat}</li>`)
     .join("");
 }
 
-// função chamada ao selecionar categoria
-window.filtrarPorCategoria = function (categoria) {
-  document.getElementById("filterCategoria").value = categoria;
-  renderProdutos();
 
-  // fechar menu
-  sideMenu.style.left = "-260px";
-  overlayMenu.style.display = "none";
-};
+function preencherSelectCategorias() {
+  const filterCategoria = document.getElementById("filterCategoria");
 
-// chamar quando produtos carregarem
-setTimeout(carregarCategoriasMenu, 1500);
+  const categoriasUnicas = [...new Set(
+    produtos.map(p => (p.categoria_nome || p.categoria || "Outros").trim())
+  )];
 
+  filterCategoria.innerHTML = `
+    <option value="">Todas categorias</option>
+    ${categoriasUnicas.map(cat => `<option value="${cat}">${cat}</option>`).join("")}
+  `;
+}
 
   // initial load
   fetchProdutos();
