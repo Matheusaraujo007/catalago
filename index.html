@@ -1309,33 +1309,7 @@ document.getElementById("btnEnviarEntrega").onclick = () => {
       produtos = await r.json();
       
       await fetchPromocoes();
-      function renderListaSimples(lista) {
-    const container = document.getElementById("productsGrid");
-    container.innerHTML = "";
-
-    lista.forEach(p => {
-        let img = "/placeholder.png";
-        if (p.imagem_base64)
-            img = p.imagem_base64.startsWith("data:image")
-                ? p.imagem_base64
-                : `data:image/jpeg;base64,${p.imagem_base64}`;
-
-        container.innerHTML += `
-        <article class="product-card" style="min-width:220px;flex-shrink:0;">
-            <div class="thumb"><img src="${img}"></div>
-            <div class="title">${escapeHtml(p.nome)}</div>
-            <div style="color:var(--muted);font-size:13px">${p.categoria}</div>
-
-            <div class="price">${money(p.preco)}</div>
-
-            <div class="actions">
-                <button class="btn info" onclick="openProduct(${p.id})">Ver detalhes</button>
-                <button class="btn buy" onclick="addToCart(${p.id},1)">Adicionar</button>
-            </div>
-        </article>`;
-    });
-}
-
+      
       renderProdutos();
       carregarCategoriasMenu(); // <-- AGORA CATEGORIAS VÃO APARECER!
       preencherSelectCategorias();
