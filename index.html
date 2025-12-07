@@ -1336,7 +1336,8 @@ function renderCategoriasComCarrossel(lista) {
     // AGRUPAR POR CATEGORIA
     const grupos = {};
     lista.forEach(p => {
-        const cat = p.categoria_nome || p.categoria || "Outros";
+        const cat = p.categoria || "Outros";
+
         if (!grupos[cat]) grupos[cat] = [];
         grupos[cat].push(p);
     });
@@ -1569,7 +1570,7 @@ document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
     modalTitle.textContent = p.nome;
     modalDesc.textContent = p.descricao || '';
     // MOSTRAR OPÇÃO DE ARTE PERSONALIZADA SOMENTE PARA A CATEGORIA BANDEIRA
-const isBandeira = (p.categoria_nome || p.categoria || '').toLowerCase().includes("bandeira");
+const isBandeira = (p.categoria || '').toLowerCase().includes("bandeira");
 const boxArte = document.getElementById("artePersonalizadaBox");
 
 if (isBandeira) {
@@ -1597,7 +1598,8 @@ function removeTaxaArte() {
     removeTaxaArte();
 
     // 2) Verificar categoria é BANDEIRA
-    const isBandeira = (p.categoria_nome || p.categoria || '').toLowerCase().includes("bandeira");
+    const isBandeira = (p.categoria || '').toLowerCase().includes("bandeira");
+
 
     // 3) Se for bandeira, verificar escolha do cliente
     if (isBandeira) {
@@ -1962,7 +1964,8 @@ overlayMenu.addEventListener("click", () => {
 
 // preencher categorias automaticamente
 function carregarCategoriasMenu() {
-  const categoriasUnicas = [...new Set(produtos.map(p => p.categoria_nome || p.categoria || "Outros"))];
+  const categoriasUnicas = [...new Set(produtos.map(p => p.categoria || "Outros"))];
+
 
   listaCategoriasEl.innerHTML = categoriasUnicas
     .map(cat => `<li onclick="filtrarPorCategoria('${cat}')">${cat}</li>`)
