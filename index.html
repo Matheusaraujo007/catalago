@@ -1458,6 +1458,9 @@ function ativarTravamentoDeScroll(track) {
 
 
   function renderProdutos(){
+    const grid = document.getElementById("productsGrid");
+    grid.innerHTML = "";   // <<< LIMPA ANTES DE RENDERIZAR (corrige o problema)
+    
     const term = q.value.trim().toLowerCase();
     let list = produtos.slice();
     if(term) list = list.filter(p => (p.nome + ' ' + (p.categoria_nome||p.categoria||'')).toLowerCase().includes(term));
