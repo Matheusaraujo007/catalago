@@ -14,6 +14,7 @@ export default async function handler(req, res) {
       const query = `
         SELECT 
           p.*,
+          p.categoria AS categoria_nome,
           CASE
             WHEN pr.tipo = 'percentual' THEN ROUND(p.preco - (p.preco * (pr.valor / 100)), 2)
             WHEN pr.tipo = 'fixo' THEN GREATEST(p.preco - pr.valor, 0)
