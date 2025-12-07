@@ -1309,7 +1309,6 @@ document.getElementById("btnEnviarEntrega").onclick = () => {
       produtos = await r.json();
       
       await fetchPromocoes();
-      
       renderProdutos();
       carregarCategoriasMenu(); // <-- AGORA CATEGORIAS VÃO APARECER!
       preencherSelectCategorias();
@@ -1461,7 +1460,7 @@ function ativarTravamentoDeScroll(track) {
   function renderProdutos(){
     const grid = document.getElementById("productsGrid");
     grid.innerHTML = "";   // <<< LIMPA ANTES DE RENDERIZAR (corrige o problema)
-
+    
     const term = q.value.trim().toLowerCase();
     let list = produtos.slice();
     if(term) list = list.filter(p => (p.nome + ' ' + (p.categoria_nome||p.categoria||'')).toLowerCase().includes(term));
@@ -1473,13 +1472,7 @@ function ativarTravamentoDeScroll(track) {
     prodCount.textContent = list.length;
     
 
-    // Se escolheu uma categoria específica → NÃO AGRUPAR POR CATEGORIA
-if (filterCategoria.value) {
-    renderListaSimples(list);  // mostra apenas os produtos filtrados
-} else {
-    renderCategoriasComCarrossel(list); // agrupa por categoria normalmente
-}
-
+    renderCategoriasComCarrossel(list);
     updateCartUI();
   }
   // Clique para abrir fullscreen
