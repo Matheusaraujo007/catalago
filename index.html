@@ -835,12 +835,72 @@ footer {
 }
 }
 
+/* MENU LATERAL */
+.menu-btn {
+  font-size: 28px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #000;
+}
+
+.side-menu {
+  position: fixed;
+  top: 0;
+  left: -260px;
+  width: 260px;
+  height: 100%;
+  background: #ffffff;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+  padding: 20px;
+  transition: 0.3s;
+  z-index: 99999;
+}
+
+.side-menu h3 {
+  margin-top: 0;
+  font-size: 20px;
+}
+
+.side-menu ul {
+  list-style: none;
+  padding: 0;
+}
+
+.side-menu li {
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.side-menu li:hover {
+  color: #d32f2f;
+}
+
+/* FUNDO ESCURO AO ABRIR MENU */
+.overlay-menu {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  z-index: 9999;
+}
 
 
 </style>
 </head>
 <body>
+  <div id="sideMenu" class="side-menu">
+  <h3>Categorias</h3>
+  <ul id="listaCategorias"></ul>
+</div>
+
+<div id="overlayMenu" class="overlay-menu"></div>
+
 <header class="topo">
+  <button id="btnMenu" class="menu-btn">☰</button>
+
     <img src="/public/mpxartss.jpeg" class="logo-topo" alt="Logo">
 
     <div class="linha-baixo">
@@ -1879,6 +1939,49 @@ function fullPrev(){
     fullTrack.style.transform = `translateX(-${fullIndex * 100}%)`;
   }
 }
+
+
+// === MENU LATERAL ===
+
+const btnMenu = document.getElementById("btnMenu");
+const sideMenu = document.getElementById("sideMenu");
+const overlayMenu = document.getElementById("overlayMenu");
+const listaCategoriasEl = document.getElementById("listaCategorias");
+
+// abre o menu
+btnMenu.addEventListener("click", () => {
+  sideMenu.style.left = "0";
+  overlayMenu.style.display = "block";
+});
+
+// fecha ao clicar fora
+overlayMenu.addEventListener("click", () => {
+  sideMenu.style.left = "-260px";
+  overlayMenu.style.display = "none";
+});
+
+// preencher categorias automaticamente
+function carregarCategoriasMenu() {
+  const categoriasUnicas = [...new Set(produtos.map(p => p.categoria_nome || p.categoria || "Outros"))];
+
+  listaCategoriasEl.innerHTML = categoriasUnicas
+    .map(cat => `<li onclick="filtrarPorCategoria('${cat}')">${cat}</li>`)
+    .join("");
+}
+
+// função chamada ao selecionar categoria
+window.filtrarPorCategoria = function (categoria) {
+  document.getElementById("filterCategoria").value = categoria;
+  renderProdutos();
+
+  // fechar menu
+  sideMenu.style.left = "-260px";
+  overlayMenu.style.display = "none";
+};
+
+// chamar quando produtos carregarem
+setTimeout(carregarCategoriasMenu, 1500);
+
 
   // initial load
   fetchProdutos();
