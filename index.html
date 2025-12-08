@@ -893,7 +893,7 @@ footer {
   .menu-btn {
       margin-left: -10px !important;  /* ajuste suave */
       position: relative;
-      left: -100px;  /* move mais um pouco para a esquerda */
+      left: -150px;  /* move mais um pouco para a esquerda */
   }
 
 }
@@ -1343,13 +1343,16 @@ document.getElementById("btnEnviarEntrega").onclick = () => {
       CARROSSEL POR CATEGORIA
 =============================== */
 
-function renderCategoriasComCarrossel(lista) {
+function renderCategoriasComCarrossel(listaFiltrada, categoriaSelecionada = "") {
     const container = document.getElementById("productsGrid");
     container.innerHTML = ""; // grade antiga é apagada
 
     // AGRUPAR POR CATEGORIA
-    const grupos = {};
-    lista.forEach(p => {
+    const lista = categoriaSelecionada
+  ? listaFiltrada.filter(p => (p.categoria_nome || p.categoria) === categoriaSelecionada)
+  : listaFiltrada;
+
+lista.forEach(p => {
         const cat = p.categoria || "Outros";
 
         if (!grupos[cat]) grupos[cat] = [];
@@ -1482,7 +1485,7 @@ function ativarTravamentoDeScroll(track) {
     prodCount.textContent = list.length;
     
 
-    renderCategoriasComCarrossel(list);
+    renderCategoriasComCarrossel(list, filterCategoria.value);
     updateCartUI();
   }
   // Clique para abrir fullscreen
