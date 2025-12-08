@@ -971,6 +971,15 @@ footer {
   cursor: pointer;
 }
 
+/* ALINHAR BOTÃO CONFIRMAR PEDIDO */
+.btn-confirmar-pedido {
+    display: block;
+    margin: 12px auto 0 auto; /* centraliza horizontalmente */
+    width: 100%;              /* ocupa toda a largura da caixa */
+    text-align: center;
+}
+
+
 </style>
 </head>
 <body>
@@ -1113,7 +1122,8 @@ footer {
       <label>Telefone *</label>
       <input id="telefoneCliente" type="tel" placeholder="(DDD) 00000-0000">
       <label>Forma de entrega:</label>
-      <label class="radio-opcao">
+      <div class="tipo-entrega">
+  <label class="radio-opcao">
     <input type="radio" name="tipoEntrega" value="retirada" checked>
     <span>Retirada Em Loja</span>
   </label>
