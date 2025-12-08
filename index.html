@@ -1348,11 +1348,15 @@ document.getElementById("btnEnviarEntrega").onclick = () => {
 function mostrarSkeletons() {
   const grid = document.getElementById("productsGrid");
 
-  grid.innerHTML = "";
+  grid.innerHTML = `
+    <div style="width:100%;text-align:center;font-size:18px;margin-bottom:12px;color:#555;">
+      🔄 Organizando os produtos na vitrine…
+    </div>
+  `;
 
   for (let i = 0; i < 8; i++) {
     grid.innerHTML += `
-      <div class="skeleton-card" style="animation-delay: ${i * 0.1}s">
+      <div class="skeleton-card">
         <div class="skeleton-thumb"></div>
         <div class="skeleton-line" style="width: 80%"></div>
         <div class="skeleton-line" style="width: 60%"></div>
