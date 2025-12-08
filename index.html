@@ -1345,28 +1345,33 @@ document.getElementById("btnEnviarEntrega").onclick = () => {
 let grupos = {};   // ← ADICIONE AQUI ANTES DA FUNÇÃO
 
 function renderCategoriasComCarrossel(listaFiltrada, categoriaSelecionada = "") {
-
-    const grupos = {}; // ← ESSENCIAL!
-
     const container = document.getElementById("productsGrid");
-    container.innerHTML = ""; // limpa grade antiga
+    container.innerHTML = ""; 
 
-    // FILTRA A LISTA SE UMA CATEGORIA FOI SELECIONADA
-    const lista = categoriaSelecionada
-        ? listaFiltrada.filter(p => (p.categoria_nome || p.categoria) === categoriaSelecionada)
-        : listaFiltrada;
+    let grupos = {};
 
-    // AGRUPA POR CATEGORIA
-    lista.forEach(p => {
-        const cat = p.categoria_nome || p.categoria || "Outros";
+    // SE UMA CATEGORIA FOR SELECIONADA -> MOSTRAR APENAS ESSA EM UM ÚNICO CARROSSEL
+    if (categoriaSelecionada) {
+        const itens = listaFiltrada.filter(p => (p.categoria_nome || p.categoria) === categoriaSelecionada);
 
-        if (!grupos[cat]) grupos[cat] = [];
-        grupos[cat].push(p);
-    });
+        if (itens.length === 0) {
+            container.innerHTML = "<p>Nenhum produto encontrado.</p>";
+            return;
+        }
 
-    // CRIA SEÇÕES POR CATEGORIA
+        grupos[categoriaSelecionada] = itens;
+    } 
+    else {
+        // AGRUPA TODAS AS CATEGORIAS NORMALMENTE
+        listaFiltrada.forEach(p => {
+            const cat = p.categoria_nome || p.categoria || "Outros";
+            if (!grupos[cat]) grupos[cat] = [];
+            grupos[cat].push(p);
+        });
+    }
+
+    // RENDERIZA AS CATEGORIAS (uma ou todas)
     Object.keys(grupos).forEach(cat => {
-
         const produtosDaCategoria = grupos[cat];
 
         const bloco = document.createElement("section");
@@ -1376,7 +1381,9 @@ function renderCategoriasComCarrossel(listaFiltrada, categoriaSelecionada = "") 
             <h2 class="categoria-title">${cat}</h2>
             <div class="categoria-wrap">
                 <button class="cat-arrow left" onclick="scrollCategoria('${cat}', -1)">❮</button>
+
                 <div class="categoria-track" id="cat_${cat.replace(/\s+/g,'_')}"></div>
+
                 <button class="cat-arrow right" onclick="scrollCategoria('${cat}', 1)">❯</button>
             </div>
         `;
@@ -1385,10 +1392,9 @@ function renderCategoriasComCarrossel(listaFiltrada, categoriaSelecionada = "") 
 
         const track = bloco.querySelector(".categoria-track");
 
-        // RENDERIZA OS PRODUTOS
         produtosDaCategoria.forEach(p => {
-
             let img = "/placeholder.png";
+
             if (p.imagem_base64)
                 img = p.imagem_base64.startsWith("data:image")
                     ? p.imagem_base64
@@ -1414,6 +1420,7 @@ function renderCategoriasComCarrossel(listaFiltrada, categoriaSelecionada = "") 
         ativarSwipeCategoria(track);
     });
 }
+
 
 
 window.scrollCategoria = function (cat, dir) {
