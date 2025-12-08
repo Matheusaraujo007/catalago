@@ -1482,11 +1482,7 @@ function ativarTravamentoDeScroll(track) {
     updateCartUI();
   }
   // Clique para abrir fullscreen
-  document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
-  img.style.cursor = "zoom-in";
-  img.onclick = () => openFullScreen(imagens, index);
-});
-
+  
 
   function escapeHtml(text){ return String(text||'').replace(/[&<>"']/g, s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]); }
 
