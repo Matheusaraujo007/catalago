@@ -933,6 +933,20 @@ footer {
     }
 }
 
+/* ===== FIX EXCLUSIVO PARA iPhone ===== */
+@supports (-webkit-touch-callout: none) {
+
+    /* Reduz o tamanho forçado no iPhone */
+    .categoria-track .product-card {
+        min-width: 170px !important;
+    }
+
+    /* Ajusta imagem também */
+    .categoria-track .thumb {
+        height: 130px !important;
+    }
+}
+
 
 </style>
 </head>
