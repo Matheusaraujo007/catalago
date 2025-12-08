@@ -909,6 +909,99 @@ footer {
   100% { opacity: 0.7; }
 }
 
+/* ============================================
+   CORREÇÕES EXCLUSIVAS PARA iPHONE / iOS
+   ============================================ */
+
+/* Impede zoom automático do Safari */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+/* Ajusta área segura do iPhone */
+body {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Evita que o header quebre no iOS */
+header.topo {
+  -webkit-backdrop-filter: none !important;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* CORRIGE BUG DO GRID NO SAFARI */
+.products-grid,
+.categoria-track {
+  display: flex !important;
+  flex-wrap: wrap;
+}
+
+/* Ajusta cards no iOS */
+.product-card {
+  flex: 1 1 calc(50% - 10px);
+  max-width: calc(50% - 10px);
+}
+
+@media (max-width: 450px) {
+  .product-card {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+}
+
+/* Safari não respeita object-fit sem isso */
+.carousel-track img,
+.banner-track img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  -webkit-transform: translateZ(0);
+}
+
+/* Menu lateral corrigido no iPhone */
+#menuLateral {
+  -webkit-transform: translateX(-100%);
+  will-change: transform;
+}
+
+#menuLateral.open {
+  -webkit-transform: translateX(0);
+}
+
+/* Campo de pesquisa — alinhamento perfeito no iPhone */
+.campo-pesquisa {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-left: 16px !important;
+}
+
+/* Evita “pulos” quando abre o teclado no iOS */
+html,
+body {
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+/* Botão de menu não sair do lugar */
+#btnMenu {
+  position: relative;
+  z-index: 9999;
+  left: 0 !important;
+}
+
+/* Impede Safari de esticar elementos flex */
+.linha-baixo {
+  min-width: 0;
+}
+
+/* Corrige carrossel travado no iPhone */
+.categoria-track {
+  overflow-x: scroll !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+
 </style>
 </head>
 <body>
@@ -1350,7 +1443,7 @@ function mostrarSkeletons() {
 
   grid.innerHTML = `
     <div style="width:100%;text-align:center;font-size:18px;margin-bottom:12px;color:#555;">
-      🔄 Organizando os produtos na vitrine…
+      🔄 Organizando os Produtos na Vitrine…
     </div>
   `;
 
@@ -2067,7 +2160,7 @@ window.selecionarCategoriaMenu = (cat) => {
 
 setTimeout(() => {
     fetchProdutos();
-}, 800); // tempo IDEAL para o skeleton aparecer
+}, 600); // tempo IDEAL para o skeleton aparecer
 
   carregarBanners();
   updateCartUI();
