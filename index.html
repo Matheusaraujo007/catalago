@@ -1980,45 +1980,53 @@ overlayMenu.addEventListener("click", () => {
 function carregarCategoriasMenu() {
   const categoriasUnicas = [...new Set(
     produtos.map(p => (p.categoria_nome || p.categoria || "Outros").trim())
-  )];
+  )].filter(Boolean);
 
-  listaCategoriasEl.innerHTML = categoriasUnicas
-    .map(cat => `<li onclick="filtrarPorCategoria('${cat}')">${cat}</li>`)
-    .join("");
+  // limpa lista atual
+  listaCategoriasEl.innerHTML = '';
+
+  categoriasUnicas.forEach(cat => {
+    const li = document.createElement('li');
+    li.textContent = cat;
+    li.tabIndex = 0; // torna acessível via teclado
+    li.style.userSelect = 'none';
+
+    // clique normal
+    li.addEventListener('click', () => {
+      filtrarPorCategoria(cat);
+    });
+
+    // enter para A11Y
+    li.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        filtrarPorCategoria(cat);
+      }
+    });
+
+    listaCategoriasEl.appendChild(li);
+  });
 }
 
+// Função exposta globalmente para garantir compatibilidade com outros trechos
+window.filtrarPorCategoria = function(cat) {
+  const select = document.getElementById("filterCategoria");
+  if (!select) return;
 
-function preencherSelectCategorias() {
-  const filterCategoria = document.getElementById("filterCategoria");
+  // 1) Atualiza o SELECT oficialmente
+  select.value = cat;
 
-  const categoriasUnicas = [...new Set(
-    produtos.map(p => (p.categoria_nome || p.categoria || "Outros").trim())
-  )];
+  // 2) Dispara o mesmo filtro da busca oficial (vai chamar renderProdutos)
+  const changeEvent = new Event("change", { bubbles: true });
+  select.dispatchEvent(changeEvent);
 
-  filterCategoria.innerHTML = `
-    <option value="">Todas categorias</option>
-    ${categoriasUnicas.map(cat => `<option value="${cat}">${cat}</option>`).join("")}
-  `;
-}
+  // 3) Fecha o menu lateral (UI)
+  sideMenu.style.left = "-260px";
+  overlayMenu.style.display = "none";
 
-function filtrarPorCategoria(cat) {
-    const filterCategoria = document.getElementById("filterCategoria");
-
-    // 1️⃣ Atualiza o SELECT oficialmente
-    filterCategoria.value = cat;
-
-    // 2️⃣ Dispara o mesmo filtro da busca oficial
-    filterCategoria.dispatchEvent(new Event("change"));
-
-    // 3️⃣ Fecha o menu
-    sideMenu.style.left = "-260px";
-    overlayMenu.style.display = "none";
-
-    // 4️⃣ Sobe a página
-    window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-
+  // 4) Sobe a página
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
 
 
   // initial load
