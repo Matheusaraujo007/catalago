@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta property="og:title" content="ManchinhaPx Arts — Catálogo Oficial">
 <meta property="og:description" content="Acessórios para Caminhão 🚚✨ Confira nossos produtos e faça seu pedido!">
 <meta property="og:image" content="https://catalago-ashen.vercel.app/public/mpxartss.jpeg">
@@ -909,41 +909,42 @@ footer {
   100% { opacity: 0.7; }
 }
 
-/* ======== FIX PARA IPHONE ======== */
+/* FIX ABSOLUTO PARA iPHONE */
 @supports (-webkit-touch-callout: none) {
 
-    /* Força o carrossel por categoria a manter os produtos lado a lado */
-    .categoria-track {
-        display: flex !important;
-        flex-wrap: nowrap !important;
-        overflow-x: scroll !important;
-        gap: 18px !important;
-    }
-
-    /* Garante que cada card fique lado a lado */
+    /* força o tamanho REAL dos cards */
+    .product-card,
     .categoria-track .product-card {
-        min-width: 220px !important;
-        flex-shrink: 0 !important;
+        min-width: 150px !important;  /* antes estava 170–220 */
+        max-width: 150px !important;
     }
 
-    /* Ajuste no scroll suave do iOS */
-    .categoria-track {
-        -webkit-overflow-scrolling: touch !important;
-        scroll-snap-type: x proximity;
+    /* reduz a imagem */
+    .product-card .thumb,
+    .categoria-track .thumb {
+        height: 115px !important;
+    }
+
+    /* fonte menor */
+    .product-card .title {
+        font-size: 13px !important;
+    }
+
+    .product-card .price {
+        font-size: 14px !important;
     }
 }
 
-/* ===== FIX EXCLUSIVO PARA iPhone ===== */
 @supports (-webkit-touch-callout: none) {
 
-    /* Reduz o tamanho forçado no iPhone */
-    .categoria-track .product-card {
-        min-width: 170px !important;
+    .categoria-track {
+        overflow-x: scroll !important;
+        -webkit-overflow-scrolling: touch !important;
+        scroll-snap-type: x mandatory !important;
     }
 
-    /* Ajusta imagem também */
-    .categoria-track .thumb {
-        height: 130px !important;
+    .categoria-track > * {
+        scroll-snap-align: start;
     }
 }
 
