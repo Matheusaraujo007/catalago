@@ -2004,19 +2004,20 @@ function preencherSelectCategorias() {
 function filtrarPorCategoria(cat) {
     const filterCategoria = document.getElementById("filterCategoria");
 
-    // Define a categoria selecionada
+    // 1️⃣ Atualiza o SELECT oficialmente
     filterCategoria.value = cat;
 
-    // Refaz a renderização como no filtro oficial
-    renderProdutos();
+    // 2️⃣ Dispara o mesmo filtro da busca oficial
+    filterCategoria.dispatchEvent(new Event("change"));
 
-    // Fecha o menu lateral
-    document.getElementById("sideMenu").style.left = "-260px";
-    document.getElementById("overlayMenu").style.display = "none";
+    // 3️⃣ Fecha o menu
+    sideMenu.style.left = "-260px";
+    overlayMenu.style.display = "none";
 
-    // Scroll para o topo (opcional)
+    // 4️⃣ Sobe a página
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
+
 
 
 
