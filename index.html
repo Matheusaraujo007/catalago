@@ -1348,8 +1348,6 @@ function renderCategoriasComCarrossel(listaFiltrada, categoriaSelecionada = "") 
     const container = document.getElementById("productsGrid");
     container.innerHTML = ""; 
 
-    let grupos = {};
-
     // SE UMA CATEGORIA FOR SELECIONADA -> MOSTRAR APENAS ESSA EM UM ÚNICO CARROSSEL
     if (categoriaSelecionada) {
         const itens = listaFiltrada.filter(p => (p.categoria_nome || p.categoria) === categoriaSelecionada);
@@ -1479,7 +1477,8 @@ function ativarTravamentoDeScroll(track) {
     prodCount.textContent = list.length;
     
 
-    renderCategoriasComCarrossel(list, filterCategoria.value);
+    renderCategoriasComCarrossel(list, filterCategoria.value || "");
+
     updateCartUI();
   }
   // Clique para abrir fullscreen
@@ -2009,24 +2008,23 @@ function carregarCategoriasMenu() {
 }
 
 // Função exposta globalmente para garantir compatibilidade com outros trechos
-window.filtrarPorCategoria = function(cat) {
-  const select = document.getElementById("filterCategoria");
-  if (!select) return;
+function filtrarPorCategoria(cat) {
+    const filterCategoria = document.getElementById("filterCategoria");
 
-  // 1) Atualiza o SELECT oficialmente
-  select.value = cat;
+    // Atualiza o SELECT
+    filterCategoria.value = cat;
 
-  // 2) Dispara o mesmo filtro da busca oficial (vai chamar renderProdutos)
-  const changeEvent = new Event("change", { bubbles: true });
-  select.dispatchEvent(changeEvent);
+    // Re-renderiza os produtos
+    renderProdutos();
 
-  // 3) Fecha o menu lateral (UI)
-  sideMenu.style.left = "-260px";
-  overlayMenu.style.display = "none";
+    // Fecha o menu
+    sideMenu.style.left = "-260px";
+    overlayMenu.style.display = "none";
 
-  // 4) Sobe a página
-  window.scrollTo({ top: 0, behavior: "smooth" });
-};
+    // Rola para o topo
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 
 
   // initial load
