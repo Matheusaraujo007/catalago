@@ -841,6 +841,14 @@ footer {
 </head>
 <body>
 <header class="topo">
+  <button id="btnMenu" style="
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    margin-right: 10px;
+">☰</button>
+
     <img src="/public/mpxartss.jpeg" class="logo-topo" alt="Logo">
 
     <div class="linha-baixo">
@@ -1103,6 +1111,30 @@ footer {
   </div>
 </div>
 
+<aside id="menuLateral" style="
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 260px;
+    background: #ffffff;
+    box-shadow: 4px 0 15px rgba(0,0,0,0.2);
+    transform: translateX(-100%);
+    transition: .3s ease;
+    z-index: 99999;
+    padding: 20px;
+">
+    <h3 style="margin-top:0;">Categorias</h3>
+    <div id="listaCategoriasMenu"></div>
+</aside>
+
+<div id="menuMask" style="
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: none;
+    z-index: 99998;
+"></div>
 
 
 <script>
@@ -1249,6 +1281,7 @@ document.getElementById("btnEnviarEntrega").onclick = () => {
       produtos = await r.json();
       
       await fetchPromocoes();
+      renderMenuCategorias();
       renderProdutos();
     }catch(e){ console.error('Erro produtos', e); grid.innerHTML = '<div style="color:#f33">Erro ao carregar produtos</div>'; }
   }
@@ -1879,6 +1912,46 @@ function fullPrev(){
     fullTrack.style.transform = `translateX(-${fullIndex * 100}%)`;
   }
 }
+
+// ========== MENU LATERAL ==========
+const menu = document.getElementById("menuLateral");
+const mask = document.getElementById("menuMask");
+const btnMenu = document.getElementById("btnMenu");
+const listaMenu = document.getElementById("listaCategoriasMenu");
+
+btnMenu.onclick = () => {
+    menu.style.transform = "translateX(0)";
+    mask.style.display = "block";
+};
+
+mask.onclick = () => {
+    menu.style.transform = "translateX(-100%)";
+    mask.style.display = "none";
+};
+
+// Montar categorias no menu lateral
+function renderMenuCategorias() {
+    const categoriasUnicas = [...new Set(produtos.map(p => p.categoria_nome || p.categoria))];
+
+    listaMenu.innerHTML = categoriasUnicas.map(cat => `
+        <div class="item-categoria-menu" 
+             onclick="selecionarCategoriaMenu('${cat}')"
+             style="padding: 12px; cursor:pointer; font-size:16px; border-bottom:1px solid #eee;">
+            ${cat}
+        </div>
+    `).join("");
+}
+
+// Quando clicar no menu lateral → filtrar produtos
+window.selecionarCategoriaMenu = (cat) => {
+    document.getElementById("filterCategoria").value = cat;
+    renderProdutos();
+
+    // fechar menu
+    menu.style.transform = "translateX(-100%)";
+    mask.style.display = "none";
+};
+
 
   // initial load
   fetchProdutos();
