@@ -1344,23 +1344,28 @@ document.getElementById("btnEnviarEntrega").onclick = () => {
 =============================== */
 
 function renderCategoriasComCarrossel(listaFiltrada, categoriaSelecionada = "") {
+
+    const grupos = {}; // ← ESSENCIAL!
+
     const container = document.getElementById("productsGrid");
-    container.innerHTML = ""; // grade antiga é apagada
+    container.innerHTML = ""; // limpa grade antiga
 
-    // AGRUPAR POR CATEGORIA
+    // FILTRA A LISTA SE UMA CATEGORIA FOI SELECIONADA
     const lista = categoriaSelecionada
-  ? listaFiltrada.filter(p => (p.categoria_nome || p.categoria) === categoriaSelecionada)
-  : listaFiltrada;
+        ? listaFiltrada.filter(p => (p.categoria_nome || p.categoria) === categoriaSelecionada)
+        : listaFiltrada;
 
-lista.forEach(p => {
-        const cat = p.categoria || "Outros";
+    // AGRUPA POR CATEGORIA
+    lista.forEach(p => {
+        const cat = p.categoria_nome || p.categoria || "Outros";
 
         if (!grupos[cat]) grupos[cat] = [];
         grupos[cat].push(p);
     });
 
-    // CRIAR BLOCOS POR CATEGORIA
+    // CRIA SEÇÕES POR CATEGORIA
     Object.keys(grupos).forEach(cat => {
+
         const produtosDaCategoria = grupos[cat];
 
         const bloco = document.createElement("section");
@@ -1368,12 +1373,9 @@ lista.forEach(p => {
 
         bloco.innerHTML = `
             <h2 class="categoria-title">${cat}</h2>
-
             <div class="categoria-wrap">
                 <button class="cat-arrow left" onclick="scrollCategoria('${cat}', -1)">❮</button>
-
                 <div class="categoria-track" id="cat_${cat.replace(/\s+/g,'_')}"></div>
-
                 <button class="cat-arrow right" onclick="scrollCategoria('${cat}', 1)">❯</button>
             </div>
         `;
@@ -1382,7 +1384,9 @@ lista.forEach(p => {
 
         const track = bloco.querySelector(".categoria-track");
 
+        // RENDERIZA OS PRODUTOS
         produtosDaCategoria.forEach(p => {
+
             let img = "/placeholder.png";
             if (p.imagem_base64)
                 img = p.imagem_base64.startsWith("data:image")
@@ -1390,44 +1394,26 @@ lista.forEach(p => {
                     : `data:image/jpeg;base64,${p.imagem_base64}`;
 
             track.innerHTML += `
-    <article class="product-card" style="min-width:220px;flex-shrink:0;">
-        <div class="thumb"><img src="${img}"></div>
-        <div class="title">${escapeHtml(p.nome)}</div>
-        <div style="color:var(--muted);font-size:13px">${p.categoria_nome || p.categoria}</div>
+                <article class="product-card" style="min-width:220px;flex-shrink:0;">
+                    <div class="thumb"><img src="${img}"></div>
+                    <div class="title">${p.nome}</div>
+                    <div style="color:#666;font-size:13px">${p.categoria_nome || p.categoria}</div>
 
-        ${(() => {
-            const promo = aplicarPromocao(p);
+                    <div class="price">${money(p.preco)}</div>
 
-            if (promo.preco < Number(p.preco)) {
-                return `
-                <div class="price">
-                    <small style="text-decoration:line-through;color:var(--muted)">
-                        ${money(p.preco)}
-                    </small>
-                    <div style="color:#0f0;font-weight:700">
-                        ${money(promo.preco)}
-                        <span style="font-size:12px;color:#0f0">${promo.label}</span>
+                    <div class="actions">
+                        <button class="btn info" onclick="openProduct(${p.id})">Ver detalhes</button>
+                        <button class="btn buy" onclick="addToCart(${p.id},1)">Adicionar</button>
                     </div>
-                </div>`;
-            }
-
-            return `<div class="price">${money(p.preco)}</div>`;
-        })()}
-
-        <div class="actions">
-            <button class="btn info" onclick="openProduct(${p.id})">Ver detalhes</button>
-            <button class="btn buy" onclick="addToCart(${p.id},1)">Adicionar</button>
-        </div>
-    </article>
-`;
-
-            
+                </article>
+            `;
         });
+
         ativarTravamentoDeScroll(track);
         ativarSwipeCategoria(track);
     });
-    
 }
+
 
 window.scrollCategoria = function (cat, dir) {
     const id = `cat_${cat.replace(/\s+/g, "_")}`;
