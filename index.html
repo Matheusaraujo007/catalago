@@ -1750,7 +1750,7 @@ document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
 
     // 1️⃣ VERIFICA SE A CATEGORIA É PERSONALIZE SUA BANDEIRA
 const categoriaProd = (p.categoria_nome || p.categoria || '').toLowerCase();
-const isPersonalize = categoriaProd.includes("personalize") || categoriaProd.includes("bandeira");
+const isBandeira = categoriaProd.includes("personalize") || categoriaProd.includes("bandeira");
 
 // 2️⃣ CAIXA DOS TAMANHOS
 const tamanhoBox = document.getElementById("tamanhosBandeira");
@@ -1813,7 +1813,7 @@ function removeTaxaArte() {
     const isBandeira = (p.categoria_nome || p.categoria || '').toLowerCase().includes("bandeira");
 
     // 3) Se for bandeira, verificar escolha do cliente
-    if (isPersonalize) {
+    if (isBandeira) {
         const opcao = document.querySelector("input[name='opcaoArte']:checked").value;
 
         if (opcao === "com_taxa") {
