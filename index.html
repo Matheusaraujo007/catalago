@@ -1813,7 +1813,7 @@ function removeTaxaArte() {
     const isBandeira = (p.categoria_nome || p.categoria || '').toLowerCase().includes("bandeira");
 
     // 3) Se for bandeira, verificar escolha do cliente
-    if (isBandeira) {
+    if (isPersonalize) {
         const opcao = document.querySelector("input[name='opcaoArte']:checked").value;
 
         if (opcao === "com_taxa") {
