@@ -1746,10 +1746,12 @@ document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
     modalTitle.textContent = p.nome;
     modalDesc.innerHTML = (p.descricao || '').replace(/\n/g, "<br>");
 
+    const isBandeira = (p.categoria_nome || p.categoria || '').toLowerCase().includes("bandeira");
+
     const tamanhoBox = document.getElementById("tamanhosBandeira");
 
 // Agora sim criamos ANTES de usar
-const isBandeira = (p.categoria_nome || p.categoria || '').toLowerCase().includes("bandeira");
+
 
 if (isBandeira) {
     tamanhoBox.style.display = "block";
