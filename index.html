@@ -1083,14 +1083,15 @@ footer {
       <div style="margin:8px 0">
         <span style="font-weight:700" id="modalPrice"></span>
       </div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <input id="qty" type="number" value="1" min="1"
-  style="width:80px;padding:8px;border-radius:8px;
-  border:1px solid rgba(255,255,255,0.06);
-  background:#0b0b0b;color:var(--white)">
+      <div style="display:flex;flex-direction:column;gap:10px; width:100%;">
 
-  <div id="infoBone" 
-     style="display:none; 
+    <div style="display:flex;gap:8px;align-items:center">
+        <input id="qty" type="number" value="1" min="1">
+        <button class="btn buy" id="addToCartModal">Adicionar ao carrinho</button>
+    </div>
+    <!-- 🔵 BLOCO DO BONÉ — AQUI É O LUGAR CERTO -->
+    <div id="infoBone" 
+        style="display:none; 
             background:#fff3cd;
             border:1px solid #ffeeba;
             padding:12px;
@@ -1099,13 +1100,23 @@ footer {
             font-size:14px;
             line-height:1.5;">
 
-  <strong>Boné Personalizados</strong><br>
-  Unidade: <b>R$ 45,00</b><br>
-  Acima de 10 unidades: <b>R$ 35,00</b><br><br>
-  ⚠️ <b>Atenção:</b> Consulte as cores disponíveis no WhatsApp ao finalizar o pedido.
-</div>
+        <strong>Boné Personalizados</strong><br>
 
-        <button class="btn buy" id="addToCartModal">Adicionar ao carrinho</button>
+        <label style="display:flex;align-items:center;gap:6px;margin-top:6px;">
+            <input type="radio" name="opcaoBone" value="45" checked>
+            Unidade — <b>R$ 45,00</b>
+        </label>
+
+        <label style="display:flex;align-items:center;gap:6px;margin-top:6px;">
+            <input type="radio" name="opcaoBone" value="35">
+            Acima de 10 unidades — <b>R$ 35,00</b>
+        </label>
+
+        <br>
+        ⚠️ <b>Atenção:</b> Consulte as cores disponíveis no WhatsApp.
+    </div>
+
+</div>
       </div>
       <button id="btnVoltar" style="background-color:#333;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:10px;width:100%;">← Voltar</button>
     </div>
@@ -1788,15 +1799,28 @@ if (isBandeiraCategoria || isPersonalize) {
     tamanhoBox.style.display = "none";
 }
 
-// 🔵 BLOCO ESPECIAL PARA BONÉ PERSONALIZADOS
-const infoBone = document.getElementById("infoBone"); // vamos criar lá no HTML
-const nomeProduto = (p.nome || "").toLowerCase();
+// 🔵 BONÉ — mostrar bloco e atualizar preço conforme seleção
+const infoBone = document.getElementById("infoBone");
 
 if (nomeProduto === "boné personalizados" || nomeProduto === "boné personalizado") {
+
     infoBone.style.display = "block";
+
+    // preço inicial
+    modalPrice.textContent = "R$ 45,00";
+
+    // atualizar quando trocar o select
+    document.querySelectorAll("input[name='opcaoBone']").forEach(r => {
+        r.addEventListener("change", e => {
+            const preco = Number(e.target.value);
+            modalPrice.textContent = "R$ " + preco.toFixed(2);
+        });
+    });
+
 } else {
     infoBone.style.display = "none";
 }
+
 
 
 // 🔄 AGORA — QUANDO CLICAR NO TAMANHO → ATUALIZA O PREÇO
@@ -1850,6 +1874,25 @@ function removeTaxaArte() {
             });
         }
     }
+
+    // ----- BONÉ: adicionar com preço selecionado -----
+if (nomeProduto === "boné personalizados" || nomeProduto === "boné personalizado") {
+
+    const r = document.querySelector("input[name='opcaoBone']:checked");
+    const precoBone = Number(r.value);
+    const quantidade = Number(qtyInput.value || 1);
+
+    cart.push({
+        id: p.id,
+        qt: quantidade,
+        price: precoBone
+    });
+
+    saveCart();
+    closeModal();
+    return;
+}
+
 
     // 🔵 SE FOR BANDEIRA NORMAL OU PERSONALIZE: adicionar com tamanhos
     if (isBandeiraCategoria || isPersonalize) {
