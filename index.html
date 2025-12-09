@@ -1782,11 +1782,12 @@ document.querySelectorAll("input[name='opcaoTamanho']").forEach(radio => {
 // 3️⃣ TAXA DE ARTE PERSONALIZADA (VOLTOU AQUI!)
 const boxArte = document.getElementById("artePersonalizadaBox");
 
-if (isBandeira) {
+if (isPersonalizeBandeira) {
     boxArte.style.display = "block";
 } else {
     boxArte.style.display = "none";
 }
+
 
 
  
@@ -1810,22 +1811,26 @@ function removeTaxaArte() {
     removeTaxaArte();
 
     // 2) Verificar categoria é BANDEIRA
-    const isBandeira = (p.categoria_nome || p.categoria || '').toLowerCase().includes("bandeira");
+    const categoriaNormalizada = (p.categoria_nome || p.categoria || '').trim().toLowerCase();
+
+// Somente ativa taxa se for exatamente PERSONALIZE SUA BANDEIRA
+const isPersonalizeBandeira = categoriaNormalizada === "personalize sua bandeira";
+
 
     // 3) Se for bandeira, verificar escolha do cliente
-    if (isBandeira) {
-        const opcao = document.querySelector("input[name='opcaoArte']:checked").value;
+   if (isPersonalizeBandeira) {
+    const opcao = document.querySelector("input[name='opcaoArte']:checked").value;
 
-        if (opcao === "com_taxa") {
-            cart.push({
-                id: 999999, // ID reservado para a taxa
-                qt: 1,
-                price: 50,
-                virtual: true,
-                nome: "Taxa de Arte Personalizada"
-            });
-        }
+    if (opcao === "com_taxa") {
+        cart.push({
+            id: 999999,
+            qt: 1,
+            price: 50,
+            virtual: true,
+            nome: "Taxa de Arte Personalizada"
+        });
     }
+}
  // SOMENTE PARA BANDEIRAS: usa preço e tamanho escolhidos
 if (isBandeira) {
     const r = document.querySelector("input[name='opcaoTamanho']:checked");
