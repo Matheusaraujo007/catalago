@@ -1088,6 +1088,23 @@ footer {
   style="width:80px;padding:8px;border-radius:8px;
   border:1px solid rgba(255,255,255,0.06);
   background:#0b0b0b;color:var(--white)">
+
+  <div id="infoBone" 
+     style="display:none; 
+            background:#fff3cd;
+            border:1px solid #ffeeba;
+            padding:12px;
+            border-radius:10px;
+            color:#000;
+            font-size:14px;
+            line-height:1.5;">
+
+  <strong>Boné Personalizados</strong><br>
+  Unidade: <b>R$ 45,00</b><br>
+  Acima de 10 unidades: <b>R$ 35,00</b><br><br>
+  ⚠️ <b>Atenção:</b> Consulte as cores disponíveis no WhatsApp ao finalizar o pedido.
+</div>
+
         <button class="btn buy" id="addToCartModal">Adicionar ao carrinho</button>
       </div>
       <button id="btnVoltar" style="background-color:#333;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:bold;margin-top:10px;width:100%;">← Voltar</button>
@@ -1770,6 +1787,17 @@ if (isBandeiraCategoria || isPersonalize) {
 } else {
     tamanhoBox.style.display = "none";
 }
+
+// 🔵 BLOCO ESPECIAL PARA BONÉ PERSONALIZADOS
+const infoBone = document.getElementById("infoBone"); // vamos criar lá no HTML
+const nomeProduto = (p.nome || "").toLowerCase();
+
+if (nomeProduto === "boné personalizados" || nomeProduto === "boné personalizado") {
+    infoBone.style.display = "block";
+} else {
+    infoBone.style.display = "none";
+}
+
 
 // 🔄 AGORA — QUANDO CLICAR NO TAMANHO → ATUALIZA O PREÇO
 document.querySelectorAll("input[name='opcaoTamanho']").forEach(radio => {
