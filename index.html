@@ -1746,20 +1746,22 @@ document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
     modalTitle.textContent = p.nome;
     modalDesc.innerHTML = (p.descricao || '').replace(/\n/g, "<br>");
 
-    const isBandeira = (p.categoria_nome || p.categoria || '').toLowerCase().includes("bandeira");
+    
 
-    const tamanhoBox = document.getElementById("tamanhosBandeira");
+    // 1️⃣ VERIFICA SE A CATEGORIA É PERSONALIZE SUA BANDEIRA
+const categoriaProd = (p.categoria_nome || p.categoria || '').toLowerCase();
+const isBandeira = categoriaProd.includes("personalize") || categoriaProd.includes("bandeira");
 
-// Agora sim criamos ANTES de usar
-
+// 2️⃣ CAIXA DOS TAMANHOS
+const tamanhoBox = document.getElementById("tamanhosBandeira");
 
 if (isBandeira) {
     tamanhoBox.style.display = "block";
 
-    // limpa seleção
+    // Limpa seleção
     document.querySelectorAll("input[name='opcaoTamanho']").forEach(r => r.checked = false);
 
-    // define padrão
+    // Define padrão
     const defaultRadio = document.querySelector("input[name='opcaoTamanho'][value='100x65']");
     if (defaultRadio) defaultRadio.checked = true;
 
@@ -1768,12 +1770,24 @@ if (isBandeira) {
     tamanhoBox.style.display = "none";
 }
 
+// Atualiza preço ao trocar tamanho
 document.querySelectorAll("input[name='opcaoTamanho']").forEach(radio => {
     radio.addEventListener("change", e => {
         const precoSelecionado = Number(e.target.dataset.preco);
         modalPrice.textContent = "R$ " + precoSelecionado.toFixed(2);
     });
 });
+
+
+// 3️⃣ TAXA DE ARTE PERSONALIZADA (VOLTOU AQUI!)
+const boxArte = document.getElementById("artePersonalizadaBox");
+
+if (isBandeira) {
+    boxArte.style.display = "block";
+} else {
+    boxArte.style.display = "none";
+}
+
 
  
 
