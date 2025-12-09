@@ -1047,6 +1047,23 @@ footer {
     <div class="conteudo-modal" style="display:flex;flex-direction:column;gap:12px;padding:6px">
 
       <h3 id="modalTitle"></h3>
+
+<div id="tamanhosBandeira" 
+     style="display:none; margin-top:10px; padding:12px; border-radius:10px; background:#f4f4f4; color:#000;">
+  <h4 style="margin:0 0 8px 0;">📏 Escolha o tamanho:</h4>
+
+  <label style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+    <input type="radio" name="opcaoTamanho" value="100x65" data-preco="100">
+    100×65 — R$ 100,00
+  </label>
+
+  <label style="display:flex; align-items:center; gap:6px;">
+    <input type="radio" name="opcaoTamanho" value="120x80" data-preco="120">
+    120×80 — R$ 120,00
+  </label>
+</div>
+
+
       <!-- SOMENTE PARA CATEGORIA BANDEIRA -->
 <div id="artePersonalizadaBox" style="display:none; border:1px solid #ddd;padding:12px;border-radius:10px;background:#f9f9f9;color:#000;">
   <h4 style="margin:0 0 8px 0; font-size:16px;">🎨 Arte Personalizada</h4>
@@ -1728,6 +1745,31 @@ document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
 
     modalTitle.textContent = p.nome;
     modalDesc.innerHTML = (p.descricao || '').replace(/\n/g, "<br>");
+
+    const tamanhoBox = document.getElementById("tamanhosBandeira");
+
+if (isBandeira) {
+    tamanhoBox.style.display = "block";
+
+    // Sempre limpa seleção anterior
+    document.querySelectorAll("input[name='opcaoTamanho']").forEach(r => r.checked = false);
+
+    // Define tamanho 100x65 como padrão
+    document.querySelector("input[name='opcaoTamanho'][value='100x65']").checked = true;
+
+    // atualiza preço
+    modalPrice.textContent = "R$ 100,00";
+} else {
+    tamanhoBox.style.display = "none";
+}
+
+document.querySelectorAll("input[name='opcaoTamanho']").forEach(radio => {
+    radio.addEventListener("change", e => {
+        const precoSelecionado = Number(e.target.dataset.preco);
+        modalPrice.textContent = "R$ " + precoSelecionado.toFixed(2);
+    });
+});
+
     // MOSTRAR OPÇÃO DE ARTE PERSONALIZADA SOMENTE PARA A CATEGORIA BANDEIRA
 const isBandeira = (p.categoria_nome || p.categoria || '').toLowerCase().includes("bandeira");
 const boxArte = document.getElementById("artePersonalizadaBox");
@@ -1773,6 +1815,23 @@ function removeTaxaArte() {
             });
         }
     }
+ // SOMENTE PARA BANDEIRAS: usa preço e tamanho escolhidos
+if (isBandeira) {
+    const r = document.querySelector("input[name='opcaoTamanho']:checked");
+    const tamanhoSelecionado = r.value;
+    const precoSelecionado = Number(r.dataset.preco);
+
+    cart.push({
+        id: p.id,
+        qt: quantidade,
+        price: precoSelecionado,
+        tamanho: tamanhoSelecionado
+    });
+
+    saveCart();
+    closeModal();
+    return;
+}
 
     // 4) Adicionar o produto normalmente
     addToCart(p.id, quantidade);
@@ -1846,15 +1905,24 @@ document.getElementById('btnCheckout').addEventListener('click', () => {
     const valor_total = cart.reduce((s,i)=>s + ((i.price||0) * (i.qt||0)), 0);
     const resumoItens = cart.map(it => {
 
-  // --- item especial: taxa de arte personalizada ---
+  // taxa de arte
   if (it.id === 999999) {
     return `${it.qt} x Taxa de Arte Bandeira Personalizada: R$ ${(it.price).toFixed(2)}`;
   }
 
+  const prod = produtos.find(p=>p.id == it.id);
+
+  // Se for bandeira (pois terá tamanho)
+  if (it.tamanho) {
+    return `${it.qt} x ${prod?.nome || 'Produto'}
+Tamanho: ${it.tamanho}
+Valor unitário: R$ ${(it.price).toFixed(2)}`;
+  }
+
   // produtos normais
-      const prod = produtos.find(p=>p.id==it.id);
-      return `${it.qt} x ${prod?.nome || 'Produto'}: R$ ${(it.price).toFixed(2)}`;
-    }).join('\n--------\n');
+  return `${it.qt} x ${prod?.nome || 'Produto'}: R$ ${(it.price).toFixed(2)}`;
+}).join('\n--------\n');
+
 
     let secPlaca = '';
     if(placaData){
