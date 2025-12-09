@@ -1049,25 +1049,39 @@ footer {
       <h3 id="modalTitle"></h3>
 
  <!-- ===== SELECTOR DE TAMANHO — MODELO PADRÃO ===== -->
-<div id="tamanhosProduto" 
-     style="display:none; margin-top:10px; padding:12px; border-radius:10px; 
-            background:#f4f4f4; color:#000;">
-  
-  <h4 style="margin:0 0 8px 0;">📏 Escolha a quantidade:</h4>
+<!-- 🔵 SOMENTE PARA BONÉ PERSONALIZADO -->
+<div id="infoBone" 
+     style="display:none; 
+            background:#fff3cd;
+            border:1px solid #ffeeba;
+            padding:12px;
+            border-radius:10px;
+            color:#000;
+            font-size:14px;
+            line-height:1.5;
+            margin-top:10px;">
 
-  <!-- Unidade -->
-  <label style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-    <input type="radio" name="opcaoQtd" value="unidade" data-preco="45">
-    Unidade — R$ 45,00
-  </label>
+  <strong>Boné Personalizados</strong><br>
+  Unidade — <b>R$ 45,00</b><br>
+  Acima de 10 unidades — <b>R$ 35,00</b><br><br>
 
-  <!-- Acima de 10 unidades -->
-  <label style="display:flex; align-items:center; gap:8px;">
-    <input type="radio" name="opcaoQtd" value="10un" data-preco="35">
-    Acima de 10 unidades — R$ 35,00
-  </label>
+  ⚠️ <b>Atenção:</b> Consulte as cores disponíveis no WhatsApp ao finalizar o pedido.
 
+  <div style="margin-top:10px;">
+    <!-- Radio 1 -->
+    <label style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+      <input type="radio" name="opcaoBone" value="45" checked>
+      Unidade — R$ 45,00
+    </label>
+
+    <!-- Radio 2 -->
+    <label style="display:flex; align-items:center; gap:8px;">
+      <input type="radio" name="opcaoBone" value="35">
+      Acima de 10 unidades — R$ 35,00
+    </label>
+  </div>
 </div>
+
      
 
 <div id="tamanhosBandeira" 
