@@ -1777,7 +1777,8 @@ const nomeProd = (p.nome || "").toLowerCase().trim();
 
 const boxTamanhos = document.getElementById("tamanhosProduto");
 
-if (nomeProduto === "boné personalizados" || nomeProduto === "boné personalizado") {
+if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
+
     boxTamanhos.style.display = "block";
 
     // Define padrão (unidade)
@@ -1820,7 +1821,7 @@ if (isBandeiraCategoria || isPersonalize) {
 // 🔵 BONÉ — mostrar bloco e atualizar preço conforme seleção
 const infoBone = document.getElementById("infoBone");
 
-if (nomeProduto === "boné personalizados" || nomeProduto === "boné personalizado") {
+if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
 
     infoBone.style.display = "block";
 
@@ -1894,7 +1895,8 @@ function removeTaxaArte() {
     }
 
     // ----- BONÉ: adicionar com preço selecionado -----
-if (nomeProduto === "boné personalizados" || nomeProduto === "boné personalizado") {
+if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
+
 
     const r = document.querySelector("input[name='opcaoBone']:checked");
     const precoBone = Number(r.value);
