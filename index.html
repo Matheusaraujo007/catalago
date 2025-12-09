@@ -1771,6 +1771,14 @@ if (isBandeiraCategoria || isPersonalize) {
     tamanhoBox.style.display = "none";
 }
 
+// 🔄 AGORA — QUANDO CLICAR NO TAMANHO → ATUALIZA O PREÇO
+document.querySelectorAll("input[name='opcaoTamanho']").forEach(radio => {
+    radio.addEventListener("change", e => {
+        const precoSelecionado = Number(e.target.dataset.preco);
+        modalPrice.textContent = "R$ " + precoSelecionado.toFixed(2);
+    });
+});
+
 // 🔵 MOSTRAR TAXA DE ARTE APENAS PARA PERSONALIZE SUA BANDEIRA
 const boxArte = document.getElementById("artePersonalizadaBox");
 if (isPersonalize) {
