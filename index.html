@@ -1746,7 +1746,10 @@ document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
     modalTitle.textContent = p.nome;
     modalDesc.innerHTML = (p.descricao || '').replace(/\n/g, "<br>");
 
-    const isBandeira = (p.categoria_nome || p.categoria || '').toLowerCase().includes("bandeira");
+    const isBandeira = (p.categoria_nome || p.categoria || '')
+    .trim()
+    .toLowerCase() === 'personalize sua bandeira';
+
 
     const tamanhoBox = document.getElementById("tamanhosBandeira");
 
@@ -1804,13 +1807,15 @@ function removeTaxaArte() {
 
         if (opcao === "com_taxa") {
             cart.push({
-                id: 999999, // ID reservado para a taxa
-                qt: 1,
-                price: 50,
-                virtual: true,
-                nome: "Taxa de Arte Personalizada"
-            });
-        }
+    id: 999999,
+    qt: 1,
+    price: 50,
+    nome: "Taxa de Arte Personalizada",
+    categoria: "TAXA"
+});
+
+
+}
     }
  // SOMENTE PARA BANDEIRAS: usa preço e tamanho escolhidos
 if (isBandeira) {
@@ -1904,8 +1909,9 @@ document.getElementById('btnCheckout').addEventListener('click', () => {
 
   // taxa de arte
   if (it.id === 999999) {
-    return `${it.qt} x Taxa de Arte Bandeira Personalizada: R$ ${(it.price).toFixed(2)}`;
-  }
+    return `${it.qt} × ${it.nome}: ${money(it.price)}`;
+}
+
 
   const prod = produtos.find(p=>p.id == it.id);
 
