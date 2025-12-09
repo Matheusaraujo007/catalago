@@ -1748,20 +1748,20 @@ document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
 
     
 
-    // 1️⃣ VERIFICA SE A CATEGORIA É PERSONALIZE SUA BANDEIRA
-const categoriaProd = (p.categoria_nome || p.categoria || '').toLowerCase();
-const isBandeira = categoriaProd.includes("personalize") || categoriaProd.includes("bandeira");
+ /* ================================
+   🔥 BANDEIRAS E TAXA PERSONALIZADA
+=================================== */
 
-// 2️⃣ CAIXA DOS TAMANHOS
+// AQUI definimos exatamente o produto que terá tamanhos + taxa
+const isPersonalizeBandeira = (p.nome || '').trim().toLowerCase() === "personalize sua bandeira";
+
+// TAMANHOS
 const tamanhoBox = document.getElementById("tamanhosBandeira");
 
-if (isBandeira) {
+if (isPersonalizeBandeira) {
     tamanhoBox.style.display = "block";
 
-    // Limpa seleção
     document.querySelectorAll("input[name='opcaoTamanho']").forEach(r => r.checked = false);
-
-    // Define padrão
     const defaultRadio = document.querySelector("input[name='opcaoTamanho'][value='100x65']");
     if (defaultRadio) defaultRadio.checked = true;
 
@@ -1770,16 +1770,7 @@ if (isBandeira) {
     tamanhoBox.style.display = "none";
 }
 
-// Atualiza preço ao trocar tamanho
-document.querySelectorAll("input[name='opcaoTamanho']").forEach(radio => {
-    radio.addEventListener("change", e => {
-        const precoSelecionado = Number(e.target.dataset.preco);
-        modalPrice.textContent = "R$ " + precoSelecionado.toFixed(2);
-    });
-});
-
-
-// 3️⃣ TAXA DE ARTE PERSONALIZADA (VOLTOU AQUI!)
+// TAXA DE ARTE PERSONALIZADA
 const boxArte = document.getElementById("artePersonalizadaBox");
 
 if (isPersonalizeBandeira) {
@@ -1788,6 +1779,50 @@ if (isPersonalizeBandeira) {
     boxArte.style.display = "none";
 }
 
+/* AO ADICIONAR NO CARRINHO */
+addToCartModal.onclick = () => {
+
+    const quantidade = Number(qtyInput.value || 1);
+
+    // Remove taxa antiga
+    cart = cart.filter(item => item.id !== 999999);
+
+    // Se for PERSONALIZE SUA BANDEIRA
+    if (isPersonalizeBandeira) {
+
+        // Tamanho escolhido
+        const r = document.querySelector("input[name='opcaoTamanho']:checked");
+        const tamanhoSelecionado = r ? r.value : "100x65";
+        const precoSelecionado = r ? Number(r.dataset.preco) : 100;
+
+        // Taxa de arte
+        const opcaoArte = document.querySelector("input[name='opcaoArte']:checked").value;
+        if (opcaoArte === "com_taxa") {
+            cart.push({
+                id: 999999,
+                qt: 1,
+                price: 50,
+                nome: "Taxa de Arte Personalizada"
+            });
+        }
+
+        // Add bandeira ao carrinho
+        cart.push({
+            id: p.id,
+            qt: quantidade,
+            price: precoSelecionado,
+            tamanho: tamanhoSelecionado
+        });
+
+        saveCart();
+        closeModal();
+        return;
+    }
+
+    // Produto normal
+    addToCart(p.id, quantidade);
+    closeModal();
+};
 
 
  
