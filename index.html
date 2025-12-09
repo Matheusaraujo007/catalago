@@ -1087,32 +1087,27 @@ footer {
 
     <div style="display:flex;gap:8px;align-items:center">
         <input id="qty" type="number" value="1" min="1">
-        <!-- 🔵 BLOCO DO BONÉ — AQUI É O LUGAR CERTO -->
-    <div id="infoBone" 
-        style="display:none; 
-            background:#fff3cd;
-            border:1px solid #ffeeba;
-            padding:12px;
-            border-radius:10px;
-            color:#000;
-            font-size:14px;
-            line-height:1.5;">
+        <!-- ===== SELECTOR DE TAMANHO — MODELO PADRÃO ===== -->
+<div id="tamanhosProduto" 
+     style="display:none; margin-top:10px; padding:12px; border-radius:10px; 
+            background:#f4f4f4; color:#000;">
+  
+  <h4 style="margin:0 0 8px 0;">📏 Escolha a quantidade:</h4>
 
-        <strong>Boné Personalizados</strong><br>
+  <!-- Unidade -->
+  <label style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+    <input type="radio" name="opcaoQtd" value="unidade" data-preco="45">
+    Unidade — R$ 45,00
+  </label>
 
-        <label style="display:flex;align-items:center;gap:6px;margin-top:6px;">
-            <input type="radio" name="opcaoBone" value="45" checked>
-            Unidade — <b>R$ 45,00</b>
-        </label>
+  <!-- Acima de 10 unidades -->
+  <label style="display:flex; align-items:center; gap:8px;">
+    <input type="radio" name="opcaoQtd" value="10un" data-preco="35">
+    Acima de 10 unidades — R$ 35,00
+  </label>
 
-        <label style="display:flex;align-items:center;gap:6px;margin-top:6px;">
-            <input type="radio" name="opcaoBone" value="35">
-            Acima de 10 unidades — <b>R$ 35,00</b>
-        </label>
+</div>
 
-        <br>
-        ⚠️ <b>Atenção:</b> Consulte as cores disponíveis no WhatsApp.
-    </div>
         <button class="btn buy" id="addToCartModal">Adicionar ao carrinho</button>
     </div>
 
