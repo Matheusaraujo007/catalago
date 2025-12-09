@@ -1748,16 +1748,19 @@ document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
 
     const tamanhoBox = document.getElementById("tamanhosBandeira");
 
+// Agora sim criamos ANTES de usar
+const isBandeira = (p.categoria_nome || p.categoria || '').toLowerCase().includes("bandeira");
+
 if (isBandeira) {
     tamanhoBox.style.display = "block";
 
-    // Sempre limpa seleção anterior
+    // limpa seleção
     document.querySelectorAll("input[name='opcaoTamanho']").forEach(r => r.checked = false);
 
-    // Define tamanho 100x65 como padrão
-    document.querySelector("input[name='opcaoTamanho'][value='100x65']").checked = true;
+    // define padrão
+    const defaultRadio = document.querySelector("input[name='opcaoTamanho'][value='100x65']");
+    if (defaultRadio) defaultRadio.checked = true;
 
-    // atualiza preço
     modalPrice.textContent = "R$ 100,00";
 } else {
     tamanhoBox.style.display = "none";
@@ -1770,15 +1773,7 @@ document.querySelectorAll("input[name='opcaoTamanho']").forEach(radio => {
     });
 });
 
-    // MOSTRAR OPÇÃO DE ARTE PERSONALIZADA SOMENTE PARA A CATEGORIA BANDEIRA
-const isBandeira = (p.categoria_nome || p.categoria || '').toLowerCase().includes("bandeira");
-const boxArte = document.getElementById("artePersonalizadaBox");
-
-if (isBandeira) {
-    boxArte.style.display = "block";
-} else {
-    boxArte.style.display = "none";
-}
+ 
 
     const promo = aplicarPromocao(p);
     if(promo.preco < Number(p.preco || 0)){
