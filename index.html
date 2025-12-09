@@ -1750,7 +1750,7 @@ document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
 
     // 1️⃣ VERIFICA SE A CATEGORIA É PERSONALIZE SUA BANDEIRA
 const categoriaProd = (p.categoria_nome || p.categoria || '').toLowerCase();
-const isBandeira = categoriaProd.includes("personalize") || categoriaProd.includes("bandeira");
+const isPersonalize = categoriaProd.includes("personalize") || categoriaProd.includes("bandeira");
 
 // 2️⃣ CAIXA DOS TAMANHOS
 const tamanhoBox = document.getElementById("tamanhosBandeira");
