@@ -92,6 +92,22 @@
   td button:hover {
     background: #c82333;
   }
+
+  /* Botão Editar */
+.btn-editar {
+  background: #007bff; /* azul padrão */
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 6px;
+}
+
+.btn-editar:hover {
+  background: #0056b3; /* azul mais escuro */
+}
+
 </style>
 </head>
 <body>
@@ -189,7 +205,7 @@
       <td>${c.id}</td>
       <td>${c.nome}</td>
       <td>
-        <button onclick="editarCategoria(${c.id}, '${c.nome}')">✏️ Editar</button>
+        <button class="btn-editar" onclick="editarCategoria(${c.id}, '${c.nome}')">✏️ Editar</button>
         <button onclick="removerCategoria(${c.id})">🗑️ Excluir</button>
       </td>
     </tr>
