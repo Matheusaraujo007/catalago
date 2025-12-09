@@ -1048,6 +1048,28 @@ footer {
 
       <h3 id="modalTitle"></h3>
 
+ <!-- ===== SELECTOR DE TAMANHO — MODELO PADRÃO ===== -->
+<div id="tamanhosProduto" 
+     style="display:none; margin-top:10px; padding:12px; border-radius:10px; 
+            background:#f4f4f4; color:#000;">
+  
+  <h4 style="margin:0 0 8px 0;">📏 Escolha a quantidade:</h4>
+
+  <!-- Unidade -->
+  <label style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+    <input type="radio" name="opcaoQtd" value="unidade" data-preco="45">
+    Unidade — R$ 45,00
+  </label>
+
+  <!-- Acima de 10 unidades -->
+  <label style="display:flex; align-items:center; gap:8px;">
+    <input type="radio" name="opcaoQtd" value="10un" data-preco="35">
+    Acima de 10 unidades — R$ 35,00
+  </label>
+
+</div>
+     
+
 <div id="tamanhosBandeira" 
      style="display:none; margin-top:10px; padding:12px; border-radius:10px; background:#f4f4f4; color:#000;">
   <h4 style="margin:0 0 8px 0;">📏 Escolha o tamanho:</h4>
@@ -1087,27 +1109,6 @@ footer {
 
     <div style="display:flex;gap:8px;align-items:center">
         <input id="qty" type="number" value="1" min="1">
-        <!-- ===== SELECTOR DE TAMANHO — MODELO PADRÃO ===== -->
-<div id="tamanhosProduto" 
-     style="display:none; margin-top:10px; padding:12px; border-radius:10px; 
-            background:#f4f4f4; color:#000;">
-  
-  <h4 style="margin:0 0 8px 0;">📏 Escolha a quantidade:</h4>
-
-  <!-- Unidade -->
-  <label style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-    <input type="radio" name="opcaoQtd" value="unidade" data-preco="45">
-    Unidade — R$ 45,00
-  </label>
-
-  <!-- Acima de 10 unidades -->
-  <label style="display:flex; align-items:center; gap:8px;">
-    <input type="radio" name="opcaoQtd" value="10un" data-preco="35">
-    Acima de 10 unidades — R$ 35,00
-  </label>
-
-</div>
-
         <button class="btn buy" id="addToCartModal">Adicionar ao carrinho</button>
     </div>
 
@@ -1773,6 +1774,28 @@ document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
 
  const categoriaProd = (p.categoria_nome || p.categoria || "").toLowerCase().trim();
 const nomeProd = (p.nome || "").toLowerCase().trim();
+
+const boxTamanhos = document.getElementById("tamanhosProduto");
+
+if (nomeProduto === "boné personalizados" || nomeProduto === "boné personalizado") {
+    boxTamanhos.style.display = "block";
+
+    // Define padrão (unidade)
+    const defaultQtd = document.querySelector("input[name='opcaoQtd'][value='unidade']");
+    if (defaultQtd) defaultQtd.checked = true;
+
+    modalPrice.textContent = "R$ 45,00";
+} else {
+    boxTamanhos.style.display = "none";
+}
+
+document.querySelectorAll("input[name='opcaoQtd']").forEach(radio => {
+    radio.addEventListener("change", e => {
+        const preco = Number(e.target.dataset.preco);
+        modalPrice.textContent = "R$ " + preco.toFixed(2);
+    });
+});
+
 
 // 🔵 REGRA 1: identificar se é um produto de bandeira comum
 const isBandeiraCategoria = categoriaProd.includes("bandeira");
