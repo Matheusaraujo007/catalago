@@ -2015,10 +2015,12 @@ if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
      if(nomeProd === "personalize sua camisa") {
        const r = document.querySelector("input[name='opcaoPersCamisa']:checked");
         const preco = Number(r.value); const quantidade = Number(qtyInput.value || 1);
+        const material = r.parentElement.textContent.trim(); // <-- pega o texto do rádio
         
         cart.push({ id: p.id,
           qt: quantidade,
-          price: preco
+          price: preco,
+          material: material // <-- salva no carrinho
            });
         
          saveCart();
@@ -2142,7 +2144,11 @@ Valor unitário: R$ ${(it.price).toFixed(2)}`;
 
 
   // produtos normais
-  return `${it.qt} x ${prod?.nome || 'Produto'}: R$ ${(it.price).toFixed(2)}`;
+  if (it.material) { return `${it.qt} x ${prod?.nome}
+Material: ${it.material}
+Valor unitário: R$ ${(it.price).toFixed(2)}`;
+}
+
 }).join('\n--------\n');
 
 
