@@ -1083,7 +1083,7 @@ footer {
 </div>
 
 <!-- 🔵 SOMENTE PARA PRODUTOS DA CATEGORIA CAMISA -->
-<div id="infoCamisa"
+<div id="infoCamisas"
      style="display:none;
             background:#e8f4ff;
             border:1px solid #bcdfff;
@@ -1098,12 +1098,12 @@ footer {
   Escolha o material:<br><br>
 
   <label style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-    <input type="radio" name="opcaoCamisa" value="85">
+    <input type="radio" name="opcaoCamisas" value="85">
     Algodão — R$ 85,00
   </label>
 
   <label style="display:flex; align-items:center; gap:8px;">
-    <input type="radio" name="opcaoCamisa" value="65">
+    <input type="radio" name="opcaoCamisas" value="65">
     Poliéster — R$ 65,00
   </label>
 
@@ -1865,18 +1865,18 @@ if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
 }
 
 // 🔵 CAMISAS — mostrar bloco e atualizar preço conforme seleção
-const infoCamisa = document.getElementById("infoCamisa");
+const infoCamisas = document.getElementById("infoCamisas");
 
-const isCamisaCategoria = categoriaProd.includes("camisa");
+const isCamisasCategoria = categoriaProd.includes("camisas");
 
-if (isCamisaCategoria) {
+if (isCamisasCategoria) {
 
     infoCamisa.style.display = "block";
 
     // preço inicial (Algodão)
     modalPrice.textContent = "R$ 85,00";
 
-    document.querySelectorAll("input[name='opcaoCamisa']").forEach(r => {
+    document.querySelectorAll("input[name='opcaoCamisas']").forEach(r => {
         r.addEventListener("change", e => {
             const preco = Number(e.target.value);
             modalPrice.textContent = "R$ " + preco.toFixed(2);
@@ -1884,7 +1884,7 @@ if (isCamisaCategoria) {
     });
 
 } else {
-    infoCamisa.style.display = "none";
+    infoCamisas.style.display = "none";
 }
 
 
@@ -2040,9 +2040,9 @@ if (nomeProd === "personalize sua camisa") {
 }
 
 // 🔵 ADICIONAR CAMISA NO CARRINHO COM O PREÇO ESCOLHIDO
-if (isCamisaCategoria) {
+if (isCamisasCategoria) {
 
-    const r = document.querySelector("input[name='opcaoCamisa']:checked");
+    const r = document.querySelector("input[name='opcaoCamisas']:checked");
     const precoCamisa = Number(r.value);
     const quantidade = Number(qtyInput.value || 1);
 
