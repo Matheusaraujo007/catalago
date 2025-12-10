@@ -2393,11 +2393,18 @@ Pedido feito com Manchinha Px Arts`;
       return ['Placa Personalizada','Placas Personalizadas','Placa Personalizadas'].includes(cat);
     });
     const temLum = cart.some(i => {
-      const prod = produtos.find(p=>p.id==i.id);
-      if(!prod) return false;
-      const cat = (prod.categoria_nome || prod.categoria || '').trim();
-      return ['Luminoso','Faixa Refletiva','Faixa'].includes(cat);
-    });
+  const prod = produtos.find(p=>p.id==i.id);
+  if(!prod) return false;
+  const cat = (prod.categoria_nome || prod.categoria || '').trim();
+
+  return [
+    'Luminoso',
+    'Faixa Refletiva',
+    'Faixa',
+    'Faixa Personalizada'  // AGORA FUNCIONA!
+  ].includes(cat);
+});
+
 
     // No special items -> send directly
     if(!temPlaca && !temLum){
