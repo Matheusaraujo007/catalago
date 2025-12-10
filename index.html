@@ -1874,16 +1874,19 @@ if (it.id === 999999) {
   /* product modal */
   let currentIndex = 0;
   function openProduct(id){
-    const p = produtos.find(x => x.id == id); if(!p) return;
-    const imagens = Array.isArray(p.imagens) && p.imagens.length > 0 ? p.imagens : (p.imagem_base64 ? [p.imagem_base64] : []);
-    const track = document.getElementById('carouselTrack');
-    if(!imagens.length) track.innerHTML = '<div style="color:#aaa">Sem imagem</div>';
-
-    // ⭐ SE FOR FAIXA PERSONALIZADA → ABRE O MODAL ESPECIAL
+    const p = produtos.find(x => x.id == id);
+     if(!p) return;
+     // ⭐ SE FOR FAIXA PERSONALIZADA → ABRE O MODAL ESPECIAL
+     const categoriaLower = (p.categoria_nome || p.categoria || "").toLowerCase();
     if (p.nome.toLowerCase().includes("faixa personalizada")) {
         openFaixaModal();
         return; // impede abrir o modal normal
     }
+    const imagens = Array.isArray(p.imagens) && p.imagens.length > 0 ? p.imagens : (p.imagem_base64 ? [p.imagem_base64] : []);
+    const track = document.getElementById('carouselTrack');
+    if(!imagens.length) track.innerHTML = '<div style="color:#aaa">Sem imagem</div>';
+
+    
     else track.innerHTML = imagens.map(img => {
       const src = img.startsWith('data:image') ? img : `data:image/jpeg;base64,${img}`;
       return `<img src="${src}" alt="">`;
