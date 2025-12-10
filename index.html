@@ -1098,12 +1098,12 @@ footer {
   Escolha o material:<br><br>
 
   <label style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-    <input type="radio" name="opcaoCamisas" value="85" data-label="Algodão">
+    <input type="radio" name="opcaoCamisas" value="85">
     Algodão — R$ 85,00
   </label>
 
   <label style="display:flex; align-items:center; gap:8px;">
-    <input type="radio" name="opcaoCamisas" value="65" data-label="Poliéster">
+    <input type="radio" name="opcaoCamisas" value="65">
     Poliéster — R$ 65,00
   </label>
 
@@ -1126,12 +1126,12 @@ footer {
   Fazemos sob encomenda a partir de 10 unidades, com preço especial:<br><br>
 
   <label style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-    <input type="radio" name="opcaoCamisa" value="75" data-label="Algodão">
+    <input type="radio" name="infoPersCamisa" value="75" checked>
     Algodão — R$ 75,00 (cada)
   </label>
 
   <label style="display:flex; align-items:center; gap:8px;">
-    <input type="radio" name="opcaoCamisa" value="55" data-label="Poliéster">
+    <input type="radio" name="infoPersCamisa" value="55">
     Poliéster — R$ 55,00 (cada)
   </label>
 
@@ -1882,8 +1882,6 @@ const infoCamisaPersonalizada = document.getElementById("infoCamisaPersonalizada
      r.addEventListener("change", e => { 
       const precoSelecionado = Number(e.target.value); 
       modalPrice.textContent = "R$ " + precoSelecionado.toFixed(2);
-
-      opcaoSelecionadaCamisa = e.target.dataset.label; // ← guarda o nome da opção
      }); 
     }); 
   } else { 
@@ -1891,7 +1889,6 @@ const infoCamisaPersonalizada = document.getElementById("infoCamisaPersonalizada
   }
 
 
-  // 🔵 CAMISA 
 const isCamisasCategoria = categoriaProd.includes("camisas");
 
 if (isCamisasCategoria) {
@@ -1901,19 +1898,15 @@ if (isCamisasCategoria) {
     modalPrice.textContent = "R$ 85,00";
 
     document.querySelectorAll("input[name='opcaoCamisas']").forEach(r => {
-      r.addEventListener("change", e => {
-      const preco = Number(e.target.value);
-      modalPrice.textContent = "R$ " + preco.toFixed(2);
-            
-            opcaoSelecionadaCamisa = e.target.dataset.label; // ← guarda o nome da opção
+        r.addEventListener("change", e => {
+            const preco = Number(e.target.value);
+            modalPrice.textContent = "R$ " + preco.toFixed(2);
         });
     });
 
 } else {
     infoCamisas.style.display = "none";
 }
-
-
 
 
 
@@ -2031,14 +2024,10 @@ if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
     const preco = Number(r.value); const quantidade = Number(qtyInput.value || 1); 
     const material = r.parentElement.textContent.trim();
     
-    cart.push({
-  id: p.id,
-  nome: p.nome,
-  preco: precoFinal,
-  quantidade: qty,
-  opcao_camisa: opcaoSelecionadaCamisa || null
-});
- 
+    cart.push({ id: p.id, 
+      qt: quantidade, 
+      price: preco 
+    }); 
     
     saveCart(); 
     closeModal(); 
@@ -2050,14 +2039,10 @@ if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
       const precoCamisa = Number(r.value); const quantidade = Number(qtyInput.value || 1); 
       const material = r.parentElement.textContent.trim(); // ← pega o nome "Algodão..." ou "Poliéster..."
 
-      cart.push({
-  id: p.id,
-  nome: p.nome,
-  preco: precoFinal,
-  quantidade: qty,
-  opcao_camisa: opcaoSelecionadaCamisa || null
-});
-
+      cart.push({ id: p.id, 
+        qt: quantidade, 
+        price: precoCamisa 
+      }); 
       
       saveCart(); 
       closeModal(); 
