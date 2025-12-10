@@ -1878,7 +1878,7 @@ if (it.id === 999999) {
     const imagens = Array.isArray(p.imagens) && p.imagens.length > 0 ? p.imagens : (p.imagem_base64 ? [p.imagem_base64] : []);
     const track = document.getElementById('carouselTrack');
     if(!imagens.length) track.innerHTML = '<div style="color:#aaa">Sem imagem</div>';
-    
+
     // ⭐ SE FOR FAIXA PERSONALIZADA → ABRE O MODAL ESPECIAL
     if (p.nome.toLowerCase().includes("faixa personalizada")) {
         openFaixaModal();
@@ -2297,43 +2297,7 @@ Detalhes Faixa Refletiva (Luminoso)
 --------`;
     }
 
-    function openFaixaModal() {
-    document.getElementById("modalFaixa").style.display = "flex";
-}
-
-function closeFaixa() {
-    document.getElementById("modalFaixa").style.display = "none";
-}
-
-function confirmarFaixa() {
-
-    const modelo = document.getElementById("faixaModelo").value.trim();
-    const texto = document.getElementById("faixaTexto").value.trim();
-    const medidas = document.getElementById("faixaMedidas").value.trim();
-
-    if (!modelo || !texto) {
-        alert("Preencha pelo menos o modelo e o texto!");
-        return;
-    }
-
-    // Adicionar ao carrinho
-    cart.push({
-        id: "faixaPersonalizada",
-        qt: 1,
-        price: 0, 
-        descricao: `
-🟦 FAIXA PERSONALIZADA  
-Modelo: ${modelo}  
-Texto: ${texto}  
-Medidas: ${medidas || "240x10 cm (padrão)"}
-        `
-    });
-
-    saveCart();
-    closeFaixa();
-
-    alert("Faixa adicionada ao pedido!");
-}
+    
 
 
         // Recupera dados do modal de entrega
@@ -2528,6 +2492,44 @@ function fullPrev(){
     fullIndex--;
     fullTrack.style.transform = `translateX(-${fullIndex * 100}%)`;
   }
+}
+
+function openFaixaModal() {
+    document.getElementById("modalFaixa").style.display = "flex";
+}
+
+function closeFaixa() {
+    document.getElementById("modalFaixa").style.display = "none";
+}
+
+function confirmarFaixa() {
+
+    const modelo = document.getElementById("faixaModelo").value.trim();
+    const texto = document.getElementById("faixaTexto").value.trim();
+    const medidas = document.getElementById("faixaMedidas").value.trim();
+
+    if (!modelo || !texto) {
+        alert("Preencha pelo menos o modelo e o texto!");
+        return;
+    }
+
+    // Adicionar ao carrinho
+    cart.push({
+        id: "faixaPersonalizada",
+        qt: 1,
+        price: 0, 
+        descricao: `
+🟦 FAIXA PERSONALIZADA  
+Modelo: ${modelo}  
+Texto: ${texto}  
+Medidas: ${medidas || "240x10 cm (padrão)"}
+        `
+    });
+
+    saveCart();
+    closeFaixa();
+
+    alert("Faixa adicionada ao pedido!");
 }
 
 // ========== MENU LATERAL ==========
