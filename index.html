@@ -2047,7 +2047,8 @@ if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
            
            
     // 🔵 ADICIONAR CAMISA NO CARRINHO COM O PREÇO ESCOLHIDO
-     if (isCamisasCategoria) {
+     if (isCamisasCategoria && nomeProd !== "personalize sua camisa") {
+
        const r = document.querySelector("input[name='opcaoCamisas']:checked");
         const precoCamisa = Number(r.value);
         const material = r.parentElement.textContent.trim(); // ← PEGA O TEXTO DO RADIO
