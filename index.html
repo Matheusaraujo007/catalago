@@ -1789,27 +1789,25 @@ document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
  const categoriaProd = (p.categoria_nome || p.categoria || "").toLowerCase().trim();
 const nomeProd = (p.nome || "").toLowerCase().trim();
 
-const boxTamanhos = document.getElementById("tamanhosProduto");
+const infoBone = document.getElementById("infoBone");
 
 if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
 
-    boxTamanhos.style.display = "block";
-
-    // Define padrão (unidade)
-    const defaultQtd = document.querySelector("input[name='opcaoQtd'][value='unidade']");
-    if (defaultQtd) defaultQtd.checked = true;
+    infoBone.style.display = "block";
 
     modalPrice.textContent = "R$ 45,00";
+
+    document.querySelectorAll("input[name='opcaoBone']").forEach(r => {
+        r.addEventListener("change", e => {
+            const preco = Number(e.target.value);
+            modalPrice.textContent = "R$ " + preco.toFixed(2);
+        });
+    });
+
 } else {
-    boxTamanhos.style.display = "none";
+    infoBone.style.display = "none";
 }
 
-document.querySelectorAll("input[name='opcaoQtd']").forEach(radio => {
-    radio.addEventListener("change", e => {
-        const preco = Number(e.target.dataset.preco);
-        modalPrice.textContent = "R$ " + preco.toFixed(2);
-    });
-});
 
 
 // 🔵 REGRA 1: identificar se é um produto de bandeira comum
@@ -1831,29 +1829,6 @@ if (isBandeiraCategoria || isPersonalize) {
 } else {
     tamanhoBox.style.display = "none";
 }
-
-// 🔵 BONÉ — mostrar bloco e atualizar preço conforme seleção
-const infoBone = document.getElementById("infoBone");
-
-if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
-
-    infoBone.style.display = "block";
-
-    // preço inicial
-    modalPrice.textContent = "R$ 45,00";
-
-    // atualizar quando trocar o select
-    document.querySelectorAll("input[name='opcaoBone']").forEach(r => {
-        r.addEventListener("change", e => {
-            const preco = Number(e.target.value);
-            modalPrice.textContent = "R$ " + preco.toFixed(2);
-        });
-    });
-
-} else {
-    infoBone.style.display = "none";
-}
-
 
 
 // 🔄 AGORA — QUANDO CLICAR NO TAMANHO → ATUALIZA O PREÇO
