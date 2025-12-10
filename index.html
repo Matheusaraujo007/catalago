@@ -1888,7 +1888,7 @@ if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
             
             if (isCamisasCategoria) {
                infoCamisas.style.display = "block"; // <— agora é o nome correto!
-
+                
                 modalPrice.textContent = "R$ 85,00";
 
                  document.querySelectorAll("input[name='opcaoCamisas']").forEach(r => {
@@ -2030,12 +2030,15 @@ if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
      if (isCamisasCategoria) {
        const r = document.querySelector("input[name='opcaoCamisas']:checked");
         const precoCamisa = Number(r.value);
+        const material = r.parentElement.textContent.trim(); // ← PEGA O TEXTO DO RADIO
          const quantidade = Number(qtyInput.value || 1);
          
          cart.push({ id:
            p.id,
            qt: quantidade,
-           price: precoCamisa
+           price: precoCamisa,
+           material
+
            });
            
            saveCart();
@@ -2128,6 +2131,15 @@ document.getElementById('btnCheckout').addEventListener('click', () => {
 Tamanho: ${it.tamanho}
 Valor unitário: R$ ${(it.price).toFixed(2)}`;
   }
+
+// CAMISAS – mostrar material escolhido
+if (it.material) {
+   return `${it.qt} x ${prod?.nome || 'Camisa'}
+Material: ${it.material}
+Valor unitário: R$ ${(it.price).toFixed(2)}`;
+}
+
+
 
   // produtos normais
   return `${it.qt} x ${prod?.nome || 'Produto'}: R$ ${(it.price).toFixed(2)}`;
