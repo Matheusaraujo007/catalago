@@ -979,6 +979,39 @@ footer {
     text-align: center;
 }
 
+/* MODAL FAIXA PERSONALIZADA */
+
+.modal-placa-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 999999;
+}
+
+.modal-placa-box {
+  width: 90%;
+  max-width: 380px;
+  background: #161616;
+  padding: 18px;
+  border-radius: 14px;
+  color: #fff;
+  animation: placaZoom .25s ease;
+  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+}
+
+.modal-placa-box input,
+.modal-placa-box textarea {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  background: #111;
+  color: #fff;
+}
 
 </style>
 </head>
@@ -1300,6 +1333,34 @@ footer {
     </div>
   </div>
 </div>
+
+<!-- MODAL FAIXA PERSONALIZADA -->
+<div class="modal-placa-bg" id="modalFaixa">
+  <div class="modal-placa-box">
+    
+    <button class="close-checkout" onclick="closeFaixa()">×</button>
+
+    <h2 style="margin-bottom: 10px;">Faixa Personalizada</h2>
+
+    <label>Escolha o modelo (01 a 09):</label>
+    <input type="text" id="faixaModelo" placeholder="Ex: 03" />
+
+    <label>Texto / logo desejado:</label>
+    <textarea id="faixaTexto" rows="3" placeholder="Digite o texto ou explique o logo"></textarea>
+
+    <label>Medidas diferentes (opcional):</label>
+    <input type="text" id="faixaMedidas" placeholder="Ex: 250x12 cm" />
+
+    <p style="margin-top: 6px; font-size:14px; opacity:.8;">
+      📏 <b>Tamanho padrão:</b> 240 × 10 cm  
+    </p>
+
+    <button class="btn-confirmar-pedido" onclick="confirmarFaixa()">
+      Adicionar ao Pedido
+    </button>
+  </div>
+</div>
+
 
 <!-- MODAL FULLSCREEN DE IMAGEM -->
 <div id="imgFull" style="
@@ -1817,6 +1878,12 @@ if (it.id === 999999) {
     const imagens = Array.isArray(p.imagens) && p.imagens.length > 0 ? p.imagens : (p.imagem_base64 ? [p.imagem_base64] : []);
     const track = document.getElementById('carouselTrack');
     if(!imagens.length) track.innerHTML = '<div style="color:#aaa">Sem imagem</div>';
+    
+    // ⭐ SE FOR FAIXA PERSONALIZADA → ABRE O MODAL ESPECIAL
+    if (p.nome.toLowerCase().includes("faixa personalizada")) {
+        openFaixaModal();
+        return; // impede abrir o modal normal
+    }
     else track.innerHTML = imagens.map(img => {
       const src = img.startsWith('data:image') ? img : `data:image/jpeg;base64,${img}`;
       return `<img src="${src}" alt="">`;
@@ -2229,6 +2296,45 @@ Detalhes Faixa Refletiva (Luminoso)
  ${lumData.more}
 --------`;
     }
+
+    function openFaixaModal() {
+    document.getElementById("modalFaixa").style.display = "flex";
+}
+
+function closeFaixa() {
+    document.getElementById("modalFaixa").style.display = "none";
+}
+
+function confirmarFaixa() {
+
+    const modelo = document.getElementById("faixaModelo").value.trim();
+    const texto = document.getElementById("faixaTexto").value.trim();
+    const medidas = document.getElementById("faixaMedidas").value.trim();
+
+    if (!modelo || !texto) {
+        alert("Preencha pelo menos o modelo e o texto!");
+        return;
+    }
+
+    // Adicionar ao carrinho
+    cart.push({
+        id: "faixaPersonalizada",
+        qt: 1,
+        price: 0, 
+        descricao: `
+🟦 FAIXA PERSONALIZADA  
+Modelo: ${modelo}  
+Texto: ${texto}  
+Medidas: ${medidas || "240x10 cm (padrão)"}
+        `
+    });
+
+    saveCart();
+    closeFaixa();
+
+    alert("Faixa adicionada ao pedido!");
+}
+
 
         // Recupera dados do modal de entrega
     let dadosEntrega = window.__dados_entrega || null;
