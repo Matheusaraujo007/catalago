@@ -2047,7 +2047,8 @@ if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
            
            
     // 🔵 ADICIONAR CAMISA NO CARRINHO COM O PREÇO ESCOLHIDO
-     if (isCamisasCategoria && nomeProd !== "personalize sua camisa") {
+     if (categoriaProd.includes("camisas") && nomeProd !== "personalize sua camisa") {
+
 
        const r = document.querySelector("input[name='opcaoCamisas']:checked");
         const precoCamisa = Number(r.value);
@@ -2154,20 +2155,17 @@ Valor unitário: R$ ${(it.price).toFixed(2)}`;
   }
 
 // CAMISAS – mostrar material escolhido
+
+// CAMISAS OU PRODUTO COM MATERIAL
 if (it.material) {
-   return `${it.qt} x ${prod?.nome || 'Camisa'}
+    return `${it.qt} x ${prod?.nome || 'Produto'}
 Material: ${it.material}
 Valor unitário: R$ ${(it.price).toFixed(2)}`;
 }
 
+// PRODUTO NORMAL
+return `${it.qt} x ${prod?.nome || 'Produto'} : R$ ${(it.price).toFixed(2)}`;
 
-
-  // produtos normais
-  if (it.material) {
-    return `${it.qt} x ${prod?.nome}
-Material: ${it.material}
-Valor unitário: R$ ${(it.price).toFixed(2)}`;
-}
 
 }).join('\n--------\n');
 
