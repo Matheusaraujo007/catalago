@@ -2024,6 +2024,8 @@ if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
     if(nomeProd === "personalize sua camisa") {
        const r = document.querySelector("input[name='opcaoCamisa']:checked"); 
     const preco = Number(r.value); const quantidade = Number(qtyInput.value || 1); 
+    const material = r.parentElement.textContent.trim();
+    
     cart.push({ id: p.id, 
       qt: quantidade, 
       price: preco 
@@ -2037,6 +2039,8 @@ if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
     if (isCamisasCategoria) { 
       const r = document.querySelector("input[name='opcaoCamisas']:checked"); 
       const precoCamisa = Number(r.value); const quantidade = Number(qtyInput.value || 1); 
+      const material = r.parentElement.textContent.trim(); // ← pega o nome "Algodão..." ou "Poliéster..."
+
       cart.push({ id: p.id, 
         qt: quantidade, 
         price: precoCamisa 
