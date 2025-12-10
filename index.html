@@ -1873,7 +1873,7 @@ if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
       modalPrice.textContent = "R$ 75,00";
       
       // atualizar quando trocar opção
-       document.querySelectorAll("input[name='opcaoCamisa']").forEach(r => {
+       document.querySelectorAll("input[name='opcaoPersCamisa']").forEach(r => {
          r.addEventListener("change", e => {
            const precoSelecionado = Number(e.target.value);
             modalPrice.textContent = "R$ " + precoSelecionado.toFixed(2);
