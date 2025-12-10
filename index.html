@@ -1111,7 +1111,7 @@ footer {
 
 
    <!-- 🔵 SOMENTE PARA PERSONALIZE SUA CAMISA -->
-<div id="infoCamisaPersonalizada"
+<div id="infoPersCamisa"
      style="display:none;
             background:#fff3cd;
             border:1px solid #ffeeba;
@@ -1126,12 +1126,12 @@ footer {
   Fazemos sob encomenda a partir de 10 unidades, com preço especial:<br><br>
 
   <label style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-    <input type="radio" name="infoCamisaPersonalizada" value="75" checked>
+    <input type="radio" name="infoPersCamisa" value="75" checked>
     Algodão — R$ 75,00 (cada)
   </label>
 
   <label style="display:flex; align-items:center; gap:8px;">
-    <input type="radio" name="infoCamisaPersonalizada" value="55">
+    <input type="radio" name="infoPersCamisa" value="55">
     Poliéster — R$ 55,00 (cada)
   </label>
 
@@ -2017,41 +2017,31 @@ if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
         return;
     }
 
-    // 🔵 ADICIONAR CAMISA PERSONALIZADA AO CARRINHO
-if (nomeProd === "personalize sua camisa") {
-
-    const r = document.querySelector("input[name='infoCamisaPersonalizada']:checked");
-    const preco = Number(r.value);
-    const quantidade = Number(qtyInput.value || 1);
-
-    cart.push({
-        id: p.id,
-        qt: quantidade,
-        price: preco
-    });
-
-    saveCart();
-    closeModal();
-    return;
-}
-
-// 🔵 ADICIONAR CAMISA NO CARRINHO COM O PREÇO ESCOLHIDO
-if (isCamisasCategoria) {
-
-    const r = document.querySelector("input[name='opcaoCamisas']:checked");
-    const preco = Number(r.value);
-    const quantidade = Number(qtyInput.value || 1);
-
-    cart.push({
-        id: p.id,
-        qt: quantidade,
-        price: preco
-    });
-
-    saveCart();
-    closeModal();
-    return;
-}
+    // 🔵 ADICIONAR CAMISA PERSONALIZADA AO CARRINHO 
+    if(nomeProd === "personalize sua camisa") {
+       const r = document.querySelector("input[name='opcaoCamisa']:checked"); 
+    const preco = Number(r.value); const quantidade = Number(qtyInput.value || 1); 
+    cart.push({ id: p.id, 
+      qt: quantidade, 
+      price: preco 
+    }); 
+    
+    saveCart(); 
+    closeModal(); 
+    return; } 
+    
+    // 🔵 ADICIONAR CAMISA NO CARRINHO COM O PREÇO ESCOLHIDO 
+    if (isCamisasCategoria) { 
+      const r = document.querySelector("input[name='opcaoCamisas']:checked"); 
+      const precoCamisa = Number(r.value); const quantidade = Number(qtyInput.value || 1); 
+      cart.push({ id: p.id, 
+        qt: quantidade, 
+        price: precoCamisa 
+      }); 
+      
+      saveCart(); 
+      closeModal(); 
+      return; }
 
 
     // 🔵 PRODUTO NORMAL
