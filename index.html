@@ -1864,58 +1864,60 @@ if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
     infoBone.style.display = "none";
 }
 
-// 🔵 CAMISA PERSONALIZADA
- const infoPersCamisa = document.getElementById("infoPersCamisa");
-  if (nomeProd === "personalize sua camisa" || nomeProd === "personalize sua camisa ") {
-     infoPersCamisa.style.display = "block";
-     
-     // preço inicial
-      modalPrice.textContent = "R$ 75,00";
-      
-      // atualizar quando trocar opção
-       document.querySelectorAll("input[name='opcaoPersCamisa']").forEach(r => {
-         r.addEventListener("change", e => {
-           const precoSelecionado = Number(e.target.value);
-            modalPrice.textContent = "R$ " + precoSelecionado.toFixed(2);
-           });
-         });
-         } else {
-           infoPersCamisa.style.display = "none";
-           }
+/* ============================
+   REGRAS DOS MÓDULOS DE CAMISA
+=============================== */
 
 
-            const isCamisasCategoria = categoriaProd.includes("camisas");
-const isPersonalizeCamisa = nomeProd === "personalize sua camisa";
 
-// 🔵 SOMENTE MOSTRAR CAMISAS NORMAIS SE NÃO FOR PERSONALIZE
-if (isCamisasCategoria && !isPersonalizeCamisa) {
+const infoCamisas = document.getElementById("infoCamisas");          // 85 / 65
+const infoPersCamisa = document.getElementById("infoPersCamisa");    // 75 / 55
 
-    infoCamisas.style.display = "block";
-    infoPersCamisa.style.display = "none"; // garante que não apareça junto
+// 🔵 1 — SE FOR "PERSONALIZE SUA CAMISA" → MOSTRA OS DOIS
+if (nomeProd === "personalize sua camisa") {
 
-    modalPrice.textContent = "R$ 85,00";
+    infoCamisas.style.display = "block";       // mostra 85 / 65
+    infoPersCamisa.style.display = "block";    // mostra 75 / 55
 
-    document.querySelectorAll("input[name='opcaoCamisas']").forEach(r => {
+    // preço inicial (do personalizado)
+    modalPrice.textContent = "R$ 75,00";
+
+    // listeners do módulo 75/55
+    document.querySelectorAll("input[name='opcaoPersCamisa']").forEach(r => {
         r.addEventListener("change", e => {
-            const preco = Number(e.target.value);
-            modalPrice.textContent = "R$ " + preco.toFixed(2);
+            modalPrice.textContent = "R$ " + Number(e.target.value).toFixed(2);
         });
     });
 
-} 
-// 🔵 SOMENTE PERSONALIZE SUA CAMISA
-else if (isPersonalizeCamisa) {
-
-    infoCamisas.style.display = "none"; // esconde módulo errado
-    infoPersCamisa.style.display = "block";
+    // listeners do módulo 85/65
+    document.querySelectorAll("input[name='opcaoCamisas']").forEach(r => {
+        r.addEventListener("change", e => {
+            modalPrice.textContent = "R$ " + Number(e.target.value).toFixed(2);
+        });
+    });
 
 }
+// 🔵 2 — SE FOR CATEGORIA CAMISAS (mas NÃO personalize)
+else if (categoriaProd.includes("camisas")) {
 
-// 🔵 NENHUMA CAMISA
+    infoCamisas.style.display = "none";    // mostra só 85/65
+    infoPersCamisa.style.display = "none";  // esconde 75/55
+
+    modalPrice.textContent = "R$ 85,00"; // preço inicial
+
+    document.querySelectorAll("input[name='opcaoCamisas']").forEach(r => {
+        r.addEventListener("change", e => {
+            modalPrice.textContent = "R$ " + Number(e.target.value).toFixed(2);
+        });
+    });
+
+}
+// 🔵 3 — QUALQUER OUTRO PRODUTO → esconder tudo
 else {
     infoCamisas.style.display = "none";
     infoPersCamisa.style.display = "none";
 }
+
 
 
 
