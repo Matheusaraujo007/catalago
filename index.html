@@ -1111,7 +1111,7 @@ footer {
 
 
    <!-- 🔵 SOMENTE PARA PERSONALIZE SUA CAMISA -->
-<div id="infoPersCamisa"
+<div id="infoCamisaPersonalizada"
      style="display:none;
             background:#fff3cd;
             border:1px solid #ffeeba;
@@ -1126,12 +1126,12 @@ footer {
   Fazemos sob encomenda a partir de 10 unidades, com preço especial:<br><br>
 
   <label style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-    <input type="radio" name="opcaoCamisa" value="75" checked>
+    <input type="radio" name="infoCamisaPersonalizada" value="75" checked>
     Algodão — R$ 75,00 (cada)
   </label>
 
   <label style="display:flex; align-items:center; gap:8px;">
-    <input type="radio" name="opcaoCamisa" value="55">
+    <input type="radio" name="infoCamisaPersonalizada" value="55">
     Poliéster — R$ 55,00 (cada)
   </label>
 
@@ -1864,28 +1864,48 @@ if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
     infoBone.style.display = "none";
 }
 
-// 🔵 CAMISAS — mostrar bloco e atualizar preço conforme seleção
+// pegar elementos
 const infoCamisas = document.getElementById("infoCamisas");
+const infoCamisaPersonalizada = document.getElementById("infoCamisaPersonalizada");
 
-const isCamisasCategoria = categoriaProd.includes("camisas");
+// 🔵 1. PERSONALIZE SUA CAMISA — PRIORITÁRIO
+if (nomeProd === "personalize sua camisa") {
 
-if (isCamisasCategoria) {
+    // ativa apenas o bloco especial
+    infoCamisaPersonalizada.style.display = "block";
+    infoCamisas.style.display = "none";
+
+    // preço inicial
+    modalPrice.textContent = "R$ 75,00";
+
+    document.querySelectorAll("input[name='opcaoCamisaPersonalizada']").forEach(r => {
+        r.addEventListener("change", e => {
+            modalPrice.textContent = "R$ " + Number(e.target.value).toFixed(2);
+        });
+    });
+
+}
+// 🔵 2. Categoria CAMISA (mas NÃO personalize)
+else if (categoriaProd.includes("camisas")) {
 
     infoCamisas.style.display = "block";
+    infoCamisaPersonalizada.style.display = "none";
 
-    // preço inicial (Algodão)
     modalPrice.textContent = "R$ 85,00";
 
     document.querySelectorAll("input[name='opcaoCamisas']").forEach(r => {
         r.addEventListener("change", e => {
-            const preco = Number(e.target.value);
-            modalPrice.textContent = "R$ " + preco.toFixed(2);
+            modalPrice.textContent = "R$ " + Number(e.target.value).toFixed(2);
         });
     });
 
-} else {
-    infoCamisas.style.display = "none";
 }
+// 🔵 3. Nenhum caso — esconder tudo
+else {
+    infoCamisas.style.display = "none";
+    infoCamisaPersonalizada.style.display = "none";
+}
+
 
 
 
@@ -1924,31 +1944,7 @@ if (isPersonalize) {
     boxArte.style.display = "block";
 } else {
     boxArte.style.display = "none";
-}
-
-// 🔵 CAMISA PERSONALIZADA
-const infoPersCamisa = document.getElementById("infoPersCamisa");
-
-if (nomeProd === "personalize sua camisa" || nomeProd === "personalize sua camisa ") {
-
-    infoPersCamisa.style.display = "block";
-
-    // preço inicial
-    modalPrice.textContent = "R$ 75,00";
-
-    // atualizar quando trocar opção
-    document.querySelectorAll("input[name='opcaoCamisa']").forEach(r => {
-        r.addEventListener("change", e => {
-            const precoSelecionado = Number(e.target.value);
-            modalPrice.textContent = "R$ " + precoSelecionado.toFixed(2);
-        });
-    });
-
-} else {
-    infoPersCamisa.style.display = "none";
-}
-
- 
+} 
 
     const promo = aplicarPromocao(p);
     if(promo.preco < Number(p.preco || 0)){
