@@ -1082,7 +1082,35 @@ footer {
   </div>
 </div>
 
-     
+   <!-- 🔵 SOMENTE PARA PERSONALIZE SUA CAMISA -->
+<div id="infoCamisa"
+     style="display:none;
+            background:#fff3cd;
+            border:1px solid #ffeeba;
+            padding:12px;
+            border-radius:10px;
+            color:#000;
+            font-size:14px;
+            line-height:1.5;
+            margin-top:10px;">
+
+  <strong>Camisas Personalizadas</strong><br>
+  Fazemos sob encomenda a partir de 10 unidades, com preço especial:<br><br>
+
+  <label style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+    <input type="radio" name="opcaoCamisa" value="75" checked>
+    Algodão — R$ 75,00 (cada)
+  </label>
+
+  <label style="display:flex; align-items:center; gap:8px;">
+    <input type="radio" name="opcaoCamisa" value="55">
+    Poliéster — R$ 55,00 (cada)
+  </label>
+
+  <br>
+  ⚠️ <b>Atenção:</b> Consulte com a vendedora cor e tamanho disponível.
+</div>
+  
 
 <div id="tamanhosBandeira" 
      style="display:none; margin-top:10px; padding:12px; border-radius:10px; background:#f4f4f4; color:#000;">
@@ -1847,6 +1875,27 @@ if (isPersonalize) {
     boxArte.style.display = "none";
 }
 
+// 🔵 CAMISA PERSONALIZADA
+const infoCamisa = document.getElementById("infoCamisa");
+
+if (nomeProd === "personalize sua camisa" || nomeProd === "personalize sua camisa ") {
+
+    infoCamisa.style.display = "block";
+
+    // preço inicial
+    modalPrice.textContent = "R$ 75,00";
+
+    // atualizar quando trocar opção
+    document.querySelectorAll("input[name='opcaoCamisa']").forEach(r => {
+        r.addEventListener("change", e => {
+            const precoSelecionado = Number(e.target.value);
+            modalPrice.textContent = "R$ " + precoSelecionado.toFixed(2);
+        });
+    });
+
+} else {
+    infoCamisa.style.display = "none";
+}
 
  
 
@@ -1920,6 +1969,25 @@ if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
         closeModal();
         return;
     }
+
+    // 🔵 ADICIONAR CAMISA PERSONALIZADA AO CARRINHO
+if (nomeProd === "personalize sua camisa") {
+
+    const r = document.querySelector("input[name='opcaoCamisa']:checked");
+    const preco = Number(r.value);
+    const quantidade = Number(qtyInput.value || 1);
+
+    cart.push({
+        id: p.id,
+        qt: quantidade,
+        price: preco
+    });
+
+    saveCart();
+    closeModal();
+    return;
+}
+
 
     // 🔵 PRODUTO NORMAL
     addToCart(p.id, quantidade);
