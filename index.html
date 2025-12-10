@@ -2050,25 +2050,32 @@ if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
            
            
     // 🔵 ADICIONAR CAMISA NO CARRINHO COM O PREÇO ESCOLHIDO
-     if (categoriaProd.includes("camisas") && nomeProd !== "personalize sua camisa") {
+     if ((categoriaProd.includes("camisa")) && nomeProd !== "personalize sua camisa") {
 
+    const r = document.querySelector("input[name='opcaoCamisas']:checked");
 
-       const r = document.querySelector("input[name='opcaoCamisas']:checked");
-        const precoCamisa = Number(r.value);
-        const material = r.parentElement.textContent.trim(); // ← PEGA O TEXTO DO RADIO
-         const quantidade = Number(qtyInput.value || 1);
-         
-         cart.push({ id:
-           p.id,
-           qt: quantidade,
-           price: precoCamisa,
-           material
+    if (!r) {
+        // se não houver radios, usa o preço normal do produto
+        addToCart(p.id, quantidade);
+        closeModal();
+        return;
+    }
 
-           });
-           
-           saveCart();
-            closeModal();
-             return; }
+    const precoCamisa = Number(r.value);
+    const material = r.parentElement.textContent.trim();
+
+    cart.push({
+        id: p.id,
+        qt: quantidade,
+        price: precoCamisa,
+        material
+    });
+
+    saveCart();
+    closeModal();
+    return;
+}
+
 
 
     // 🔵 PRODUTO NORMAL
