@@ -1885,21 +1885,37 @@ if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
 
 
             const isCamisasCategoria = categoriaProd.includes("camisas");
-            
-            if (isCamisasCategoria) {
-               infoCamisas.style.display = "block"; // <— agora é o nome correto!
-                
-                modalPrice.textContent = "R$ 85,00";
+const isPersonalizeCamisa = nomeProd === "personalize sua camisa";
 
-                 document.querySelectorAll("input[name='opcaoCamisas']").forEach(r => {
-                   r.addEventListener("change", e => {
-                     const preco = Number(e.target.value);
-                      modalPrice.textContent = "R$ " + preco.toFixed(2);
-                     });
-                   });
-                   } else {
-                     infoCamisas.style.display = "none";
-             }
+// 🔵 SOMENTE MOSTRAR CAMISAS NORMAIS SE NÃO FOR PERSONALIZE
+if (isCamisasCategoria && !isPersonalizeCamisa) {
+
+    infoCamisas.style.display = "block";
+    infoPersCamisa.style.display = "none"; // garante que não apareça junto
+
+    modalPrice.textContent = "R$ 85,00";
+
+    document.querySelectorAll("input[name='opcaoCamisas']").forEach(r => {
+        r.addEventListener("change", e => {
+            const preco = Number(e.target.value);
+            modalPrice.textContent = "R$ " + preco.toFixed(2);
+        });
+    });
+
+} 
+// 🔵 SOMENTE PERSONALIZE SUA CAMISA
+else if (isPersonalizeCamisa) {
+
+    infoCamisas.style.display = "none"; // esconde módulo errado
+    infoPersCamisa.style.display = "block";
+
+}
+
+// 🔵 NENHUMA CAMISA
+else {
+    infoCamisas.style.display = "none";
+    infoPersCamisa.style.display = "none";
+}
 
 
 
