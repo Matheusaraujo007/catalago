@@ -1845,6 +1845,9 @@ document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
  const categoriaProd = (p.categoria_nome || p.categoria || "").toLowerCase().trim();
 const nomeProd = (p.nome || "").toLowerCase().trim();
 
+// 🔥 ESTA LINHA PRECISA EXISTIR!
+const isCamisasCategoria = categoriaProd.includes("camisas");
+
 const infoBone = document.getElementById("infoBone");
 
 if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
