@@ -1082,33 +1082,6 @@ footer {
   </div>
 </div>
 
-<!-- 🔵 SOMENTE PARA PRODUTOS DA CATEGORIA CAMISA -->
-<div id="infoCamisas"
-     style="display:none;
-            background:#e8f4ff;
-            border:1px solid #bcdfff;
-            padding:12px;
-            border-radius:10px;
-            color:#000;
-            font-size:14px;
-            line-height:1.5;
-            margin-top:10px;">
-
-  <strong></strong><br>
-  Escolha o material:<br><br>
-
-  <label style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-    <input type="radio" name="opcaoCamisas" value="85">
-    Algodão — R$ 85,00
-  </label>
-
-  <label style="display:flex; align-items:center; gap:8px;">
-    <input type="radio" name="opcaoCamisas" value="65">
-    Poliéster — R$ 65,00
-  </label>
-
-</div>
-
 
    <!-- 🔵 SOMENTE PARA PERSONALIZE SUA CAMISA -->
 <div id="infoPersCamisa"
@@ -1883,26 +1856,6 @@ if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
            infoPersCamisa.style.display = "none";
            }
 
-
-            const isCamisasCategoria = categoriaProd.includes("camisas");
-            
-            if (isCamisasCategoria) {
-               infoCamisas.style.display = "block"; // <— agora é o nome correto!
-                
-                modalPrice.textContent = "R$ 85,00";
-
-                 document.querySelectorAll("input[name='opcaoCamisas']").forEach(r => {
-                   r.addEventListener("change", e => {
-                     const preco = Number(e.target.value);
-                      modalPrice.textContent = "R$ " + preco.toFixed(2);
-                     });
-                   });
-                   } else {
-                     infoCamisas.style.display = "none";
-             }
-
-
-
 // 🔵 REGRA 1: identificar se é um produto de bandeira comum
 const isBandeiraCategoria = categoriaProd.includes("bandeira");
 
@@ -2026,26 +1979,6 @@ if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
          saveCart();
           closeModal();
            return; }
-           
-           
-    // 🔵 ADICIONAR CAMISA NO CARRINHO COM O PREÇO ESCOLHIDO
-     if (isCamisasCategoria) {
-       const r = document.querySelector("input[name='opcaoCamisas']:checked");
-        const precoCamisa = Number(r.value);
-        const material = r.parentElement.textContent.trim(); // ← PEGA O TEXTO DO RADIO
-         const quantidade = Number(qtyInput.value || 1);
-         
-         cart.push({ id:
-           p.id,
-           qt: quantidade,
-           price: precoCamisa,
-           material
-
-           });
-           
-           saveCart();
-            closeModal();
-             return; }
 
 
     // 🔵 PRODUTO NORMAL
