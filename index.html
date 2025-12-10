@@ -1868,43 +1868,46 @@ if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
 const infoCamisas = document.getElementById("infoCamisas");
 const infoCamisaPersonalizada = document.getElementById("infoCamisaPersonalizada");
 
-// 🔵 1. PERSONALIZE SUA CAMISA — PRIORITÁRIO
-if (nomeProd === "personalize sua camisa") {
+// 🔵 CAMISA PERSONALIZADA
+ const infoPersCamisa = document.getElementById("infoCamisa"); 
+ if (nomeProd === "personalize sua camisa" || nomeProd === "personalize sua camisa ") {
+   infoPersCamisa.style.display = "block"; 
+   
+   
+   // preço inicial 
+   modalPrice.textContent = "R$ 75,00"; 
+   
+   // atualizar quando trocar opção 
+   document.querySelectorAll("input[name='opcaoCamisa']").forEach(r => {
+     r.addEventListener("change", e => { 
+      const precoSelecionado = Number(e.target.value); 
+      modalPrice.textContent = "R$ " + precoSelecionado.toFixed(2);
+     }); 
+    }); 
+  } else { 
+    infoPersCamisa.style.display = "none";
+  }
 
-    // ativa apenas o bloco especial
-    infoCamisaPersonalizada.style.display = "block";
-    infoCamisas.style.display = "none";
 
-    // preço inicial
-    modalPrice.textContent = "R$ 75,00";
+const isCamisasCategoria = categoriaProd.includes("camisas");
 
-    document.querySelectorAll("input[name='opcaoCamisaPersonalizada']").forEach(r => {
-        r.addEventListener("change", e => {
-            modalPrice.textContent = "R$ " + Number(e.target.value).toFixed(2);
-        });
-    });
+if (isCamisasCategoria) {
 
-}
-// 🔵 2. Categoria CAMISA (mas NÃO personalize)
-else if (categoriaProd.includes("camisas")) {
-
-    infoCamisas.style.display = "block";
-    infoCamisaPersonalizada.style.display = "none";
+    infoCamisas.style.display = "block"; // <— agora é o nome correto!
 
     modalPrice.textContent = "R$ 85,00";
 
     document.querySelectorAll("input[name='opcaoCamisas']").forEach(r => {
         r.addEventListener("change", e => {
-            modalPrice.textContent = "R$ " + Number(e.target.value).toFixed(2);
+            const preco = Number(e.target.value);
+            modalPrice.textContent = "R$ " + preco.toFixed(2);
         });
     });
 
-}
-// 🔵 3. Nenhum caso — esconder tudo
-else {
+} else {
     infoCamisas.style.display = "none";
-    infoCamisaPersonalizada.style.display = "none";
 }
+
 
 
 
