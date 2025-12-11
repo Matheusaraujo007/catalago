@@ -2220,50 +2220,46 @@ document.getElementById('btnCheckout').addEventListener('click', () => {
   /* ============================
       FAIXA PERSONALIZADA
 =============================== */
-function coletarFaixa() {
-    return {
-        modelo: document.getElementById("faixa_modelo").value.trim(),
-        texto: document.getElementById("faixa_texto").value.trim(),
-        medidas: document.getElementById("faixa_medidas").value.trim()
-    };
-}
-
 function confirmarFaixa() {
-    const faixaData = coletarFaixa();
+  const faixaData = coletarFaixa();
 
-    if (!faixaData.modelo || !faixaData.texto) {
-        alert("Preencha pelo menos o modelo e o texto!");
-        return;
+  if (!faixaData.modelo || !faixaData.texto) {
+    alert("Preencha pelo menos o modelo e o texto!");
+    return;
+  }
+
+  window.__order_pending_faixa = faixaData;
+  document.getElementById("modalFaixa").style.display = "none";
+
+  // Se existe fluxo pendente (placa ou luminoso)
+  if (window.__order_pending_next) {
+
+    if (window.__order_pending_next === 'luminoso') {
+      modalLuminoso.style.display = "flex";
+      return;
     }
 
-    // salva temporário
-    window.__order_pending_faixa = faixaData;
-
-    document.getElementById("modalFaixa").style.display = "none";
-
-    // se tem outra etapa na fila (placa ou luminoso)
-    if (window.__order_pending_next) {
-        if (window.__order_pending_next === "placa") {
-            modalPlaca.style.display = "flex";
-            return;
-        }
-        if (window.__order_pending_next === "luminoso") {
-            modalLuminoso.style.display = "flex";
-            return;
-        }
+    if (window.__order_pending_next === 'placa') {
+      modalPlaca.style.display = "flex";
+      return;
     }
+  }
 
-    // senão envia direto
-    const cliente = { nome: document.getElementById("nomeCliente").value.trim() };
-    sendOrder({ faixaData, cliente });
+  // Se nada pendente → enviar direto
+  const cliente = { nome: document.getElementById("nomeCliente").value.trim() };
+  sendOrder({
+    faixaData,
+    placaData: null,
+    lumData: null,
+    cliente
+  });
 }
-
 
 
 
 
   // main send: builds message based on cart + placa/luminoso data (if present) and opens WhatsApp
-  function sendOrder({ placaData = null, lumData = null, cliente }) {
+  function sendOrder({ placaData = null, lumData = null, faixaData = null, cliente }) {
     const valor_total = cart.reduce((s,i)=>s + ((i.price||0) * (i.qt||0)), 0);
     const resumoItens = cart.map(it => {
 
@@ -2431,7 +2427,7 @@ Pedido feito com Manchinha Px Arts`;
       modalLuminoso.style.display = 'flex';
     } else {
       const cliente = { nome: document.getElementById('nomeCliente').value.trim() || 'Cliente' };
-      sendOrder({ placaData, lumData: null, cliente });
+      sendOrder({ placaData, lumData: null, faixaData: null, cliente });
     }
   });
 
@@ -2441,12 +2437,14 @@ Pedido feito com Manchinha Px Arts`;
     // if placa data was previously collected in this flow, include it
     const placaData = window.__order_pending_placa || null;
     const cliente = { nome: document.getElementById('nomeCliente').value.trim() || 'Cliente' };
-    sendOrder({ placaData, lumData, cliente });
+    sendOrder({ placaData, lumData, faixaData: null, cliente });
     // clear pending flags
     window.__order_pending_placa = null;
     window.__order_pending_next = null;
   });
 
+
+document.getElementById("btnEnviarFaixa").addEventListener("click", confirmarFaixa);
 
   // Confirmar checkout main handler: decides the flow
   document.getElementById('confirmarCheckout').addEventListener('click', () => {
@@ -2516,7 +2514,7 @@ if(!temPlaca && !temLum && !temFaixa){
     if(!temPlaca && !temLum){
       // send immediately (no extra modal)
       const cliente = { nome };
-      sendOrder({ placaData: null, lumData: null, cliente });
+      sendOrder({ placaData: null, lumData: null, faixaData: null, cliente });
       return;
     }
 
