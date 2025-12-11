@@ -2223,41 +2223,49 @@ document.getElementById('btnCheckout').addEventListener('click', () => {
     };
   }
 
-  function openFaixaModal() {
-    document.getElementById("modalFaixa").style.display = "flex";
-}
-
-function closeFaixa() {
-    document.getElementById("modalFaixa").style.display = "none";
+  /* ============================
+      FAIXA PERSONALIZADA
+=============================== */
+function coletarFaixa() {
+    return {
+        modelo: document.getElementById("faixa_modelo").value.trim(),
+        texto: document.getElementById("faixa_texto").value.trim(),
+        medidas: document.getElementById("faixa_medidas").value.trim()
+    };
 }
 
 function confirmarFaixa() {
+    const faixaData = coletarFaixa();
 
-    const modelo = document.getElementById("faixaModelo").value.trim();
-    const texto = document.getElementById("faixaTexto").value.trim();
-    const medidas = document.getElementById("faixaMedidas").value.trim();
-
-    if (!modelo || !texto) {
+    if (!faixaData.modelo || !faixaData.texto) {
         alert("Preencha pelo menos o modelo e o texto!");
         return;
     }
 
-    cart.push({
-        id: "faixaPersonalizada",
-        qt: 1,
-        price: 0,
-        descricao: `
-🟦 FAIXA PERSONALIZADA  
-Modelo: ${modelo}  
-Texto: ${texto}  
-Medidas: ${medidas || "240x10 cm (padrão)"}
-        `
-    });
+    // salva temporário
+    window.__order_pending_faixa = faixaData;
 
-    saveCart();
-    closeFaixa();
-    alert("Faixa adicionada ao pedido!");
+    document.getElementById("modalFaixa").style.display = "none";
+
+    // se tem outra etapa na fila (placa ou luminoso)
+    if (window.__order_pending_next) {
+        if (window.__order_pending_next === "placa") {
+            modalPlaca.style.display = "flex";
+            return;
+        }
+        if (window.__order_pending_next === "luminoso") {
+            modalLuminoso.style.display = "flex";
+            return;
+        }
+    }
+
+    // senão envia direto
+    const cliente = { nome: document.getElementById("nomeCliente").value.trim() };
+    sendOrder({ faixaData, cliente });
 }
+
+
+
 
 
   // main send: builds message based on cart + placa/luminoso data (if present) and opens WhatsApp
@@ -2345,7 +2353,24 @@ Detalhes Faixa Refletiva (Luminoso)
 --------`;
     }
 
-    
+    let secFaixa = '';
+if (faixaData) {
+  secFaixa = `
+Detalhes da Faixa Personalizada
+
+1️⃣ Modelo escolhido:
+ ${faixaData.modelo}
+
+2️⃣ Texto / logo desejado:
+ ${faixaData.texto}
+
+3️⃣ Medidas informadas:
+ ${faixaData.medidas || "240x10 cm (padrão)"}
+--------
+`;
+}
+
+
 
 
         // Recupera dados do modal de entrega
@@ -2378,6 +2403,7 @@ Total dos itens: ${money(valor_total)}
 --------
 ${secPlaca}
 ${secLum}
+${secFaixa}
 ${secEntrega}   
 Valor da entrega: A DEFINIR
 Valor Total: ${money(valor_total)}
@@ -2427,6 +2453,9 @@ Pedido feito com Manchinha Px Arts`;
     window.__order_pending_next = null;
   });
 
+  document.getElementById("btnEnviarFaixa").addEventListener("click", confirmarFaixa);
+
+
   // Confirmar checkout main handler: decides the flow
   document.getElementById('confirmarCheckout').addEventListener('click', () => {
     const nome = document.getElementById('nomeCliente').value.trim();
@@ -2449,12 +2478,39 @@ Pedido feito com Manchinha Px Arts`;
     'Luminoso',
     'Faixa Refletiva',
     'Faixa',
-    'Faixa Personalizada'  // AGORA FUNCIONA!
   ].includes(cat);
 });
 
+const temFaixa = cart.some(i => {
+  const prod = produtos.find(p => p.id == i.id);
+  if(!prod) return false;
+  const cat = (prod.categoria_nome || prod.categoria || '').trim();
+  return cat === 'Faixa Personalizada';
+});
 
-    // No special items -> send directly
+
+   // No special items -> send directly
+
+// Se tiver FAIXA personalizada
+if(temFaixa && !temPlaca && !temLum){
+    window.__order_pending_next = null;
+    document.getElementById("modalFaixa").style.display = "flex";
+    return;
+}
+
+if(temFaixa && temPlaca){
+    window.__order_pending_next = 'faixa';
+    modalPlaca.style.display = 'flex';
+    return;
+}
+
+if(temFaixa && temLum){
+    window.__order_pending_next = 'faixa';
+    modalLuminoso.style.display = 'flex';
+    return;
+}
+
+
     if(!temPlaca && !temLum){
       // send immediately (no extra modal)
       const cliente = { nome };
@@ -2485,6 +2541,8 @@ Pedido feito com Manchinha Px Arts`;
       return;
     }
   });
+
+  
 
   // Expose some functions globally
   window.addToCart = addToCart;
