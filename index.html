@@ -2393,6 +2393,13 @@ Modelo: ${it.modelo}
 Valor unitário: R$ ${(it.price).toFixed(2)}`;
   }
 
+   // 🔵 (2) LUMINOSO EM ACRÍLICO — TAMANHO
+  if (it.tamanho && (prod?.nome || "").toLowerCase().includes("luminoso")) {
+    return `${it.qt} x ${prod?.nome}
+Tamanho: ${it.tamanho}
+Valor unitário: R$ ${(it.price).toFixed(2)}`;
+  }
+
   // Se for bandeira (pois terá tamanho)
   if (it.tamanho) {
     return `${it.qt} x ${prod?.nome || 'Produto'}
