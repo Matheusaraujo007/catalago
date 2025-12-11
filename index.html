@@ -1334,32 +1334,40 @@ footer {
   </div>
 </div>
 
-<!-- MODAL FAIXA PERSONALIZADA -->
-<div class="modal-placa-bg" id="modalFaixa">
+<!-- ============================
+     MODAL FAIXA PERSONALIZADA (NOVO PADRÃO)
+============================ -->
+<div id="modalFaixa" class="modal-placa-bg" style="display:none;">
   <div class="modal-placa-box">
-    
-    <button class="close-checkout" onclick="closeFaixa()">×</button>
 
-    <h2 style="margin-bottom: 10px;">Faixa Personalizada</h2>
+    <h2 style="margin-top:0; text-align:center; color:#fdd835;">📌 Faixa Personalizada</h2>
 
-    <label>Escolha o modelo (01 a 09):</label>
-    <input type="text" id="faixaModelo" placeholder="Ex: 03" />
-
-    <label>Texto / logo desejado:</label>
-    <textarea id="faixaTexto" rows="3" placeholder="Digite o texto ou explique o logo"></textarea>
-
-    <label>Medidas diferentes (opcional):</label>
-    <input type="text" id="faixaMedidas" placeholder="Ex: 250x12 cm" />
-
-    <p style="margin-top: 6px; font-size:14px; opacity:.8;">
-      📏 <b>Tamanho padrão:</b> 240 × 10 cm  
+    <p style="font-size:14px; opacity:.9; margin-bottom:12px;">
+      ❌ POR FAVOR, ENVIAR AS INFORMAÇÕES DIGITADAS‼️<br>
+      ➡ Preencha as informações abaixo:
     </p>
 
-    <button class="btn-confirmar-pedido" onclick="confirmarFaixa()">
-      Adicionar ao Pedido
-    </button>
+    <label>1️⃣ Escolha o modelo (01 a 09):</label>
+    <input id="faixa_modelo" type="text" placeholder="Ex: 03">
+
+    <label>2️⃣ Texto ou logo desejado:</label>
+    <textarea id="faixa_texto" placeholder="Texto ou descrição do logo"></textarea>
+
+    <label>3️⃣ Medidas diferentes (opcional):</label>
+    <input id="faixa_medidas" type="text" placeholder="Ex: 250x12 cm">
+
+    <p style="font-size:14px; margin-top:8px; opacity:.8;">
+      📏 <b>Tamanho padrão:</b> 240 × 10 cm
+    </p>
+
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button id="cancelFaixa" class="btn info" style="flex:1;background:transparent">Cancelar</button>
+      <button id="btnEnviarFaixa" class="btn-confirmar-pedido" style="flex:1">Adicionar Faixa</button>
+    </div>
+
   </div>
 </div>
+
 
 
 <!-- MODAL FULLSCREEN DE IMAGEM -->
@@ -1878,7 +1886,7 @@ if (it.id === 999999) {
      if(!p) return;
      // ⭐ SE FOR FAIXA PERSONALIZADA → ABRE O MODAL ESPECIAL
      const categoriaLower = (p.categoria_nome || p.categoria || "").toLowerCase();
-    if (p.nome.toLowerCase().includes("faixa personalizada")) {
+    if (categoriaLower.includes("faixa personalizada")) {
         openFaixaModal();
         return; // impede abrir o modal normal
     }
@@ -2214,6 +2222,43 @@ document.getElementById('btnCheckout').addEventListener('click', () => {
       more: document.getElementById('lum_more').value.trim()
     };
   }
+
+  function openFaixaModal() {
+    document.getElementById("modalFaixa").style.display = "flex";
+}
+
+function closeFaixa() {
+    document.getElementById("modalFaixa").style.display = "none";
+}
+
+function confirmarFaixa() {
+
+    const modelo = document.getElementById("faixaModelo").value.trim();
+    const texto = document.getElementById("faixaTexto").value.trim();
+    const medidas = document.getElementById("faixaMedidas").value.trim();
+
+    if (!modelo || !texto) {
+        alert("Preencha pelo menos o modelo e o texto!");
+        return;
+    }
+
+    cart.push({
+        id: "faixaPersonalizada",
+        qt: 1,
+        price: 0,
+        descricao: `
+🟦 FAIXA PERSONALIZADA  
+Modelo: ${modelo}  
+Texto: ${texto}  
+Medidas: ${medidas || "240x10 cm (padrão)"}
+        `
+    });
+
+    saveCart();
+    closeFaixa();
+    alert("Faixa adicionada ao pedido!");
+}
+
 
   // main send: builds message based on cart + placa/luminoso data (if present) and opens WhatsApp
   function sendOrder({ placaData = null, lumData = null, cliente }) {
