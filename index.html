@@ -1761,7 +1761,7 @@ produtosDaCategoria = [...prioridadeItems, ...restantes];
 
             track.innerHTML += `
     <article class="product-card" style="min-width:220px;flex-shrink:0;">
-        <div class="thumb"><img src="${img}"></div>
+        <div class="thumb"><img loading="lazy" src="${img}"></div>
         <div class="title">${escapeHtml(p.nome)}</div>
         <div style="color:var(--muted);font-size:13px">${p.categoria_nome || p.categoria}</div>
 
@@ -2785,7 +2785,7 @@ window.selecionarCategoriaMenu = (cat) => {
 
 setTimeout(() => {
     fetchProdutos();
-}, 600); // tempo IDEAL para o skeleton aparecer
+}, 30); // tempo IDEAL para o skeleton aparecer
 
   carregarBanners();
   updateCartUI();
