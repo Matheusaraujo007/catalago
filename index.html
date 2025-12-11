@@ -1915,7 +1915,8 @@ const nomeProd = (p.nome || "").toLowerCase().trim();
 ================================ */
 const infoLumAcrilico = document.getElementById("infoLumAcrilico");
 
-if (nomeProd === "luminoso em acrílico tam 50x10") {
+// Agora funciona para qualquer nome que contenha "luminoso" + "50x10"
+if (nomeProd.includes("luminoso") && nomeProd.includes("50x10")) {
 
     infoLumAcrilico.style.display = "block";
 
@@ -1926,7 +1927,7 @@ if (nomeProd === "luminoso em acrílico tam 50x10") {
         modalPrice.textContent = "R$ " + Number(radios[0].value).toFixed(2);
     }
 
-    // Atualizar preço ao alterar tamanho
+    // Atualizar preço ao trocar opção
     radios.forEach(r => {
         r.addEventListener("change", e => {
             modalPrice.textContent = "R$ " + Number(e.target.value).toFixed(2);
@@ -1936,6 +1937,7 @@ if (nomeProd === "luminoso em acrílico tam 50x10") {
 } else {
     infoLumAcrilico.style.display = "none";
 }
+
 
 
 
