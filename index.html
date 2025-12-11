@@ -1874,8 +1874,14 @@ if (it.id === 999999) {
   /* product modal */
   let currentIndex = 0;
   function openProduct(id){
-    const p = produtos.find(x => x.id == id);
-     if(!p) return;
+    // 🔵 SE FOR CATEGORIA "FAIXA PERSONALIZADAS" → abrir modal especial
+const categoriaProd = (p.categoria_nome || p.categoria || "").toLowerCase().trim();
+
+if (categoriaProd === "faixa personalizadas" || categoriaProd.includes("faixa personalizada")) {
+    openFaixaModal();  // abre o modal especial
+    return;            // não abre o modal normal
+}
+
      // ⭐ SE FOR FAIXA PERSONALIZADA → ABRE O MODAL ESPECIAL
      const categoriaLower = (p.categoria_nome || p.categoria || "").toLowerCase();
     if (p.nome.toLowerCase().includes("faixa personalizada")) {
@@ -1912,7 +1918,7 @@ document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
 
     
 
- const categoriaProd = (p.categoria_nome || p.categoria || "").toLowerCase().trim();
+ 
 const nomeProd = (p.nome || "").toLowerCase().trim();
 
 // 🔥 ESTA LINHA PRECISA EXISTIR!
