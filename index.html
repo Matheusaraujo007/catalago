@@ -1654,7 +1654,7 @@ function mostrarSkeletons() {
   /* Fetch produtos/promocoes */
   async function fetchProdutos(){
     try{
-      const r = await fetch(API_BASE + '/produtos-light')
+      const r = await fetch(API_BASE + '/produtos');
       produtos = await r.json();
       
       function preencherFiltroCategorias() {
@@ -1761,7 +1761,7 @@ produtosDaCategoria = [...prioridadeItems, ...restantes];
 
             track.innerHTML += `
     <article class="product-card" style="min-width:220px;flex-shrink:0;">
-        <div class="thumb"><img loading="lazy" src="${img}"></div>
+        <div class="thumb"><img src="${img}"></div>
         <div class="title">${escapeHtml(p.nome)}</div>
         <div style="color:var(--muted);font-size:13px">${p.categoria_nome || p.categoria}</div>
 
@@ -1855,14 +1855,11 @@ function ativarTravamentoDeScroll(track) {
     renderCategoriasComCarrossel(list);
     updateCartUI();
   }
-  // só ativa depois que openProduct criar as imagens
-function ativarCliqueFullscreen(imagens) {
-    document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
-        img.style.cursor = "zoom-in";
-        img.onclick = () => openFullScreen(imagens, index);
-    });
-}
-
+  // Clique para abrir fullscreen
+  document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
+  img.style.cursor = "zoom-in";
+  img.onclick = () => openFullScreen(imagens, index);
+});
 
 
   function escapeHtml(text){ return String(text||'').replace(/[&<>"']/g, s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]); }
@@ -1932,10 +1929,8 @@ if (it.id === 999999) {
 
   /* product modal */
   let currentIndex = 0;
-  async function openProduct(id){
-    const p = await fetch(API_BASE + '/produto?id=' + id)
-                   .then(r => r.json());
- if(!p) return;
+  function openProduct(id){
+    const p = produtos.find(x => x.id == id); if(!p) return;
     const imagens = Array.isArray(p.imagens) && p.imagens.length > 0 ? p.imagens : (p.imagem_base64 ? [p.imagem_base64] : []);
     const track = document.getElementById('carouselTrack');
     if(!imagens.length) track.innerHTML = '<div style="color:#aaa">Sem imagem</div>';
@@ -1947,7 +1942,10 @@ if (it.id === 999999) {
     // ➜ Ativar clique para fullscreen
     
 
-
+document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
+  img.style.cursor = "zoom-in";
+  img.onclick = () => openFullScreen(imagens, index);
+});
 
     currentIndex = 0;
     track.style.transform = `translateX(0%)`;
@@ -2177,9 +2175,7 @@ if (nomeProd.includes("brasão") || nomeProd.includes("brasa") || nomeProd.inclu
     saveCart();
     closeModal();
     return;
-   }
-  
-    
+}
 
 
     // 🔵 SE FOR PERSONALIZE SUA BANDEIRA: verificar taxa
@@ -2305,6 +2301,7 @@ if (nomeProd === "luminoso em acrílico tam 50x10") {
     addToCart(p.id, quantidade);
     closeModal();
 };
+
 
 
     modal.style.display = 'flex';
@@ -2788,7 +2785,7 @@ window.selecionarCategoriaMenu = (cat) => {
 
 setTimeout(() => {
     fetchProdutos();
-}, 50); // tempo IDEAL para o skeleton aparecer
+}, 600); // tempo IDEAL para o skeleton aparecer
 
   carregarBanners();
   updateCartUI();
