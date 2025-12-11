@@ -979,39 +979,6 @@ footer {
     text-align: center;
 }
 
-/* MODAL FAIXA PERSONALIZADA */
-
-.modal-placa-bg {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.65);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 999999;
-}
-
-.modal-placa-box {
-  width: 90%;
-  max-width: 380px;
-  background: #161616;
-  padding: 18px;
-  border-radius: 14px;
-  color: #fff;
-  animation: placaZoom .25s ease;
-  box-shadow: 0 0 20px rgba(0,0,0,0.4);
-}
-
-.modal-placa-box input,
-.modal-placa-box textarea {
-  width: 100%;
-  margin-bottom: 10px;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #333;
-  background: #111;
-  color: #fff;
-}
 
 </style>
 </head>
@@ -1335,39 +1302,41 @@ footer {
 </div>
 
 <!-- ============================
-     MODAL FAIXA PERSONALIZADA (NOVO PADRÃO)
-============================ -->
-<div id="modalFaixa" class="modal-placa-bg" style="display:none;">
+     MODAL FAIXAS PERSONALIZADAS
+============================= -->
+<div id="modalFaixaPersonalizada" class="modal-placa-bg" style="display:none;">
   <div class="modal-placa-box">
 
-    <h2 style="margin-top:0; text-align:center; color:#fdd835;">📌 Faixa Personalizada</h2>
+    <h2 style="margin-top:0; text-align:center; color:#fdd835;">📌 Monte Sua Faixa Personalizada</h2>
 
     <p style="font-size:14px; opacity:.9; margin-bottom:12px;">
-      ❌ POR FAVOR, ENVIAR AS INFORMAÇÕES DIGITADAS‼️<br>
-      ➡ Preencha as informações abaixo:
+      1️⃣ Escolha o modelo da faixa (01 a 09).<br>
+      2️⃣ Diga o texto ou logo que deseja colocar.<br>
+      3️⃣ Enviamos a arte final personalizada pronta para produção!<br><br>
+
+      ❌ <b>CASO DE MEDIDAS DIFERENTES, ENVIAR AS MEDIDAS!</b> ❌<br>
+      📏 Tamanho padrão: <b>240 × 10 cm</b>
     </p>
 
-    <label>1️⃣ Escolha o modelo (01 a 09):</label>
-    <input id="faixa_modelo" type="text" placeholder="Ex: 03">
+    <label>Modelo da Faixa (01 a 09):</label>
+    <input id="fx_modelo" type="text" placeholder="Ex: 01, 02, 03...">
 
-    <label>2️⃣ Texto ou logo desejado:</label>
-    <textarea id="faixa_texto" placeholder="Texto ou descrição do logo"></textarea>
+    <label>Texto / Logo desejado:</label>
+    <input id="fx_texto" type="text" placeholder="Ex: Nome, frase, logo...">
 
-    <label>3️⃣ Medidas diferentes (opcional):</label>
-    <input id="faixa_medidas" type="text" placeholder="Ex: 250x12 cm">
+    <label>Medidas personalizadas (caso queira):</label>
+    <input id="fx_medidas" type="text" placeholder="Ex: 300x12 cm">
 
-    <p style="font-size:14px; margin-top:8px; opacity:.8;">
-      📏 <b>Tamanho padrão:</b> 240 × 10 cm
-    </p>
+    <label>Informações adicionais:</label>
+    <textarea id="fx_more" placeholder="Detalhes extras..."></textarea>
 
     <div style="display:flex;gap:8px;margin-top:12px">
       <button id="cancelFaixa" class="btn info" style="flex:1;background:transparent">Cancelar</button>
-      <button id="btnEnviarFaixa" class="btn-confirmar-pedido" style="flex:1">Adicionar Faixa</button>
+      <button id="btnEnviarFaixa" class="btn-confirmar-pedido" style="flex:1">Confirmar Faixa</button>
     </div>
 
   </div>
 </div>
-
 
 
 <!-- MODAL FULLSCREEN DE IMAGEM -->
@@ -1882,13 +1851,10 @@ if (it.id === 999999) {
   /* product modal */
   let currentIndex = 0;
   function openProduct(id){
-    const p = produtos.find(x => x.id == id);
-     if(!p) return;
+    const p = produtos.find(x => x.id == id); if(!p) return;
     const imagens = Array.isArray(p.imagens) && p.imagens.length > 0 ? p.imagens : (p.imagem_base64 ? [p.imagem_base64] : []);
     const track = document.getElementById('carouselTrack');
     if(!imagens.length) track.innerHTML = '<div style="color:#aaa">Sem imagem</div>';
-
-    
     else track.innerHTML = imagens.map(img => {
       const src = img.startsWith('data:image') ? img : `data:image/jpeg;base64,${img}`;
       return `<img src="${src}" alt="">`;
@@ -2217,45 +2183,14 @@ document.getElementById('btnCheckout').addEventListener('click', () => {
     };
   }
 
-  /* ============================
-      FAIXA PERSONALIZADA
-=============================== */
-function confirmarFaixa() {
-  const faixaData = coletarFaixa();
-
-  if (!faixaData.modelo || !faixaData.texto) {
-    alert("Preencha pelo menos o modelo e o texto!");
-    return;
-  }
-
-  window.__order_pending_faixa = faixaData;
-  document.getElementById("modalFaixa").style.display = "none";
-
-  // Se existe fluxo pendente (placa ou luminoso)
-  if (window.__order_pending_next) {
-
-    if (window.__order_pending_next === 'luminoso') {
-      modalLuminoso.style.display = "flex";
-      return;
-    }
-
-    if (window.__order_pending_next === 'placa') {
-      modalPlaca.style.display = "flex";
-      return;
-    }
-  }
-
-  // Se nada pendente → enviar direto
-  const cliente = { nome: document.getElementById("nomeCliente").value.trim() };
-  sendOrder({
-    faixaData,
-    placaData: null,
-    lumData: null,
-    cliente
-  });
+  function coletarFaixaPersonalizada() {
+  return {
+    modelo: document.getElementById("fx_modelo").value.trim(),
+    texto: document.getElementById("fx_texto").value.trim(),
+    medidas: document.getElementById("fx_medidas").value.trim(),
+    more: document.getElementById("fx_more").value.trim()
+  };
 }
-
-
 
 
   // main send: builds message based on cart + placa/luminoso data (if present) and opens WhatsApp
@@ -2343,24 +2278,25 @@ Detalhes Faixa Refletiva (Luminoso)
 --------`;
     }
 
-    let secFaixa = '';
+    let secFaixa = "";
 if (faixaData) {
   secFaixa = `
-Detalhes da Faixa Personalizada
+🎨 FAIXA PERSONALIZADA
 
-1️⃣ Modelo escolhido:
+1️⃣ Modelo da faixa:
  ${faixaData.modelo}
 
-2️⃣ Texto / logo desejado:
+2️⃣ Texto / Logo desejado:
  ${faixaData.texto}
 
-3️⃣ Medidas informadas:
- ${faixaData.medidas || "240x10 cm (padrão)"}
---------
-`;
+3️⃣ Medidas:
+ ${faixaData.medidas || "Padrão 240 × 10 cm"}
+
+4️⃣ Informações adicionais:
+ ${faixaData.more}
+
+--------`;
 }
-
-
 
 
         // Recupera dados do modal de entrega
@@ -2427,7 +2363,7 @@ Pedido feito com Manchinha Px Arts`;
       modalLuminoso.style.display = 'flex';
     } else {
       const cliente = { nome: document.getElementById('nomeCliente').value.trim() || 'Cliente' };
-      sendOrder({ placaData, lumData: null, faixaData: null, cliente });
+      sendOrder({ placaData, lumData: null, cliente });
     }
   });
 
@@ -2437,14 +2373,33 @@ Pedido feito com Manchinha Px Arts`;
     // if placa data was previously collected in this flow, include it
     const placaData = window.__order_pending_placa || null;
     const cliente = { nome: document.getElementById('nomeCliente').value.trim() || 'Cliente' };
-    sendOrder({ placaData, lumData, faixaData: null, cliente });
+    sendOrder({ placaData, lumData, cliente });
     // clear pending flags
     window.__order_pending_placa = null;
     window.__order_pending_next = null;
   });
 
+  // cancelar faixa
+document.getElementById("cancelFaixa").onclick = () => {
+  document.getElementById("modalFaixaPersonalizada").style.display = "none";
+};
 
-document.getElementById("btnEnviarFaixa").addEventListener("click", confirmarFaixa);
+// enviar informações da faixa
+document.getElementById("btnEnviarFaixa").onclick = () => {
+
+  const faixaData = coletarFaixaPersonalizada();
+  const cliente = { nome: document.getElementById("nomeCliente").value.trim() || "Cliente" };
+
+  sendOrder({
+    placaData: null,
+    lumData: null,
+    faixaData,
+    cliente
+  });
+
+  document.getElementById("modalFaixaPersonalizada").style.display = "none";
+};
+
 
   // Confirmar checkout main handler: decides the flow
   document.getElementById('confirmarCheckout').addEventListener('click', () => {
@@ -2460,72 +2415,29 @@ document.getElementById("btnEnviarFaixa").addEventListener("click", confirmarFai
       return ['Placa Personalizada','Placas Personalizadas','Placa Personalizadas'].includes(cat);
     });
     const temLum = cart.some(i => {
-  const prod = produtos.find(p=>p.id==i.id);
-  if(!prod) return false;
-  const cat = (prod.categoria_nome || prod.categoria || '').trim();
+      const prod = produtos.find(p=>p.id==i.id);
+      if(!prod) return false;
+      const cat = (prod.categoria_nome || prod.categoria || '').trim();
+      return ['Luminoso','Faixa Refletiva','Faixa'].includes(cat);
+    });
 
-  return [
-    'Luminoso',
-    'Faixa Refletiva',
-    'Faixa',
-  ].includes(cat);
-});
-
-// 🔵 Detectar faixa personalizada
-const temFaixa = cart.some(i => {
-    const prod = produtos.find(p => p.id == i.id);
-    if (!prod) return false;
-    const categoria = (prod.categoria_nome || prod.categoria || "").toLowerCase();
-    return categoria.includes("faixa personalizada");
-});
+    const temFaixaPersonalizada = cart.some(i => {
+      const prod = produtos.find(p => p.id == i.id);
+      if (!prod) return false;
+      const cat = (prod.categoria_nome || prod.categoria || '').trim().toLowerCase();
+      return cat.includes("faixas personalizadas");
+    });
 
 
-
-
-   // No special items -> send directly
-
-// Se tiver FAIXA personalizada
-if(temFaixa && !temPlaca && !temLum){
-    window.__order_pending_next = null;
-    document.getElementById("modalFaixa").style.display = "flex";
-    return;
-}
-
-if(temFaixa && temPlaca){
-    window.__order_pending_next = 'faixa';
-    modalPlaca.style.display = 'flex';
-    return;
-}
-
-if(temFaixa && temLum){
-    window.__order_pending_next = 'faixa';
-    modalLuminoso.style.display = 'flex';
-    return;
-}
-
-// ⛔ SE NÃO TIVER NADA (placa, luminoso, faixa) → enviar direto
-if(!temPlaca && !temLum && !temFaixa){
-    const cliente = { nome };
-    sendOrder({ faixaData:null, placaData:null, lumData:null, cliente });
-    return;
-}
-
-
+    // No special items -> send directly
     if(!temPlaca && !temLum){
       // send immediately (no extra modal)
       const cliente = { nome };
-      sendOrder({ placaData: null, lumData: null, faixaData: null, cliente });
+      sendOrder({ placaData: null, lumData: null, cliente });
       return;
     }
 
     // If both: open placa first, then luminoso
-
-    if(temFaixa){
-    window.__order_pending_next = temPlaca ? "placa" : temLum ? "lum" : null;
-    modalFaixa.style.display = "flex";
-    return;
-}
-
     if(temPlaca && temLum){
       // ensure pending flags
       window.__order_pending_next = 'luminoso';
@@ -2547,12 +2459,15 @@ if(!temPlaca && !temLum && !temFaixa){
       modalLuminoso.style.display = 'flex';
       return;
     }
-});
 
-  
+    // Se tiver faixa personalizada → abrir modal
+    if (temFaixaPersonalizada) {
+       window.__order_pending_next = null;
+       document.getElementById("modalFaixaPersonalizada").style.display = "flex";
+       return;
+    }
 
-   document.getElementById("btnEnviarFaixa").addEventListener("click", confirmarFaixa);
-  
+  });
 
   // Expose some functions globally
   window.addToCart = addToCart;
@@ -2616,15 +2531,6 @@ function fullPrev(){
     fullTrack.style.transform = `translateX(-${fullIndex * 100}%)`;
   }
 }
-
-function openFaixaModal() {
-    document.getElementById("modalFaixa").style.display = "flex";
-}
-
-function closeFaixa() {
-    document.getElementById("modalFaixa").style.display = "none";
-}
-
 
 // ========== MENU LATERAL ==========
 const menu = document.getElementById("menuLateral");
