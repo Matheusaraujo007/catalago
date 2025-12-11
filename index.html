@@ -1679,7 +1679,8 @@ function renderCategoriasComCarrossel(lista) {
 
     // CRIAR BLOCOS POR CATEGORIA
     Object.keys(grupos).forEach(cat => {
-        const produtosDaCategoria = grupos[cat];
+        let produtosDaCategoria = grupos[cat];
+
 
         // ⭐ Nomes que sempre vão aparecer primeiro
 const prioridade = [
