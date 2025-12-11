@@ -1884,17 +1884,6 @@ if (it.id === 999999) {
   function openProduct(id){
     const p = produtos.find(x => x.id == id);
      if(!p) return;
-     // ⭐ SE FOR FAIXA PERSONALIZADA → ABRE O MODAL ESPECIAL
-     const categoriaLower = (p.categoria_nome || p.categoria || "").toLowerCase();
-    if (
-    categoriaLower.includes("faixa personalizada") || 
-    categoriaLower.includes("FAIXAS PERSONALIZADAS") ||
-    categoriaLower.includes("faixas personalizadas") ||
-    categoriaLower.includes("faixa personalizadas")
-) {
-    openFaixaModal();
-    return;
-}
     const imagens = Array.isArray(p.imagens) && p.imagens.length > 0 ? p.imagens : (p.imagem_base64 ? [p.imagem_base64] : []);
     const track = document.getElementById('carouselTrack');
     if(!imagens.length) track.innerHTML = '<div style="color:#aaa">Sem imagem</div>';
@@ -2484,12 +2473,15 @@ Pedido feito com Manchinha Px Arts`;
   ].includes(cat);
 });
 
+// 🔵 Detectar faixa personalizada
 const temFaixa = cart.some(i => {
-  const prod = produtos.find(p => p.id == i.id);
-  if(!prod) return false;
-  const cat = (prod.categoria_nome || prod.categoria || '').trim();
-  return cat === 'Faixa Personalizada';
+    const prod = produtos.find(p => p.id == i.id);
+    if (!prod) return false;
+    const categoria = (prod.categoria_nome || prod.categoria || "").toLowerCase();
+    return categoria.includes("faixa personalizada");
 });
+
+
 
 
    // No special items -> send directly
@@ -2513,6 +2505,13 @@ if(temFaixa && temLum){
     return;
 }
 
+// ⛔ SE NÃO TIVER NADA (placa, luminoso, faixa) → enviar direto
+if(!temPlaca && !temLum && !temFaixa){
+    const cliente = { nome };
+    sendOrder({ faixaData:null, placaData:null, lumData:null, cliente });
+    return;
+}
+
 
     if(!temPlaca && !temLum){
       // send immediately (no extra modal)
@@ -2522,6 +2521,13 @@ if(temFaixa && temLum){
     }
 
     // If both: open placa first, then luminoso
+
+    if(temFaixa){
+    window.__order_pending_next = temPlaca ? "placa" : temLum ? "lum" : null;
+    modalFaixa.style.display = "flex";
+    return;
+}
+
     if(temPlaca && temLum){
       // ensure pending flags
       window.__order_pending_next = 'luminoso';
@@ -2543,7 +2549,9 @@ if(temFaixa && temLum){
       modalLuminoso.style.display = 'flex';
       return;
     }
-  });
+});
+
+  
 
    document.getElementById("btnEnviarFaixa").addEventListener("click", confirmarFaixa);
   
