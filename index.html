@@ -2386,6 +2386,13 @@ document.getElementById('btnCheckout').addEventListener('click', () => {
 
   const prod = produtos.find(p=>p.id == it.id);
 
+    // 🔵 SE FOR BRASÃO → mostra o MODELO
+  if (it.modelo) {
+    return `${it.qt} x ${prod?.nome || 'Produto'}
+Modelo: ${it.modelo}
+Valor unitário: R$ ${(it.price).toFixed(2)}`;
+  }
+
   // Se for bandeira (pois terá tamanho)
   if (it.tamanho) {
     return `${it.qt} x ${prod?.nome || 'Produto'}
