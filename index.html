@@ -2615,35 +2615,6 @@ function closeFaixa() {
     document.getElementById("modalFaixa").style.display = "none";
 }
 
-function confirmarFaixa() {
-
-    const modelo = document.getElementById("faixaModelo").value.trim();
-    const texto = document.getElementById("faixaTexto").value.trim();
-    const medidas = document.getElementById("faixaMedidas").value.trim();
-
-    if (!modelo || !texto) {
-        alert("Preencha pelo menos o modelo e o texto!");
-        return;
-    }
-
-    // Adicionar ao carrinho
-    cart.push({
-        id: "faixaPersonalizada",
-        qt: 1,
-        price: 0, 
-        descricao: `
-🟦 FAIXA PERSONALIZADA  
-Modelo: ${modelo}  
-Texto: ${texto}  
-Medidas: ${medidas || "240x10 cm (padrão)"}
-        `
-    });
-
-    saveCart();
-    closeFaixa();
-
-    alert("Faixa adicionada ao pedido!");
-}
 
 // ========== MENU LATERAL ==========
 const menu = document.getElementById("menuLateral");
