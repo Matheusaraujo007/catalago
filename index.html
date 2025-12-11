@@ -2428,44 +2428,50 @@ document.getElementById("btnEnviarFaixa").onclick = () => {
       return cat.includes("faixas personalizadas");
     });
 
+    // Se tiver faixas personalizadas → abrir MODAL IMEDIATAMENTE
+if (temFaixaPersonalizada) {
+    modalFaixaPersonalizada = document.getElementById("modalFaixaPersonalizada");
+    modalFaixaPersonalizada.style.display = "flex";
+    return;
+}
+
+
 
     // No special items -> send directly
-    if(!temPlaca && !temLum){
-      // send immediately (no extra modal)
-      const cliente = { nome };
-      sendOrder({ placaData: null, lumData: null, cliente });
-      return;
-    }
+    
+    // 1️⃣ FAIXA PERSONALIZADA → sempre abrir primeiro
+if (temFaixaPersonalizada) {
+    document.getElementById("modalFaixaPersonalizada").style.display = "flex";
+    return;
+}
 
-    // If both: open placa first, then luminoso
-    if(temPlaca && temLum){
-      // ensure pending flags
-      window.__order_pending_next = 'luminoso';
-      // open placa modal
-      modalPlaca.style.display = 'flex';
-      return;
-    }
+// 2️⃣ PLACA + LUMINOSO
+if (temPlaca && temLum) {
+    window.__order_pending_next = 'luminoso';
+    modalPlaca.style.display = 'flex';
+    return;
+}
 
-    // If only placa
-    if(temPlaca && !temLum){
-      window.__order_pending_next = null;
-      modalPlaca.style.display = 'flex';
-      return;
-    }
+// 3️⃣ Só PLACA
+if (temPlaca && !temLum) {
+    window.__order_pending_next = null;
+    modalPlaca.style.display = 'flex';
+    return;
+}
 
-    // If only luminoso
-    if(temLum && !temPlaca){
-      window.__order_pending_next = null;
-      modalLuminoso.style.display = 'flex';
-      return;
-    }
+// 4️⃣ Só LUMINOSO
+if (temLum && !temPlaca) {
+    window.__order_pending_next = null;
+    modalLuminoso.style.display = 'flex';
+    return;
+}
 
-    // Se tiver faixa personalizada → abrir modal
-    if (temFaixaPersonalizada) {
-       window.__order_pending_next = null;
-       document.getElementById("modalFaixaPersonalizada").style.display = "flex";
-       return;
-    }
+// 5️⃣ Nada especial → mandar direto
+if (!temPlaca && !temLum && !temFaixaPersonalizada) {
+    const cliente = { nome };
+    sendOrder({ placaData: null, lumData: null, cliente });
+    return;
+}
 
   });
 
