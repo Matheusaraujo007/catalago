@@ -1654,7 +1654,7 @@ function mostrarSkeletons() {
   /* Fetch produtos/promocoes */
   async function fetchProdutos(){
     try{
-      const r = await fetch(API_BASE + '/produtos');
+      const r = await fetch(API_BASE + '/produtos-light')
       produtos = await r.json();
       
       function preencherFiltroCategorias() {
@@ -1929,8 +1929,10 @@ if (it.id === 999999) {
 
   /* product modal */
   let currentIndex = 0;
-  function openProduct(id){
-    const p = produtos.find(x => x.id == id); if(!p) return;
+  async function openProduct(id){
+    const p = await fetch(API_BASE + '/produto?id=' + id)
+                   .then(r => r.json());
+ if(!p) return;
     const imagens = Array.isArray(p.imagens) && p.imagens.length > 0 ? p.imagens : (p.imagem_base64 ? [p.imagem_base64] : []);
     const track = document.getElementById('carouselTrack');
     if(!imagens.length) track.innerHTML = '<div style="color:#aaa">Sem imagem</div>';
