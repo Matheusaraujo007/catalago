@@ -979,39 +979,6 @@ footer {
     text-align: center;
 }
 
-/* MODAL FAIXA PERSONALIZADA */
-
-.modal-placa-bg {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.65);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 999999;
-}
-
-.modal-placa-box {
-  width: 90%;
-  max-width: 380px;
-  background: #161616;
-  padding: 18px;
-  border-radius: 14px;
-  color: #fff;
-  animation: placaZoom .25s ease;
-  box-shadow: 0 0 20px rgba(0,0,0,0.4);
-}
-
-.modal-placa-box input,
-.modal-placa-box textarea {
-  width: 100%;
-  margin-bottom: 10px;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #333;
-  background: #111;
-  color: #fff;
-}
 
 </style>
 </head>
@@ -1333,42 +1300,6 @@ footer {
     </div>
   </div>
 </div>
-
-<!-- ============================
-     MODAL FAIXA PERSONALIZADA (NOVO PADRÃO)
-============================ -->
-<div id="modalFaixa" class="modal-placa-bg" style="display:none;">
-  <div class="modal-placa-box">
-
-    <h2 style="margin-top:0; text-align:center; color:#fdd835;">📌 Faixa Personalizada</h2>
-
-    <p style="font-size:14px; opacity:.9; margin-bottom:12px;">
-      ❌ POR FAVOR, ENVIAR AS INFORMAÇÕES DIGITADAS‼️<br>
-      ➡ Preencha as informações abaixo:
-    </p>
-
-    <label>1️⃣ Escolha o modelo (01 a 09):</label>
-    <input id="faixa_modelo" type="text" placeholder="Ex: 03">
-
-    <label>2️⃣ Texto ou logo desejado:</label>
-    <textarea id="faixa_texto" placeholder="Texto ou descrição do logo"></textarea>
-
-    <label>3️⃣ Medidas diferentes (opcional):</label>
-    <input id="faixa_medidas" type="text" placeholder="Ex: 250x12 cm">
-
-    <p style="font-size:14px; margin-top:8px; opacity:.8;">
-      📏 <b>Tamanho padrão:</b> 240 × 10 cm
-    </p>
-
-    <div style="display:flex;gap:8px;margin-top:12px">
-      <button id="cancelFaixa" class="btn info" style="flex:1;background:transparent">Cancelar</button>
-      <button id="btnEnviarFaixa" class="btn-confirmar-pedido" style="flex:1">Adicionar Faixa</button>
-    </div>
-
-  </div>
-</div>
-
-
 
 <!-- MODAL FULLSCREEN DE IMAGEM -->
 <div id="imgFull" style="
@@ -1882,19 +1813,10 @@ if (it.id === 999999) {
   /* product modal */
   let currentIndex = 0;
   function openProduct(id){
-    const p = produtos.find(x => x.id == id);
-     if(!p) return;
-     // ⭐ SE FOR FAIXA PERSONALIZADA → ABRE O MODAL ESPECIAL
-     const categoriaLower = (p.categoria_nome || p.categoria || "").toLowerCase();
-    if (categoriaLower.includes("faixa personalizada")) {
-        openFaixaModal();
-        return; // impede abrir o modal normal
-    }
+    const p = produtos.find(x => x.id == id); if(!p) return;
     const imagens = Array.isArray(p.imagens) && p.imagens.length > 0 ? p.imagens : (p.imagem_base64 ? [p.imagem_base64] : []);
     const track = document.getElementById('carouselTrack');
     if(!imagens.length) track.innerHTML = '<div style="color:#aaa">Sem imagem</div>';
-
-    
     else track.innerHTML = imagens.map(img => {
       const src = img.startsWith('data:image') ? img : `data:image/jpeg;base64,${img}`;
       return `<img src="${src}" alt="">`;
@@ -2223,51 +2145,6 @@ document.getElementById('btnCheckout').addEventListener('click', () => {
     };
   }
 
-  /* ============================
-      FAIXA PERSONALIZADA
-=============================== */
-function coletarFaixa() {
-    return {
-        modelo: document.getElementById("faixa_modelo").value.trim(),
-        texto: document.getElementById("faixa_texto").value.trim(),
-        medidas: document.getElementById("faixa_medidas").value.trim()
-    };
-}
-
-function confirmarFaixa() {
-    const faixaData = coletarFaixa();
-
-    if (!faixaData.modelo || !faixaData.texto) {
-        alert("Preencha pelo menos o modelo e o texto!");
-        return;
-    }
-
-    // salva temporário
-    window.__order_pending_faixa = faixaData;
-
-    document.getElementById("modalFaixa").style.display = "none";
-
-    // se tem outra etapa na fila (placa ou luminoso)
-    if (window.__order_pending_next) {
-        if (window.__order_pending_next === "placa") {
-            modalPlaca.style.display = "flex";
-            return;
-        }
-        if (window.__order_pending_next === "luminoso") {
-            modalLuminoso.style.display = "flex";
-            return;
-        }
-    }
-
-    // senão envia direto
-    const cliente = { nome: document.getElementById("nomeCliente").value.trim() };
-    sendOrder({ faixaData, cliente });
-}
-
-
-
-
-
   // main send: builds message based on cart + placa/luminoso data (if present) and opens WhatsApp
   function sendOrder({ placaData = null, lumData = null, cliente }) {
     const valor_total = cart.reduce((s,i)=>s + ((i.price||0) * (i.qt||0)), 0);
@@ -2353,26 +2230,6 @@ Detalhes Faixa Refletiva (Luminoso)
 --------`;
     }
 
-    let secFaixa = '';
-if (faixaData) {
-  secFaixa = `
-Detalhes da Faixa Personalizada
-
-1️⃣ Modelo escolhido:
- ${faixaData.modelo}
-
-2️⃣ Texto / logo desejado:
- ${faixaData.texto}
-
-3️⃣ Medidas informadas:
- ${faixaData.medidas || "240x10 cm (padrão)"}
---------
-`;
-}
-
-
-
-
         // Recupera dados do modal de entrega
     let dadosEntrega = window.__dados_entrega || null;
 
@@ -2403,7 +2260,6 @@ Total dos itens: ${money(valor_total)}
 --------
 ${secPlaca}
 ${secLum}
-${secFaixa}
 ${secEntrega}   
 Valor da entrega: A DEFINIR
 Valor Total: ${money(valor_total)}
@@ -2453,9 +2309,6 @@ Pedido feito com Manchinha Px Arts`;
     window.__order_pending_next = null;
   });
 
-  document.getElementById("btnEnviarFaixa").addEventListener("click", confirmarFaixa);
-
-
   // Confirmar checkout main handler: decides the flow
   document.getElementById('confirmarCheckout').addEventListener('click', () => {
     const nome = document.getElementById('nomeCliente').value.trim();
@@ -2470,47 +2323,13 @@ Pedido feito com Manchinha Px Arts`;
       return ['Placa Personalizada','Placas Personalizadas','Placa Personalizadas'].includes(cat);
     });
     const temLum = cart.some(i => {
-  const prod = produtos.find(p=>p.id==i.id);
-  if(!prod) return false;
-  const cat = (prod.categoria_nome || prod.categoria || '').trim();
+      const prod = produtos.find(p=>p.id==i.id);
+      if(!prod) return false;
+      const cat = (prod.categoria_nome || prod.categoria || '').trim();
+      return ['Luminoso','Faixa Refletiva','Faixa'].includes(cat);
+    });
 
-  return [
-    'Luminoso',
-    'Faixa Refletiva',
-    'Faixa',
-  ].includes(cat);
-});
-
-const temFaixa = cart.some(i => {
-  const prod = produtos.find(p => p.id == i.id);
-  if(!prod) return false;
-  const cat = (prod.categoria_nome || prod.categoria || '').trim();
-  return cat === 'Faixa Personalizada';
-});
-
-
-   // No special items -> send directly
-
-// Se tiver FAIXA personalizada
-if(temFaixa && !temPlaca && !temLum){
-    window.__order_pending_next = null;
-    document.getElementById("modalFaixa").style.display = "flex";
-    return;
-}
-
-if(temFaixa && temPlaca){
-    window.__order_pending_next = 'faixa';
-    modalPlaca.style.display = 'flex';
-    return;
-}
-
-if(temFaixa && temLum){
-    window.__order_pending_next = 'faixa';
-    modalLuminoso.style.display = 'flex';
-    return;
-}
-
-
+    // No special items -> send directly
     if(!temPlaca && !temLum){
       // send immediately (no extra modal)
       const cliente = { nome };
@@ -2541,8 +2360,6 @@ if(temFaixa && temLum){
       return;
     }
   });
-
-  
 
   // Expose some functions globally
   window.addToCart = addToCart;
@@ -2606,15 +2423,6 @@ function fullPrev(){
     fullTrack.style.transform = `translateX(-${fullIndex * 100}%)`;
   }
 }
-
-function openFaixaModal() {
-    document.getElementById("modalFaixa").style.display = "flex";
-}
-
-function closeFaixa() {
-    document.getElementById("modalFaixa").style.display = "none";
-}
-
 
 // ========== MENU LATERAL ==========
 const menu = document.getElementById("menuLateral");
