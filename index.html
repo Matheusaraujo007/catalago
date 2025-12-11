@@ -1681,6 +1681,27 @@ function renderCategoriasComCarrossel(lista) {
     Object.keys(grupos).forEach(cat => {
         const produtosDaCategoria = grupos[cat];
 
+        // ⭐ Nomes que sempre vão aparecer primeiro
+const prioridade = [
+    "personalize sua camisa",
+    "personalize sua bandeira",
+    "boné personalizado",
+    "boné personalizados"
+];
+
+// 1️⃣ Converte para minúsculo e filtra os prioritários
+let prioridadeItems = produtosDaCategoria.filter(p =>
+    prioridade.includes((p.nome || "").toLowerCase().trim())
+);
+
+// 2️⃣ Remove eles da lista normal
+let restantes = produtosDaCategoria.filter(p =>
+    !prioridade.includes((p.nome || "").toLowerCase().trim())
+);
+
+// 3️⃣ Junta novamente, com prioridade primeiro
+produtosDaCategoria = [...prioridadeItems, ...restantes];
+
         const bloco = document.createElement("section");
         bloco.className = "categoria-section";
 
