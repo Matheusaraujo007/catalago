@@ -1197,6 +1197,36 @@ footer {
 
 </div>
 
+<!-- 🔵 SELECT PARA BRASÃO GRADE DO CAPÔ -->
+<div id="infoBrasaCapo"
+     style="display:none;
+            background:#fff3cd;
+            border:1px solid #ffeeba;
+            padding:12px;
+            border-radius:10px;
+            font-size:14px;
+            color:#000;
+            margin-top:10px;">
+
+  <strong>Escolha o modelo:</strong><br><br>
+
+  <label style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+    <input type="radio" name="opcaoBrasaCapo" value="180" data-modelo="710 Plus">
+    710 Plus — R$ 180,00
+  </label>
+
+  <label style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+    <input type="radio" name="opcaoBrasaCapo" value="230" data-modelo="Atego 1111/1315/1313">
+    Atego 1111/1315/1313 — R$ 230,00
+  </label>
+
+  <label style="display:flex; align-items:center; gap:8px;">
+    <input type="radio" name="opcaoBrasaCapo" value="200" data-modelo="1318 / 1620">
+    1318 / 1620 — R$ 200,00
+  </label>
+</div>
+
+
 
       <p id="modalDesc"></p>
       <div style="margin:8px 0">
@@ -2079,6 +2109,36 @@ if (isPersonalize) {
     boxArte.style.display = "none";
 } 
 
+/* ===============================
+   BRASÃO GRADE DO CAPÔ — MODELOS
+================================ */
+const infoBrasaCapo = document.getElementById("infoBrasaCapo");
+
+// Detecta qualquer variação do nome
+if (nomeProd.includes("brasão") || nomeProd.includes("brasa") || nomeProd.includes("grade do capo")) {
+
+    infoBrasaCapo.style.display = "block";
+
+    const radios = document.querySelectorAll("input[name='opcaoBrasaCapo']");
+
+    // Marca primeira opção como padrão
+    if (radios.length > 0) {
+        radios[0].checked = true;
+        modalPrice.textContent = "R$ " + Number(radios[0].value).toFixed(2);
+    }
+
+    // Atualiza preço ao trocar
+    radios.forEach(r => {
+        r.addEventListener("change", e => {
+            modalPrice.textContent = "R$ " + Number(e.target.value).toFixed(2);
+        });
+    });
+
+} else {
+    infoBrasaCapo.style.display = "none";
+}
+
+
     const promo = aplicarPromocao(p);
     if(promo.preco < Number(p.preco || 0)){
       modalPrice.innerHTML = `<small style="text-decoration:line-through;color:var(--muted)">${money(p.preco)}</small>
@@ -2096,6 +2156,27 @@ function removeTaxaArte() {
 
     // remover taxa anterior
     cart = cart.filter(x => x.id !== 999999);
+
+    // 🔵 ADICIONAR BRASÃO GRADE DO CAPÔ
+if (nomeProd.includes("brasão") || nomeProd.includes("brasa") || nomeProd.includes("grade do capo")) {
+
+    const r = document.querySelector("input[name='opcaoBrasaCapo']:checked");
+    const preco = Number(r.value);
+    const modelo = r.dataset.modelo;
+    const quantidade = Number(qtyInput.value || 1);
+
+    cart.push({
+        id: p.id,
+        qt: quantidade,
+        price: preco,
+        modelo
+    });
+
+    saveCart();
+    closeModal();
+    return;
+}
+
 
     // 🔵 SE FOR PERSONALIZE SUA BANDEIRA: verificar taxa
     if (isPersonalize) {
