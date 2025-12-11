@@ -2493,11 +2493,18 @@ document.getElementById("btnEnviarFaixa").onclick = () => {
       return ['Placa Personalizada','Placas Personalizadas','Placa Personalizadas'].includes(cat);
     });
     const temLum = cart.some(i => {
-      const prod = produtos.find(p=>p.id==i.id);
-      if(!prod) return false;
-      const cat = (prod.categoria_nome || prod.categoria || '').trim();
-      return ['Luminoso','Faixa Refletiva','Faixa'].includes(cat);
-    });
+  const prod = produtos.find(p => p.id == i.id);
+  if (!prod) return false;
+
+  const cat = (prod.categoria_nome || prod.categoria || '').trim().toLowerCase();
+
+  return (
+      cat.includes("luminoso") ||
+      cat.includes("faixa refletiva") ||
+      cat.includes("faixa")
+  );
+});
+
 
     const temFaixaPersonalizada = cart.some(i => {
       const prod = produtos.find(p => p.id == i.id);
