@@ -1513,9 +1513,18 @@ footer {
     transition: .3s ease;
     z-index: 99999;
     padding: 20px;
+
+/* 🔥 ESSENCIAL */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 ">
     <h3 style="margin-top:0;">Categorias</h3>
-    <div id="listaCategoriasMenu"></div>
+    <div id="listaCategoriasMenu" style="
+    margin-top: 10px;
+    overflow-y: auto;
+    max-height: calc(100vh - 80px);
+">
+</div>
 </aside>
 
 <div id="menuMask" style="
