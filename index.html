@@ -2015,20 +2015,34 @@ const nomeProd = (p.nome || "").toLowerCase().trim();
 ================================ */
 const infoLumAcrilico = document.getElementById("infoLumAcrilico");
 
-// Agora funciona para qualquer nome que contenha "luminoso" + "50x10"
-if (nomeProd.includes("luminoso") && nomeProd.includes("50x10")) {
+// 👉 regra correta: por categoria OU nome
+const isLuminoso =
+  categoriaProd.includes("luminoso") ||
+  nomeProd.includes("luminoso em acrílico") ||
+  nomeProd.includes("luminoso acrílico");
+
+if (isLuminoso) {
 
     infoLumAcrilico.style.display = "block";
 
-    // Selecionar o primeiro tamanho como padrão
     const radios = document.querySelectorAll("input[name='opcaoLumAcrilico']");
-    if (radios.length > 0) {
-        radios[0].checked = true;
-        modalPrice.textContent = "R$ " + Number(radios[0].value).toFixed(2);
+
+    // limpa eventos antigos (EVITA BUG)
+    radios.forEach(r => {
+        const clone = r.cloneNode(true);
+        r.replaceWith(clone);
+    });
+
+    const novosRadios = document.querySelectorAll("input[name='opcaoLumAcrilico']");
+
+    // padrão: primeira opção
+    if (novosRadios.length > 0) {
+        novosRadios[0].checked = true;
+        modalPrice.textContent = "R$ " + Number(novosRadios[0].value).toFixed(2);
     }
 
-    // Atualizar preço ao trocar opção
-    radios.forEach(r => {
+    // trocar preço ao mudar
+    novosRadios.forEach(r => {
         r.addEventListener("change", e => {
             modalPrice.textContent = "R$ " + Number(e.target.value).toFixed(2);
         });
@@ -2037,6 +2051,7 @@ if (nomeProd.includes("luminoso") && nomeProd.includes("50x10")) {
 } else {
     infoLumAcrilico.style.display = "none";
 }
+
 
 
 
@@ -2261,7 +2276,8 @@ if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
 }
 
 // 🔵 ADICIONAR LUMINOSO EM ACRÍLICO COM TAMANHO
-if (nomeProd === "luminoso em acrílico tam 50x10") {
+// 🔵 ADICIONAR LUMINOSO EM ACRÍLICO COM TAMANHO
+if (isLuminoso) {
 
     const r = document.querySelector("input[name='opcaoLumAcrilico']:checked");
     const preco = Number(r.value);
@@ -2279,6 +2295,7 @@ if (nomeProd === "luminoso em acrílico tam 50x10") {
     closeModal();
     return;
 }
+
 
 
     // 🔵 SE FOR BANDEIRA NORMAL OU PERSONALIZE: adicionar com tamanhos
