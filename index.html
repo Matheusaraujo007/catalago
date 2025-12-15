@@ -1219,14 +1219,14 @@ footer {
 
   <strong>Escolha o tamanho:</strong><br><br>
 
-  <label style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-    <input type="radio" name="opcaoLumAcrilico" value="600" data-tamanho="80x12">
-    80×12 — R$ 600,00
-  </label>
-
   <label style="display:flex; align-items:center; gap:8px;">
     <input type="radio" name="opcaoLumAcrilico" value="380" data-tamanho="50x10">
     50×10 — R$ 380,00
+  </label>
+
+  <label style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+    <input type="radio" name="opcaoLumAcrilico" value="600" data-tamanho="80x12">
+    80×12 — R$ 600,00
   </label>
 
 </div>
@@ -2011,23 +2011,20 @@ document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
 const nomeProd = (p.nome || "").toLowerCase().trim();
 
 /* ===============================
-   LUMINOSO EM ACRÍLICO — TAMANHOS
+   LUMINOSO EM ACRÍLICO — EXCLUSIVO
 ================================ */
 const infoLumAcrilico = document.getElementById("infoLumAcrilico");
 
-// 👉 regra correta: por categoria OU nome
-const isLuminoso =
-  categoriaProd.includes("luminoso") ||
-  nomeProd.includes("luminoso em acrílico") ||
-  nomeProd.includes("luminoso acrílico");
+// 🔥 SOMENTE ESTE PRODUTO
+const isLuminosoAcrilico = nomeProd === "luminoso em acrílico";
 
-if (isLuminoso) {
+if (isLuminosoAcrilico) {
 
     infoLumAcrilico.style.display = "block";
 
     const radios = document.querySelectorAll("input[name='opcaoLumAcrilico']");
 
-    // limpa eventos antigos (EVITA BUG)
+    // remove eventos antigos (evita bug ao abrir várias vezes)
     radios.forEach(r => {
         const clone = r.cloneNode(true);
         r.replaceWith(clone);
@@ -2041,7 +2038,7 @@ if (isLuminoso) {
         modalPrice.textContent = "R$ " + Number(novosRadios[0].value).toFixed(2);
     }
 
-    // trocar preço ao mudar
+    // troca preço ao mudar tamanho
     novosRadios.forEach(r => {
         r.addEventListener("change", e => {
             modalPrice.textContent = "R$ " + Number(e.target.value).toFixed(2);
@@ -2275,9 +2272,9 @@ if (nomeProd === "boné personalizados" || nomeProd === "boné personalizado") {
     return;
 }
 
-// 🔵 ADICIONAR LUMINOSO EM ACRÍLICO COM TAMANHO
-// 🔵 ADICIONAR LUMINOSO EM ACRÍLICO COM TAMANHO
-if (isLuminoso) {
+
+// 🔵 ADICIONAR LUMINOSO EM ACRÍLICO (EXCLUSIVO)
+if (nomeProd === "luminoso em acrílico") {
 
     const r = document.querySelector("input[name='opcaoLumAcrilico']:checked");
     const preco = Number(r.value);
