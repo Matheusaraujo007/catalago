@@ -1701,6 +1701,24 @@ function mostrarSkeletons() {
 
 
   /* Fetch produtos/promocoes */
+  function preencherFiltroCategorias() {
+  const select = document.getElementById("filterCategoria");
+
+  // evita duplicar categorias
+  select.innerHTML = `<option value="">Todas categorias</option>`;
+
+  const categoriasUnicas = [...new Set(
+    produtos.map(p => p.categoria_nome || p.categoria).filter(Boolean)
+  )];
+
+  categoriasUnicas.forEach(cat => {
+    const opt = document.createElement("option");
+    opt.value = cat;
+    opt.textContent = cat;
+    select.appendChild(opt);
+  });
+}
+
   async function fetchProdutos(){
   try {
     const r = await fetch(API_BASE + '/produtos');
