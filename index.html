@@ -1549,6 +1549,15 @@ let cart = JSON.parse(localStorage.getItem('mp_cart') || '[]');
 
 const money = v => Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 
+function debounce(fn, delay = 300) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+
 document.addEventListener('DOMContentLoaded', () => {
   /* UI Refs */
   // Mostrar overlay de carregamento
@@ -1701,6 +1710,38 @@ function mostrarSkeletons() {
 
 
   /* Fetch produtos/promocoes */
+  function renderProdutosSimples(lista) {
+  const grid = document.getElementById("productsGrid");
+
+  // mostra só os primeiros (carrega rápido)
+  grid.innerHTML = lista.slice(0, 12).map(p => {
+    let img = "/placeholder.png";
+
+    if (p.imagem_base64) {
+      img = p.imagem_base64.startsWith("data:image")
+        ? p.imagem_base64
+        : `data:image/jpeg;base64,${p.imagem_base64}`;
+    }
+
+    return `
+      <article class="product-card">
+        <div class="thumb">
+          <img 
+            loading="lazy"
+            decoding="async"
+            src="${img}"
+            width="220"
+            height="160"
+          >
+        </div>
+
+        <div class="title">${p.nome}</div>
+        <div class="price">${money(p.preco)}</div>
+      </article>
+    `;
+  }).join("");
+}
+
   function preencherFiltroCategorias() {
   const select = document.getElementById("filterCategoria");
 
@@ -1724,13 +1765,19 @@ function mostrarSkeletons() {
     const r = await fetch(API_BASE + '/produtos');
     produtos = await r.json();
 
-    // 1️⃣ MOSTRA PRODUTOS IMEDIATAMENTE
-    renderMenuCategorias();
-    preencherFiltroCategorias();
-    renderProdutos();
+/* 🚀 1️⃣ MOSTRA PRODUTOS IMEDIATAMENTE */
+renderProdutosSimples(produtos);
 
-    // 2️⃣ ESCONDE O LOADING AGORA
-    loadingOverlay.style.display = "none";
+/* 🚀 2️⃣ ESCONDE LOADING AGORA */
+loadingOverlay.style.display = "none";
+
+/* ⚙️ 3️⃣ ORGANIZA TUDO DEPOIS (SEM TRAVAR) */
+setTimeout(() => {
+  renderMenuCategorias();
+  preencherFiltroCategorias();
+  renderProdutos(); // carrossel + filtros + promoções
+}, 50);
+
 
     // 3️⃣ PROMOÇÕES EM SEGUNDO PLANO (SEM BLOQUEAR)
     fetchPromocoes().then(() => {
@@ -1769,112 +1816,64 @@ function mostrarSkeletons() {
 =============================== */
 
 function renderCategoriasComCarrossel(lista) {
-    const container = document.getElementById("productsGrid");
-    container.innerHTML = ""; // grade antiga é apagada
+  const container = document.getElementById("productsGrid");
+  container.innerHTML = "";
 
-    // AGRUPAR POR CATEGORIA
-    const grupos = {};
-    lista.forEach(p => {
-        const cat = p.categoria_nome || p.categoria || "Outros";
-        if (!grupos[cat]) grupos[cat] = [];
-        grupos[cat].push(p);
+  const grupos = {};
+  lista.forEach(p => {
+    const cat = p.categoria_nome || p.categoria || "Outros";
+    (grupos[cat] ||= []).push(p);
+  });
+
+  const categorias = Object.keys(grupos);
+  let index = 0;
+
+  function renderProxima() {
+    if (index >= categorias.length) return;
+
+    const cat = categorias[index++];
+    const produtosCat = grupos[cat];
+
+    const bloco = document.createElement("section");
+    bloco.className = "categoria-section";
+
+    bloco.innerHTML = `
+      <h2 class="categoria-title">${cat}</h2>
+      <div class="categoria-wrap">
+        <div class="categoria-track"></div>
+      </div>
+    `;
+
+    const track = bloco.querySelector(".categoria-track");
+
+    produtosCat.forEach(p => {
+      let img = "/placeholder.png";
+      if (p.imagem_base64) {
+        img = p.imagem_base64.startsWith("data:image")
+          ? p.imagem_base64
+          : `data:image/jpeg;base64,${p.imagem_base64}`;
+      }
+
+      track.innerHTML += `
+        <article class="product-card" style="min-width:220px">
+          <div class="thumb">
+            <img loading="lazy" decoding="async" src="${img}">
+          </div>
+          <div class="title">${p.nome}</div>
+          <div class="price">${money(p.preco)}</div>
+        </article>
+      `;
     });
 
-    // CRIAR BLOCOS POR CATEGORIA
-    Object.keys(grupos).forEach(cat => {
-        let produtosDaCategoria = grupos[cat];
+    container.appendChild(bloco);
 
+    // 🔥 deixa o navegador respirar
+    requestAnimationFrame(renderProxima);
+  }
 
-        // ⭐ Nomes que sempre vão aparecer primeiro
-const prioridade = [
-    "personalize sua camisa",
-    "personalize sua bandeira",
-    "boné personalizado",
-    "boné personalizados"
-];
-
-// 1️⃣ Converte para minúsculo e filtra os prioritários
-let prioridadeItems = produtosDaCategoria.filter(p =>
-    prioridade.includes((p.nome || "").toLowerCase().trim())
-);
-
-// 2️⃣ Remove eles da lista normal
-let restantes = produtosDaCategoria.filter(p =>
-    !prioridade.includes((p.nome || "").toLowerCase().trim())
-);
-
-// 3️⃣ Junta novamente, com prioridade primeiro
-produtosDaCategoria = [...prioridadeItems, ...restantes];
-
-        const bloco = document.createElement("section");
-        bloco.className = "categoria-section";
-
-        bloco.innerHTML = `
-            <h2 class="categoria-title">${cat}</h2>
-
-            <div class="categoria-wrap">
-                <button class="cat-arrow left" onclick="scrollCategoria('${cat}', -1)">❮</button>
-
-                <div class="categoria-track" id="cat_${cat.replace(/\s+/g,'_')}"></div>
-
-                <button class="cat-arrow right" onclick="scrollCategoria('${cat}', 1)">❯</button>
-            </div>
-        `;
-
-        container.appendChild(bloco);
-
-        const track = bloco.querySelector(".categoria-track");
-
-        produtosDaCategoria.forEach(p => {
-            let img = "/placeholder.png";
-            if (p.imagem_base64)
-                img = p.imagem_base64.startsWith("data:image")
-                    ? p.imagem_base64
-                    : `data:image/jpeg;base64,${p.imagem_base64}`;
-
-            track.innerHTML += `
-    <article class="product-card" style="min-width:220px;flex-shrink:0;">
-        <div class="thumb"><img 
-  loading="lazy"
-  decoding="async"
-  src="${img}" 
-  alt="${escapeHtml(p.nome)}"></div>
-        <div class="title">${escapeHtml(p.nome)}</div>
-        <div style="color:var(--muted);font-size:13px">${p.categoria_nome || p.categoria}</div>
-
-        ${(() => {
-            const promo = aplicarPromocao(p);
-
-            if (promo.preco < Number(p.preco)) {
-                return `
-                <div class="price">
-                    <small style="text-decoration:line-through;color:var(--muted)">
-                        ${money(p.preco)}
-                    </small>
-                    <div style="color:#0f0;font-weight:700">
-                        ${money(promo.preco)}
-                        <span style="font-size:12px;color:#0f0">${promo.label}</span>
-                    </div>
-                </div>`;
-            }
-
-            return `<div class="price">${money(p.preco)}</div>`;
-        })()}
-
-        <div class="actions">
-            <button class="btn info" onclick="openProduct(${p.id})">Ver detalhes</button>
-            <button class="btn buy" onclick="addToCart(${p.id},1)">Adicionar</button>
-        </div>
-    </article>
-`;
-
-            
-        });
-        ativarTravamentoDeScroll(track);
-        ativarSwipeCategoria(track);
-    });
-    
+  renderProxima();
 }
+
 
 window.scrollCategoria = function (cat, dir) {
     const id = `cat_${cat.replace(/\s+/g, "_")}`;
@@ -2772,7 +2771,7 @@ if (!temPlaca && !temLum && !temFaixaPersonalizada) {
   window.decrease = (id)=>{ decrease(id); };
 
   // Search / filters bindings
-  q.addEventListener('input', renderProdutos);
+  q.addEventListener('input', debounce(renderProdutos, 300));
   filterCategoria.addEventListener('change', renderProdutos);
   sortSel.addEventListener('change', renderProdutos);
   document.getElementById('clearFilters').addEventListener('click', ()=>{ q.value=''; filterCategoria.value=''; sortSel.value='recent'; renderProdutos(); });
