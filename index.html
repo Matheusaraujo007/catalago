@@ -1614,7 +1614,11 @@ document.getElementById("btnEnviarEntrega").onclick = () => {
       if(!banners.length){ track.innerHTML = '<div style="color:#aaa;text-align:center;width:100%">Nenhum banner cadastrado</div>'; return; }
       track.innerHTML = banners.map(b=>{
         const img = b.imagem_base64 ? (b.imagem_base64.startsWith('data:image') ? b.imagem_base64 : `data:image/jpeg;base64,${b.imagem_base64}`) : '/placeholder.png';
-        return b.link ? `<a href="${b.link}" target="_blank"><img src="${img}" alt="${b.titulo||''}">` : `<img src="${img}" alt="${b.titulo||''}">`;
+        return b.link ? `<a href="${b.link}" target="_blank"><img 
+  loading="lazy"
+  decoding="async"
+  src="${img}" 
+  alt="${b.titulo || ''}">` : `<img src="${img}" alt="${b.titulo||''}">`;
       }).join('');
       startBannerCarousel();
     }catch(err){ console.error('Erro ao carregar banners:', err); }
@@ -1698,37 +1702,40 @@ function mostrarSkeletons() {
 
   /* Fetch produtos/promocoes */
   async function fetchProdutos(){
-    try{
-      const r = await fetch(API_BASE + '/produtos');
-      produtos = await r.json();
-      
-      function preencherFiltroCategorias() {
-    const filter = document.getElementById("filterCategoria");
+  try {
+    const r = await fetch(API_BASE + '/produtos');
+    produtos = await r.json();
 
-    // limpa antes de preencher
-    filter.innerHTML = `<option value="">Todas categorias</option>`;
+    // 1️⃣ MOSTRA PRODUTOS IMEDIATAMENTE
+    renderMenuCategorias();
+    preencherFiltroCategorias();
+    renderProdutos();
 
-    // pega categorias únicas
-    const categoriasUnicas = [...new Set(produtos.map(p => p.categoria_nome || p.categoria))];
+    // 2️⃣ ESCONDE O LOADING AGORA
+    loadingOverlay.style.display = "none";
 
-    // adiciona no select
-    categoriasUnicas.forEach(cat => {
-        filter.innerHTML += `<option value="${cat}">${cat}</option>`;
+    // 3️⃣ PROMOÇÕES EM SEGUNDO PLANO (SEM BLOQUEAR)
+    fetchPromocoes().then(() => {
+      renderProdutos(); // atualiza preços se tiver promoção
     });
+
+  } catch (e) {
+    console.error('Erro produtos', e);
+    grid.innerHTML = '<div style="color:#f33">Erro ao carregar produtos</div>';
+    loadingOverlay.style.display = "none";
+  }
 }
 
-      await fetchPromocoes();
-      renderMenuCategorias();
-      preencherFiltroCategorias(); 
-      renderProdutos();
-      // 🔥 Remover overlay quando terminar tudo
-loadingOverlay.style.display = "none";
-
-    }catch(e){ console.error('Erro produtos', e); grid.innerHTML = '<div style="color:#f33">Erro ao carregar produtos</div>'; }
-  }
   async function fetchPromocoes(){
-    try{ const r = await fetch(API_BASE + '/promocoes'); promocoes = await r.json(); }catch(e){ promocoes = []; console.error('Erro ao buscar promoções', e); }
+  try {
+    const r = await fetch(API_BASE + '/promocoes');
+    promocoes = await r.json();
+  } catch(e) {
+    promocoes = [];
+    console.error('Erro ao buscar promoções', e);
   }
+}
+
   function aplicarPromocao(prod){
     const precoOriginal = Number(prod.preco || 0);
     const promo = promocoes.find(p => p.nome_produto === prod.nome && p.ativo !== false);
@@ -1809,7 +1816,11 @@ produtosDaCategoria = [...prioridadeItems, ...restantes];
 
             track.innerHTML += `
     <article class="product-card" style="min-width:220px;flex-shrink:0;">
-        <div class="thumb"><img loading="lazy" src="${img}"></div>
+        <div class="thumb"><img 
+  loading="lazy"
+  decoding="async"
+  src="${img}" 
+  alt="${escapeHtml(p.nome)}"></div>
         <div class="title">${escapeHtml(p.nome)}</div>
         <div style="color:var(--muted);font-size:13px">${p.categoria_nome || p.categoria}</div>
 
@@ -1903,11 +1914,7 @@ function ativarTravamentoDeScroll(track) {
     renderCategoriasComCarrossel(list);
     updateCartUI();
   }
-  // Clique para abrir fullscreen
-  document.querySelectorAll("#carouselTrack img").forEach((img, index) => {
-  img.style.cursor = "zoom-in";
-  img.onclick = () => openFullScreen(imagens, index);
-});
+  
 
 
   function escapeHtml(text){ return String(text||'').replace(/[&<>"']/g, s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]); }
@@ -1984,7 +1991,8 @@ if (it.id === 999999) {
     if(!imagens.length) track.innerHTML = '<div style="color:#aaa">Sem imagem</div>';
     else track.innerHTML = imagens.map(img => {
       const src = img.startsWith('data:image') ? img : `data:image/jpeg;base64,${img}`;
-      return `<img src="${src}" alt="">`;
+      return `<img loading="lazy" decoding="async" src="${src}" alt="">`;
+
     }).join('');
 
     // ➜ Ativar clique para fullscreen
@@ -2849,7 +2857,9 @@ setTimeout(() => {
     fetchProdutos();
 }, 5); // tempo IDEAL para o skeleton aparecer
 
+  setTimeout(() => {
   carregarBanners();
+}, 800);
   updateCartUI();
 });
 </script>
