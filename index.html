@@ -215,7 +215,8 @@ footer{padding:28px 18px;color:var(--muted);text-align:center}
 .banner-carousel .arrow-btn { width:48px; height:48px; }
 
 .products-grid {
-  display: block !important;
+  display: flex;
+  flex-direction: column;
   gap: 0;
 }
 
@@ -1793,7 +1794,11 @@ loadingOverlay.style.display = "none";
 setTimeout(() => {
   renderMenuCategorias();
   preencherFiltroCategorias();
-  renderProdutos(); // carrossel + filtros + promoções
+
+  // só renderiza carrossel se NÃO estiver pesquisando
+  if (!q.value.trim()) {
+    renderProdutos();
+  }
 }, 50);
 
 
@@ -1835,18 +1840,6 @@ setTimeout(() => {
 
 function renderCategoriasComCarrossel(lista) {
   const container = document.getElementById("productsGrid");
-
-  const btnLeft = bloco.querySelector(".cat-arrow.left");
-const btnRight = bloco.querySelector(".cat-arrow.right");
-
-btnLeft.onclick = () => {
-  track.scrollBy({ left: -300, behavior: "smooth" });
-};
-
-btnRight.onclick = () => {
-  track.scrollBy({ left: 300, behavior: "smooth" });
-};
-
   container.innerHTML = "";
 
   const grupos = {};
@@ -1868,16 +1861,25 @@ btnRight.onclick = () => {
     bloco.className = "categoria-section";
 
     bloco.innerHTML = `
-  <h2 class="categoria-title">${cat}</h2>
-
-  <div class="categoria-wrap">
-    <button class="cat-arrow left">❮</button>
-    <div class="categoria-track"></div>
-    <button class="cat-arrow right">❯</button>
-  </div>
-`;
+      <h2 class="categoria-title">${cat}</h2>
+      <div class="categoria-wrap">
+        <button class="cat-arrow left">❮</button>
+        <div class="categoria-track"></div>
+        <button class="cat-arrow right">❯</button>
+      </div>
+    `;
 
     const track = bloco.querySelector(".categoria-track");
+    const btnLeft = bloco.querySelector(".cat-arrow.left");
+    const btnRight = bloco.querySelector(".cat-arrow.right");
+
+    btnLeft.onclick = () => {
+      track.scrollBy({ left: -300, behavior: "smooth" });
+    };
+
+    btnRight.onclick = () => {
+      track.scrollBy({ left: 300, behavior: "smooth" });
+    };
 
     produtosCat.forEach(p => {
       let img = "/placeholder.png";
@@ -1888,28 +1890,28 @@ btnRight.onclick = () => {
       }
 
       track.innerHTML += `
-        <article class="product-card" style="min-width:220px">
+        <article class="product-card">
           <div class="thumb">
             <img loading="lazy" decoding="async" src="${img}">
           </div>
           <div class="title">${p.nome}</div>
           <div class="price">${money(p.preco)}</div>
-<div class="actions">
-  <button class="btn info" onclick="openProduct(${p.id})">Ver</button>
-  <button class="btn buy" onclick="addToCart(${p.id},1)">Comprar</button>
-</div>
+          <div class="actions">
+            <button class="btn info" onclick="openProduct(${p.id})">Ver</button>
+            <button class="btn buy" onclick="addToCart(${p.id},1)">Comprar</button>
+          </div>
         </article>
       `;
     });
 
     container.appendChild(bloco);
 
-    // 🔥 deixa o navegador respirar
     requestAnimationFrame(renderProxima);
   }
 
   renderProxima();
 }
+
 
 
 window.scrollCategoria = function (cat, dir) {
