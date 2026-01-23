@@ -1010,6 +1010,24 @@ footer {
   100% { opacity: 0.6; transform: scale(1); }
 }
 
+/* ===== CORREÇÃO DAS SETINHAS ===== */
+.carousel,
+.banner-carousel,
+.categoria-wrap {
+  overflow: visible !important;
+}
+
+.arrow-btn,
+.cat-arrow,
+#prevImg,
+#nextImg,
+#prevBanner,
+#nextBanner {
+  z-index: 9999 !important;
+  pointer-events: auto !important;
+}
+
+
 </style>
 </head>
 <body>
@@ -1817,6 +1835,18 @@ setTimeout(() => {
 
 function renderCategoriasComCarrossel(lista) {
   const container = document.getElementById("productsGrid");
+
+  const btnLeft = bloco.querySelector(".cat-arrow.left");
+const btnRight = bloco.querySelector(".cat-arrow.right");
+
+btnLeft.onclick = () => {
+  track.scrollBy({ left: -300, behavior: "smooth" });
+};
+
+btnRight.onclick = () => {
+  track.scrollBy({ left: 300, behavior: "smooth" });
+};
+
   container.innerHTML = "";
 
   const grupos = {};
@@ -1838,11 +1868,14 @@ function renderCategoriasComCarrossel(lista) {
     bloco.className = "categoria-section";
 
     bloco.innerHTML = `
-      <h2 class="categoria-title">${cat}</h2>
-      <div class="categoria-wrap">
-        <div class="categoria-track"></div>
-      </div>
-    `;
+  <h2 class="categoria-title">${cat}</h2>
+
+  <div class="categoria-wrap">
+    <button class="cat-arrow left">❮</button>
+    <div class="categoria-track"></div>
+    <button class="cat-arrow right">❯</button>
+  </div>
+`;
 
     const track = bloco.querySelector(".categoria-track");
 
@@ -1861,6 +1894,10 @@ function renderCategoriasComCarrossel(lista) {
           </div>
           <div class="title">${p.nome}</div>
           <div class="price">${money(p.preco)}</div>
+<div class="actions">
+  <button class="btn info" onclick="openProduct(${p.id})">Ver</button>
+  <button class="btn buy" onclick="addToCart(${p.id},1)">Comprar</button>
+</div>
         </article>
       `;
     });
@@ -2872,7 +2909,7 @@ window.selecionarCategoriaMenu = (cat) => {
 
 setTimeout(() => {
     fetchProdutos();
-}, 5); // tempo IDEAL para o skeleton aparecer
+}, 3); // tempo IDEAL para o skeleton aparecer
 
   setTimeout(() => {
   carregarBanners();
